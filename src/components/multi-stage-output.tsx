@@ -176,7 +176,7 @@ function Infos({
             <SpinnerOrErrorOrChildren
               key={key}
               error={error}
-              label={`${kv.label}: `}
+              label={`${kv.label}:`}
               labelPosition="left"
               type={spinners.info}
             >

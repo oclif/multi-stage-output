@@ -127,7 +127,7 @@ describe('Stages', () => {
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include(` this is a message
  Static: this is a static key:value pair
- Dynamic:  this is a dynamic key:value pair
+ Dynamic: this is a dynamic key:value pair
 
  ◼ Step1
 `)
@@ -162,7 +162,7 @@ describe('Stages', () => {
 
  this is a message
  Static: this is a static key:value pair
- Dynamic:  this is a dynamic key:value pair`)
+ Dynamic: this is a dynamic key:value pair`)
   })
 
   it('should show stage specific info block', async () => {
@@ -196,6 +196,6 @@ describe('Stages', () => {
     expect(lastFrame).to.include(` ✔ Step1 0ms
       this is a message
       Static: this is a static key:value pair
-      Dynamic:  this is a dynamic key:value pair`)
+      Dynamic: this is a dynamic key:value pair`)
   })
 })
