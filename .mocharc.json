@@ -1,9 +1,10 @@
 {
   "recursive": true,
   "reporter": "spec",
-  "require": ["test/helpers/init.js", "ts-node/register"],
+  "require": ["ts-node/register"],
   "timeout": 60000,
   "watch-extensions": ["ts"],
   "watch-files": ["src", "test"],
-  "watch-ignore": ["test/tmp"]
+  "watch-ignore": ["test/tmp"],
+  "node-option": ["loader=ts-node/esm"]
 }
