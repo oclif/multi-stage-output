@@ -4,10 +4,20 @@
 [![Downloads/week](https://img.shields.io/npm/dw/@oclif/multi-stage-output.svg)](https://npmjs.org/package/@oclif/multi-stage-output)
 [![License](https://img.shields.io/npm/l/@oclif/multi-stage-output.svg)](https://github.com/oclif/multi-stage-output/blob/main/LICENSE)
 
-# 🗒 Description
+# Description
 
-This is a framework for showing multi-stage output in the terminal.
+This is a framework for showing multi-stage output in the terminal. It's integrated with oclif's builtin [Performance](https://oclif.io/docs/performance/) capabilities so that perf metrics are automatically captured for each stage.
 
-🚀 Contributing
+# Examples
+
+You can see examples of how to use it in the [examples](./examples/) directory.
+
+You can run any of these with the following:
+
+```
+node --loader=ts-node/esm examples/basic.ts
+```
+
+# Contributing
 
 See the [contributing guide](./CONRTIBUTING.md).
