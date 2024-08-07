@@ -1,3 +1,12 @@
+## [0.1.2](https://github.com/oclif/core/compare/0.1.1...0.1.2) (2024-08-07)
+
+
+### Bug Fixes
+
+* spacing issue of dynamic key values ([d0c21f6](https://github.com/oclif/core/commit/d0c21f6b2da3c5fe9c6482a3534ce7a877a4678f))
+
+
+
 ## [0.1.1](https://github.com/oclif/core/compare/0.1.0...0.1.1) (2024-08-07)
 
 
