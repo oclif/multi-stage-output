@@ -1,1 +1,1 @@
-export {MultiStageOutput} from './components/stages.js'
+export {MultiStageOutput} from './components/multi-stage-output.js'
