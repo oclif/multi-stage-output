@@ -1,0 +1,78 @@
+{
+  "name": "@oclif/multi-stage-output",
+  "description": "Terminal output for commands with multiple stages",
+  "version": "0.0.0",
+  "author": "Salesforce",
+  "bugs": "https://github.com/oclif/multi-stage-output/issues",
+  "dependencies": {
+    "@oclif/core": "^4",
+    "change-case": "^5.4.4",
+    "cli-spinners": "^2",
+    "figures": "^6.1.0",
+    "ink": "^5.0.1",
+    "react": "^18.3.1",
+    "terminal-link": "^3.0.0"
+  },
+  "devDependencies": {
+    "@commitlint/config-conventional": "^19",
+    "@oclif/prettier-config": "^0.2.1",
+    "@types/chai": "^4.3.16",
+    "@types/mocha": "^10.0.7",
+    "@types/node": "^18",
+    "@types/react": "^18.3.3",
+    "@types/sinon": "^17.0.3",
+    "chai": "^4.5.0",
+    "commitlint": "^19",
+    "eslint": "^8.57.0",
+    "eslint-config-oclif": "^5.2.0",
+    "eslint-config-oclif-typescript": "^3.1.8",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-xo": "^0.45.0",
+    "eslint-config-xo-react": "^0.27.0",
+    "eslint-plugin-react": "^7.34.3",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "husky": "^9.1.3",
+    "lint-staged": "^15",
+    "madge": "^6.1.0",
+    "mocha": "^10.7.0",
+    "nyc": "^15.1.0",
+    "prettier": "^3.3.3",
+    "shx": "^0.3.4",
+    "sinon": "^18",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "/lib"
+  ],
+  "homepage": "https://github.com/oclif/core",
+  "keywords": [
+    "oclif",
+    "cli",
+    "stages"
+  ],
+  "license": "MIT",
+  "exports": {
+    ".": "./lib/index.js"
+  },
+  "repository": "oclif/core",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "shx rm -rf lib && tsc",
+    "compile": "tsc",
+    "format": "prettier --write \"+(src|test)/**/*.+(ts|js|json)\"",
+    "lint": "eslint . --ext .ts",
+    "posttest": "yarn lint && yarn test:circular-deps",
+    "prepack": "yarn run build",
+    "prepare": "husky",
+    "test:circular-deps": "yarn build && madge lib/ -c",
+    "test": "nyc mocha --forbid-only \"test/**/*.test.ts\" --parallel"
+  },
+  "types": "lib/index.d.ts",
+  "type": "module"
+}

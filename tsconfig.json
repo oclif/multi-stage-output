@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "Node16",
+    "outDir": "./lib",
+    "pretty": true,
+    "rootDirs": ["./src"],
+    "strict": true,
+    "target": "ES2022",
+    "noErrorTruncation": true,
+    "moduleResolution": "Node16",
+    "jsx": "react"
+  },
+  "include": ["./src/**/*"],
+  "ts-node": {
+    "esm": true
+  }
+}
