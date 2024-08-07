@@ -4,12 +4,12 @@ import {Box, Instance, Text, render} from 'ink'
 import {env} from 'node:process'
 import React from 'react'
 
-import {icons, spinners} from './design-elements.js'
+import {icons, spinners} from '../design-elements.js'
+import {StageTracker} from '../stage-tracker.js'
+import {readableTime} from '../utils.js'
 import {Divider} from './divider.js'
 import {SpinnerOrError, SpinnerOrErrorOrChildren} from './spinner.js'
-import {StageTracker} from './stage-tracker.js'
 import {Timer} from './timer.js'
-import {msInMostReadableFormat, secondsInMostReadableFormat} from './utils.js'
 
 // Taken from https://github.com/sindresorhus/is-in-ci
 const isInCi =
@@ -114,6 +114,10 @@ type MultiStageComponentOptions<T extends Record<string, unknown>> = {
    * Pass in this.jsonEnabled() from the command class to determine if JSON output is enabled.
    */
   readonly jsonEnabled: boolean
+  /**
+   * Whether to override the CI detection and force the component to render as if it's in a CI environment.
+   */
+  readonly isInCiOverride?: boolean
 }
 
 type StagesProps = {
@@ -288,7 +292,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
   private readonly stageSpecificBlock?: StageInfoBlock<T>
   private startTime: number | undefined
   private startTimes: Map<string, number> = new Map()
-  private readonly timerUnit?: 'ms' | 's'
+  private readonly timerUnit: 'ms' | 's'
   private readonly title: string
 
   public constructor({
@@ -331,8 +335,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
     if (this.startTime) {
       const elapsedTime = Date.now() - this.startTime
       ux.stdout()
-      const displayTime =
-        this.timerUnit === 'ms' ? msInMostReadableFormat(elapsedTime) : secondsInMostReadableFormat(elapsedTime, 0)
+      const displayTime = readableTime(elapsedTime, this.timerUnit)
       ux.stdout(`Elapsed time: ${displayTime}`)
       ux.stdout()
     }
@@ -375,10 +378,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
           if (this.hasStageTime && status !== 'skipped') {
             const startTime = this.startTimes.get(stage)
             const elapsedTime = startTime ? Date.now() - startTime : 0
-            const displayTime =
-              this.timerUnit === 'ms'
-                ? msInMostReadableFormat(elapsedTime)
-                : secondsInMostReadableFormat(elapsedTime, 0)
+            const displayTime = readableTime(elapsedTime, this.timerUnit)
             ux.stdout(`${icons[status]} ${capitalCase(stage)} (${displayTime})`)
             this.printInfo(this.preStagesBlock, 3)
             this.printInfo(
@@ -430,6 +430,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
   private readonly hasStageTime?: boolean
   private inkInstance: Instance | undefined
 
+  private readonly isInCi: boolean
   private readonly postStagesBlock?: InfoBlock<T>
   private readonly preStagesBlock?: InfoBlock<T>
   private readonly stages: readonly string[] | string[]
@@ -441,6 +442,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
 
   public constructor({
     data,
+    isInCiOverride,
     jsonEnabled,
     postStagesBlock,
     preStagesBlock,
@@ -461,10 +463,11 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     this.timerUnit = timerUnit ?? 'ms'
     this.stageTracker = new StageTracker(stages)
     this.stageSpecificBlock = stageSpecificBlock
+    this.isInCi = isInCiOverride ?? isInCi
 
     if (jsonEnabled) return
 
-    if (isInCi) {
+    if (this.isInCi) {
       this.ciInstance = new CIMultiStageOutput({
         data,
         jsonEnabled,
@@ -520,7 +523,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
 
     this.stageTracker.refresh(this.stageTracker.current ?? this.stages[0], {hasError: Boolean(error), isStopping: true})
 
-    if (isInCi) {
+    if (this.isInCi) {
       this.ciInstance?.stop(this.stageTracker)
       return
     }
@@ -589,7 +592,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
 
     this.stageTracker.refresh(stage)
 
-    if (isInCi) {
+    if (this.isInCi) {
       this.ciInstance?.update(this.stageTracker, this.data)
     } else {
       this.inkInstance?.rerender(

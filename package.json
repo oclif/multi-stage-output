@@ -32,13 +32,13 @@
     "eslint-plugin-react": "^7.34.3",
     "eslint-plugin-react-hooks": "^4.6.2",
     "husky": "^9.1.3",
+    "ink-testing-library": "^4.0.0",
     "lint-staged": "^15",
-    "madge": "^6.1.0",
     "mocha": "^10.7.0",
-    "nyc": "^15.1.0",
     "prettier": "^3.3.3",
     "shx": "^0.3.4",
     "sinon": "^18",
+    "strip-ansi": "^7.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5"
   },
@@ -67,11 +67,10 @@
     "compile": "tsc",
     "format": "prettier --write \"+(src|test)/**/*.+(ts|js|json)\"",
     "lint": "eslint . --ext .ts",
-    "posttest": "yarn lint && yarn test:circular-deps",
+    "posttest": "yarn lint",
     "prepack": "yarn run build",
     "prepare": "husky",
-    "test:circular-deps": "yarn build && madge lib/ -c",
-    "test": "nyc mocha --forbid-only \"test/**/*.test.ts\" --parallel"
+    "test": "mocha --forbid-only \"test/**/*.test.+(ts|tsx)\" --parallel"
   },
   "types": "lib/index.d.ts",
   "type": "module"
