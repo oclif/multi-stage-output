@@ -59,7 +59,7 @@ type StageInfoBlock<T extends Record<string, unknown>> = Array<
   (KeyValuePair<T> & {stage: string}) | (SimpleMessage<T> & {stage: string})
 >
 
-type FormattedKeyValue = {
+export type FormattedKeyValue = {
   readonly color?: string
   readonly isBold?: boolean
   // eslint-disable-next-line react/no-unused-prop-types
@@ -198,7 +198,7 @@ function Infos({
   )
 }
 
-function Stages({
+export function Stages({
   error,
   hasElapsedTime = true,
   hasStageTime = true,
