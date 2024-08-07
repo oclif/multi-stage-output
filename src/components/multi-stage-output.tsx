@@ -71,7 +71,7 @@ export type FormattedKeyValue = {
   readonly type: 'dynamic-key-value' | 'static-key-value' | 'message'
 }
 
-type MultiStageComponentOptions<T extends Record<string, unknown>> = {
+type MultiStageOutputOptions<T extends Record<string, unknown>> = {
   /**
    * Stages to render.
    */
@@ -305,7 +305,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
     stages,
     timerUnit,
     title,
-  }: MultiStageComponentOptions<T>) {
+  }: MultiStageOutputOptions<T>) {
     this.title = title
     this.stages = stages
     this.postStagesBlock = postStagesBlock
@@ -452,7 +452,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     stages,
     timerUnit,
     title,
-  }: MultiStageComponentOptions<T>) {
+  }: MultiStageOutputOptions<T>) {
     this.data = data
     this.stages = stages
     this.title = title
