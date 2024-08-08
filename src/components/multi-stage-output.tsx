@@ -114,10 +114,6 @@ type MultiStageOutputOptions<T extends Record<string, unknown>> = {
    * Pass in this.jsonEnabled() from the command class to determine if JSON output is enabled.
    */
   readonly jsonEnabled: boolean
-  /**
-   * Whether to override the CI detection and force the component to render as if it's in a CI environment.
-   */
-  readonly isInCiOverride?: boolean
 }
 
 type StagesProps = {
@@ -430,7 +426,6 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
   private readonly hasStageTime?: boolean
   private inkInstance: Instance | undefined
 
-  private readonly isInCi: boolean
   private readonly postStagesBlock?: InfoBlock<T>
   private readonly preStagesBlock?: InfoBlock<T>
   private readonly stages: readonly string[] | string[]
@@ -442,7 +437,6 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
 
   public constructor({
     data,
-    isInCiOverride,
     jsonEnabled,
     postStagesBlock,
     preStagesBlock,
@@ -463,11 +457,10 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     this.timerUnit = timerUnit ?? 'ms'
     this.stageTracker = new StageTracker(stages)
     this.stageSpecificBlock = stageSpecificBlock
-    this.isInCi = isInCiOverride ?? isInCi
 
     if (jsonEnabled) return
 
-    if (this.isInCi) {
+    if (isInCi) {
       this.ciInstance = new CIMultiStageOutput({
         data,
         jsonEnabled,
@@ -523,7 +516,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
 
     this.stageTracker.refresh(this.stageTracker.current ?? this.stages[0], {hasError: Boolean(error), isStopping: true})
 
-    if (this.isInCi) {
+    if (isInCi) {
       this.ciInstance?.stop(this.stageTracker)
       return
     }
@@ -592,7 +585,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
 
     this.stageTracker.refresh(stage)
 
-    if (this.isInCi) {
+    if (isInCi) {
       this.ciInstance?.update(this.stageTracker, this.data)
     } else {
       this.inkInstance?.rerender(
