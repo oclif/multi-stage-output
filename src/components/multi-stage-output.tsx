@@ -206,7 +206,7 @@ export function Stages({
   title,
 }: StagesProps): React.ReactNode {
   return (
-    <Box flexDirection="column" paddingTop={1}>
+    <Box flexDirection="column" paddingTop={1} paddingBottom={1}>
       <Divider title={title} />
 
       {preStagesBlock && preStagesBlock.length > 0 && (
@@ -314,7 +314,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
     this.lastUpdateTime = Date.now()
 
     ux.stdout(`───── ${this.title} ─────`)
-    ux.stdout('Steps:')
+    ux.stdout('Stages:')
     for (const stage of this.stages) {
       ux.stdout(`${this.stages.indexOf(stage) + 1}. ${capitalCase(stage)}`)
     }
