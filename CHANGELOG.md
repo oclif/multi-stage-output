@@ -1,3 +1,12 @@
+## [0.1.4](https://github.com/oclif/core/compare/0.1.3...0.1.4) (2024-08-08)
+
+
+### Bug Fixes
+
+* padding ([e830e26](https://github.com/oclif/core/commit/e830e26034d8bed963885b3ba5a7eab410a91b76))
+
+
+
 ## [0.1.3](https://github.com/oclif/core/compare/0.1.2...0.1.3) (2024-08-08)
 
 
