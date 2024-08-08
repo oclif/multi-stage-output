@@ -1,3 +1,12 @@
+## [0.1.3](https://github.com/oclif/core/compare/0.1.2...0.1.3) (2024-08-08)
+
+
+### Bug Fixes
+
+* remove ci override prop ([6b3caf1](https://github.com/oclif/core/commit/6b3caf15751709a691b8b4d3c9c9ea9daf3a3c8f))
+
+
+
 ## [0.1.2](https://github.com/oclif/core/compare/0.1.1...0.1.2) (2024-08-07)
 
 
