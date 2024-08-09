@@ -2,6 +2,8 @@ import {Performance} from '@oclif/core/performance'
 
 export type StageStatus = 'pending' | 'current' | 'completed' | 'skipped' | 'failed'
 
+// Steve and I have seen some **weird** things with testing where he extended a Map, especially with the constructor.
+// other options would be a class that holds the Map (since you're not calling any of the Map methods anyway)
 export class StageTracker extends Map<string, StageStatus> {
   public current: string | undefined
   private markers = new Map<string, ReturnType<typeof Performance.mark>>()

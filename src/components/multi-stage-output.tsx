@@ -64,6 +64,7 @@ export type FormattedKeyValue = {
   readonly isBold?: boolean
   // eslint-disable-next-line react/no-unused-prop-types
   readonly label?: string
+  // -- what's the difference between `string|undefined` and `string?`
   readonly value: string | undefined
   // eslint-disable-next-line react/no-unused-prop-types
   readonly stage?: string
@@ -152,8 +153,8 @@ function Infos({
   keyValuePairs,
   stage,
 }: {
-  keyValuePairs: FormattedKeyValue[]
   error?: Error
+  keyValuePairs: FormattedKeyValue[]
   stage?: string
 }): React.ReactNode {
   return (
@@ -189,12 +190,13 @@ function Infos({
           return <StaticKeyValue key={key} {...kv} />
         }
 
-        return null
+        return null // what's the difference between returning null and returning undefined?
       })
   )
 }
 
 export function Stages({
+  // it's more idiomatic for React to put each component in its own file
   error,
   hasElapsedTime = true,
   hasStageTime = true,
@@ -209,7 +211,7 @@ export function Stages({
     <Box flexDirection="column" paddingTop={1} paddingBottom={1}>
       <Divider title={title} />
 
-      {preStagesBlock && preStagesBlock.length > 0 && (
+      {preStagesBlock?.length && (
         <Box flexDirection="column" marginLeft={1} paddingTop={1}>
           <Infos error={error} keyValuePairs={preStagesBlock} />
         </Box>
@@ -249,11 +251,14 @@ export function Stages({
               )}
             </Box>
 
-            {stageSpecificBlock && stageSpecificBlock.length > 0 && status !== 'pending' && status !== 'skipped' && (
-              <Box flexDirection="column" marginLeft={5}>
-                <Infos error={error} keyValuePairs={stageSpecificBlock} stage={stage} />
-              </Box>
-            )}
+            {stageSpecificBlock &&
+              stageSpecificBlock.length > 0 &&
+              status !== 'pending' &&
+              status !== 'skipped' && ( // stageSpecificBlock && stageSpecificBlock.length > 0 => stageSpecificBlock?.length
+                <Box flexDirection="column" marginLeft={5}>
+                  <Infos error={error} keyValuePairs={stageSpecificBlock} stage={stage} />
+                </Box>
+              )}
           </Box>
         ))}
       </Box>
@@ -474,18 +479,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
         title,
       })
     } else {
-      this.inkInstance = render(
-        <Stages
-          hasElapsedTime={this.hasElapsedTime}
-          hasStageTime={this.hasStageTime}
-          postStagesBlock={this.formatKeyValuePairs(this.postStagesBlock)}
-          preStagesBlock={this.formatKeyValuePairs(this.preStagesBlock)}
-          stageSpecificBlock={this.formatKeyValuePairs(this.stageSpecificBlock)}
-          stageTracker={this.stageTracker}
-          timerUnit={this.timerUnit}
-          title={this.title}
-        />,
-      )
+      this.inkInstance = render(<Stages {...this.generateStagesInput()} />)
     }
   }
 
@@ -521,35 +515,9 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
       return
     }
 
-    if (error) {
-      this.inkInstance?.rerender(
-        <Stages
-          error={error}
-          hasElapsedTime={this.hasElapsedTime}
-          hasStageTime={this.hasStageTime}
-          postStagesBlock={this.formatKeyValuePairs(this.postStagesBlock)}
-          preStagesBlock={this.formatKeyValuePairs(this.preStagesBlock)}
-          stageSpecificBlock={this.formatKeyValuePairs(this.stageSpecificBlock)}
-          stageTracker={this.stageTracker}
-          timerUnit={this.timerUnit}
-          title={this.title}
-        />,
-      )
-    } else {
-      this.inkInstance?.rerender(
-        <Stages
-          hasElapsedTime={this.hasElapsedTime}
-          hasStageTime={this.hasStageTime}
-          postStagesBlock={this.formatKeyValuePairs(this.postStagesBlock)}
-          preStagesBlock={this.formatKeyValuePairs(this.preStagesBlock)}
-          stageSpecificBlock={this.formatKeyValuePairs(this.stageSpecificBlock)}
-          stageTracker={this.stageTracker}
-          timerUnit={this.timerUnit}
-          title={this.title}
-        />,
-      )
-    }
+    const stagesInput = {...this.generateStagesInput(), ...(error ? {error} : {})}
 
+    this.inkInstance?.rerender(<Stages {...stagesInput} />)
     this.inkInstance?.unmount()
   }
 
@@ -580,6 +548,20 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     )
   }
 
+  /** shared method to populate everything needed for Stages cmp */
+  private generateStagesInput(): StagesProps {
+    return {
+      hasElapsedTime: this.hasElapsedTime,
+      hasStageTime: this.hasStageTime,
+      postStagesBlock: this.formatKeyValuePairs(this.postStagesBlock),
+      preStagesBlock: this.formatKeyValuePairs(this.preStagesBlock),
+      stageSpecificBlock: this.formatKeyValuePairs(this.stageSpecificBlock),
+      stageTracker: this.stageTracker,
+      timerUnit: this.timerUnit,
+      title: this.title,
+    }
+  }
+
   private update(stage: string, data?: Partial<T>): void {
     this.data = {...this.data, ...data} as Partial<T>
 
@@ -588,18 +570,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     if (isInCi) {
       this.ciInstance?.update(this.stageTracker, this.data)
     } else {
-      this.inkInstance?.rerender(
-        <Stages
-          hasElapsedTime={this.hasElapsedTime}
-          hasStageTime={this.hasStageTime}
-          postStagesBlock={this.formatKeyValuePairs(this.postStagesBlock)}
-          preStagesBlock={this.formatKeyValuePairs(this.preStagesBlock)}
-          stageSpecificBlock={this.formatKeyValuePairs(this.stageSpecificBlock)}
-          stageTracker={this.stageTracker}
-          timerUnit={this.timerUnit}
-          title={this.title}
-        />,
-      )
+      this.inkInstance?.rerender(<Stages {...this.generateStagesInput()} />)
     }
   }
 }

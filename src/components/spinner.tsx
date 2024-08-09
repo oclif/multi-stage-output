@@ -18,6 +18,7 @@ export type UseSpinnerResult = {
   frame: string
 }
 
+// there's a lot of what look like unnecessary exports.
 export function useSpinner({type = 'dots'}: UseSpinnerProps): UseSpinnerResult {
   const [frame, setFrame] = useState(0)
   const spinner = spinners[type]
