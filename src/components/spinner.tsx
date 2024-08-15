@@ -4,7 +4,7 @@ import React, {useEffect, useState} from 'react'
 
 import {icons} from '../design-elements.js'
 
-export type UseSpinnerProps = {
+type UseSpinnerProps = {
   /**
    * Type of a spinner.
    * See [cli-spinners](https://github.com/sindresorhus/cli-spinners) for available spinners.
@@ -14,12 +14,11 @@ export type UseSpinnerProps = {
   readonly type?: SpinnerName
 }
 
-export type UseSpinnerResult = {
+type UseSpinnerResult = {
   frame: string
 }
 
-// there's a lot of what look like unnecessary exports.
-export function useSpinner({type = 'dots'}: UseSpinnerProps): UseSpinnerResult {
+function useSpinner({type = 'dots'}: UseSpinnerProps): UseSpinnerResult {
   const [frame, setFrame] = useState(0)
   const spinner = spinners[type]
 
@@ -41,7 +40,7 @@ export function useSpinner({type = 'dots'}: UseSpinnerProps): UseSpinnerResult {
   }
 }
 
-export type SpinnerProps = UseSpinnerProps & {
+type SpinnerProps = UseSpinnerProps & {
   /**
    * Label to show near the spinner.
    */

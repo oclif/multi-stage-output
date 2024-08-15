@@ -3,7 +3,7 @@ import {render} from 'ink-testing-library'
 import React from 'react'
 import stripAnsi from 'strip-ansi'
 
-import {FormattedKeyValue, Stages} from '../../src/components/multi-stage-output.js'
+import {FormattedKeyValue, Stages} from '../../src/components/stages.js'
 import {StageTracker} from '../../src/stage-tracker.js'
 
 config.truncateThreshold = 0
