@@ -257,9 +257,7 @@ export function Stages({
             </Box>
 
             {stageSpecificBlock && stageSpecificBlock.length > 0 && status !== 'pending' && status !== 'skipped' && (
-              <Box flexDirection="column">
-                <StageInfos design={design} error={error} keyValuePairs={stageSpecificBlock} stage={stage} />
-              </Box>
+              <StageInfos design={design} error={error} keyValuePairs={stageSpecificBlock} stage={stage} />
             )}
           </Box>
         ))}

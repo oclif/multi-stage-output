@@ -2,7 +2,7 @@ import {Box, Text} from 'ink'
 import React from 'react'
 
 export type IconProps = {
-  figure?: string | false
+  figure?: string
   paddingLeft?: number
   paddingRight?: number
   color?: string | false
