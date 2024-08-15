@@ -2,7 +2,7 @@ import {capitalCase} from 'change-case'
 import {Box, Text} from 'ink'
 import React from 'react'
 
-import {icons, spinners} from '../design-elements.js'
+import {RequiredDesign, constructDesignParams} from '../design-elements.js'
 import {StageTracker} from '../stage-tracker.js'
 import {Divider} from './divider.js'
 import {SpinnerOrError, SpinnerOrErrorOrChildren} from './spinner.js'
@@ -64,11 +64,12 @@ export type FormattedKeyValue = {
 }
 
 export type StagesProps = {
+  readonly design?: RequiredDesign
   readonly error?: Error | undefined
   readonly postStagesBlock?: FormattedKeyValue[]
   readonly preStagesBlock?: FormattedKeyValue[]
   readonly stageSpecificBlock?: FormattedKeyValue[]
-  readonly title: string
+  readonly title?: string
   readonly hasElapsedTime?: boolean
   readonly hasStageTime?: boolean
   readonly timerUnit?: 'ms' | 's'
@@ -94,34 +95,40 @@ function SimpleMessage({color, isBold, value}: FormattedKeyValue): React.ReactNo
   )
 }
 
-function Infos({
+function StageInfos({
+  design,
   error,
   keyValuePairs,
   stage,
 }: {
+  design: RequiredDesign
   error?: Error
   keyValuePairs: FormattedKeyValue[]
-  stage?: string
+  stage: string
 }): React.ReactNode {
-  return (
-    keyValuePairs
-      // If stage is provided, only show info for that stage
-      // otherwise, show all infos that don't have a specified stage
-      .filter((kv) => (stage ? kv.stage === stage : !kv.stage))
-      .map((kv) => {
-        const key = `${kv.label}-${kv.value}`
-        if (kv.type === 'message') {
-          return <SimpleMessage key={key} {...kv} />
-        }
+  return keyValuePairs
+    .filter((kv) => kv.stage === stage)
+    .map((kv) => {
+      const key = `${kv.label}-${kv.value}`
+      if (kv.type === 'message') {
+        return (
+          <Box key={key} flexDirection="row">
+            {design.stageSpecific.icon && <Text>{design.stageSpecific.icon} </Text>}
+            <SimpleMessage {...kv} />
+          </Box>
+        )
+      }
 
-        if (kv.type === 'dynamic-key-value') {
-          return (
+      if (kv.type === 'dynamic-key-value') {
+        return (
+          <Box key={key}>
+            {design.stageSpecific.icon && <Text>{design.stageSpecific.icon} </Text>}
             <SpinnerOrErrorOrChildren
-              key={key}
               error={error}
               label={`${kv.label}:`}
               labelPosition="left"
-              type={spinners.info}
+              type={design.spinners.info}
+              failedIcon={design.icons.failed}
             >
               {kv.value && (
                 <Text bold={kv.isBold} color={kv.color}>
@@ -129,19 +136,67 @@ function Infos({
                 </Text>
               )}
             </SpinnerOrErrorOrChildren>
-          )
-        }
+          </Box>
+        )
+      }
 
-        if (kv.type === 'static-key-value') {
-          return <StaticKeyValue key={key} {...kv} />
-        }
+      if (kv.type === 'static-key-value') {
+        return (
+          <Box key={key}>
+            {design.stageSpecific.icon && <Text>{design.stageSpecific.icon} </Text>}
+            <StaticKeyValue key={key} {...kv} />
+          </Box>
+        )
+      }
 
-        return false
-      })
-  )
+      return false
+    })
+}
+
+function Infos({
+  design,
+  error,
+  keyValuePairs,
+}: {
+  design: RequiredDesign
+  error?: Error
+  keyValuePairs: FormattedKeyValue[]
+}): React.ReactNode {
+  return keyValuePairs.map((kv) => {
+    const key = `${kv.label}-${kv.value}`
+    if (kv.type === 'message') {
+      return <SimpleMessage key={key} {...kv} />
+    }
+
+    if (kv.type === 'dynamic-key-value') {
+      return (
+        <SpinnerOrErrorOrChildren
+          key={key}
+          error={error}
+          label={`${kv.label}:`}
+          labelPosition="left"
+          type={design.spinners.info}
+          failedIcon={design.icons.failed}
+        >
+          {kv.value && (
+            <Text bold={kv.isBold} color={kv.color}>
+              {kv.value}
+            </Text>
+          )}
+        </SpinnerOrErrorOrChildren>
+      )
+    }
+
+    if (kv.type === 'static-key-value') {
+      return <StaticKeyValue key={key} {...kv} />
+    }
+
+    return false
+  })
 }
 
 export function Stages({
+  design = constructDesignParams(),
   error,
   hasElapsedTime = true,
   hasStageTime = true,
@@ -154,11 +209,11 @@ export function Stages({
 }: StagesProps): React.ReactNode {
   return (
     <Box flexDirection="column" paddingTop={1} paddingBottom={1}>
-      <Divider title={title} />
+      {title && <Divider title={title} {...design.title} />}
 
-      {preStagesBlock?.length && (
+      {preStagesBlock && preStagesBlock.length > 0 && (
         <Box flexDirection="column" marginLeft={1} paddingTop={1}>
-          <Infos error={error} keyValuePairs={preStagesBlock} />
+          <Infos design={design} error={error} keyValuePairs={preStagesBlock} />
         </Box>
       )}
 
@@ -167,25 +222,30 @@ export function Stages({
           <Box key={stage} flexDirection="column">
             <Box>
               {(status === 'current' || status === 'failed') && (
-                <SpinnerOrError error={error} label={capitalCase(stage)} type={spinners.stage} />
+                <SpinnerOrError
+                  error={error}
+                  label={capitalCase(stage)}
+                  type={design.spinners.stage}
+                  failedIcon={design.icons.failed}
+                />
               )}
 
               {status === 'skipped' && (
                 <Text color="dim">
-                  {icons.skipped} {capitalCase(stage)} - Skipped
+                  {design.icons.skipped} {capitalCase(stage)} - Skipped
                 </Text>
               )}
 
               {status === 'completed' && (
                 <Box>
-                  <Text color="green">{icons.completed}</Text>
+                  <Text color="green">{design.icons.completed}</Text>
                   <Text>{capitalCase(stage)}</Text>
                 </Box>
               )}
 
               {status === 'pending' && (
                 <Text color="dim">
-                  {icons.pending} {capitalCase(stage)}
+                  {design.icons.pending} {capitalCase(stage)}
                 </Text>
               )}
               {status !== 'pending' && status !== 'skipped' && hasStageTime && (
@@ -196,9 +256,9 @@ export function Stages({
               )}
             </Box>
 
-            {stageSpecificBlock?.length && status !== 'pending' && status !== 'skipped' && (
-              <Box flexDirection="column" marginLeft={5}>
-                <Infos error={error} keyValuePairs={stageSpecificBlock} stage={stage} />
+            {stageSpecificBlock && stageSpecificBlock.length > 0 && status !== 'pending' && status !== 'skipped' && (
+              <Box flexDirection="column" marginLeft={design.stageSpecific.leftMargin}>
+                <StageInfos design={design} error={error} keyValuePairs={stageSpecificBlock} stage={stage} />
               </Box>
             )}
           </Box>
@@ -207,12 +267,12 @@ export function Stages({
 
       {postStagesBlock && postStagesBlock.length > 0 && (
         <Box flexDirection="column" marginLeft={1} paddingTop={1}>
-          <Infos error={error} keyValuePairs={postStagesBlock} />
+          <Infos design={design} error={error} keyValuePairs={postStagesBlock} />
         </Box>
       )}
 
       {hasElapsedTime && (
-        <Box marginLeft={1} paddingTop={1}>
+        <Box marginLeft={1}>
           <Text>Elapsed Time: </Text>
           <Timer unit={timerUnit} />
         </Box>

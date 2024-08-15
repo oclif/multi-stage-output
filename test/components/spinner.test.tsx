@@ -50,7 +50,9 @@ describe('Spinner', () => {
 
 describe('SpinnerOrError', () => {
   it('renders a spinner', async () => {
-    const {frames, unmount} = render(<SpinnerOrError label="Loading" type={SPINNER} labelPosition="right" />)
+    const {frames, unmount} = render(
+      <SpinnerOrError failedIcon="x" label="Loading" type={SPINNER} labelPosition="right" />,
+    )
     await sleep(WAIT_TIME)
     unmount()
     expect(allFramesFound(frames, 'Loading', 'right')).to.be.true
@@ -58,17 +60,19 @@ describe('SpinnerOrError', () => {
 
   it('renders an error', async () => {
     const {frames, unmount} = render(
-      <SpinnerOrError label="Loading" type={SPINNER} labelPosition="right" error={new Error('Oops')} />,
+      <SpinnerOrError failedIcon="x" label="Loading" type={SPINNER} labelPosition="right" error={new Error('Oops')} />,
     )
     unmount()
     const lastValidFrame = frames.at(-1) === '\n' ? frames.at(-2) : frames.at(-1)
-    expect(stripAnsi(lastValidFrame ?? '')).to.equal('✘ Loading')
+    expect(stripAnsi(lastValidFrame ?? '')).to.equal('x Loading')
   })
 })
 
 describe('SpinnerOrErrorOrChildren', async () => {
   it('renders a spinner', () => {
-    const {frames, unmount} = render(<SpinnerOrErrorOrChildren label="Loading" type={SPINNER} labelPosition="right" />)
+    const {frames, unmount} = render(
+      <SpinnerOrErrorOrChildren failedIcon="x" label="Loading" type={SPINNER} labelPosition="right" />,
+    )
     unmount()
     const lastValidFrame = frames.at(-1) === '\n' ? frames.at(-2) : frames.at(-1)
     expect(stripAnsi(lastValidFrame ?? '')).to.equal('- Loading')
@@ -76,16 +80,22 @@ describe('SpinnerOrErrorOrChildren', async () => {
 
   it('renders an error', async () => {
     const {frames, unmount} = render(
-      <SpinnerOrErrorOrChildren label="Loading" type={SPINNER} labelPosition="right" error={new Error('Oops')} />,
+      <SpinnerOrErrorOrChildren
+        failedIcon="x"
+        label="Loading"
+        type={SPINNER}
+        labelPosition="right"
+        error={new Error('Oops')}
+      />,
     )
     unmount()
     const lastValidFrame = frames.at(-1) === '\n' ? frames.at(-2) : frames.at(-1)
-    expect(stripAnsi(lastValidFrame ?? '')).to.equal('✘ Loading')
+    expect(stripAnsi(lastValidFrame ?? '')).to.equal(`x Loading`)
   })
 
   it('renders children', async () => {
     const {frames, unmount} = render(
-      <SpinnerOrErrorOrChildren label="Loading" type={SPINNER} labelPosition="left">
+      <SpinnerOrErrorOrChildren failedIcon="x" label="Loading" type={SPINNER} labelPosition="left">
         <Text>Children</Text>
       </SpinnerOrErrorOrChildren>,
     )

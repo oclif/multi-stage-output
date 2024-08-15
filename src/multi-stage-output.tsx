@@ -4,9 +4,6 @@ import {Instance, render} from 'ink'
 import {env} from 'node:process'
 import React from 'react'
 
-import {icons} from '../design-elements.js'
-import {StageTracker} from '../stage-tracker.js'
-import {readableTime} from '../utils.js'
 import {
   FormattedKeyValue,
   InfoBlock,
@@ -15,7 +12,10 @@ import {
   StageInfoBlock,
   Stages,
   StagesProps,
-} from './stages.js'
+} from './components/stages.js'
+import {Design, RequiredDesign, constructDesignParams} from './design-elements.js'
+import {StageTracker} from './stage-tracker.js'
+import {readableTime} from './utils.js'
 
 // Taken from https://github.com/sindresorhus/is-in-ci
 const isInCi =
@@ -31,7 +31,7 @@ type MultiStageOutputOptions<T extends Record<string, unknown>> = {
   /**
    * Title to display at the top of the stages component.
    */
-  readonly title: string
+  readonly title?: string
   /**
    * Information to display at the bottom of the stages component.
    */
@@ -48,6 +48,10 @@ type MultiStageOutputOptions<T extends Record<string, unknown>> = {
    * Whether to show the time spent on each stage. Defaults to true
    */
   readonly showStageTime?: boolean
+  /**
+   * Whether to show the title. Defaults to true
+   */
+  readonly showTitle?: boolean
   /**
    * Information to display for a specific stage. Each object must have a stage property set.
    */
@@ -66,15 +70,19 @@ type MultiStageOutputOptions<T extends Record<string, unknown>> = {
    * Pass in this.jsonEnabled() from the command class to determine if JSON output is enabled.
    */
   readonly jsonEnabled: boolean
+  /**
+   * Design options to customize the output.
+   */
+  readonly design?: Design
 }
 
 class CIMultiStageOutput<T extends Record<string, unknown>> {
   private data?: Partial<T>
+  private readonly design: RequiredDesign
   private readonly hasElapsedTime?: boolean
   private readonly hasStageTime?: boolean
   private lastUpdateTime: number
   private readonly messageTimeout = Number.parseInt(env.SF_CI_MESSAGE_TIMEOUT ?? '5000', 10) ?? 5000
-
   private readonly postStagesBlock?: InfoBlock<T>
   private readonly preStagesBlock?: InfoBlock<T>
   private seenStages: Set<string> = new Set()
@@ -83,10 +91,10 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
   private startTime: number | undefined
   private startTimes: Map<string, number> = new Map()
   private readonly timerUnit: 'ms' | 's'
-  private readonly title: string
 
   public constructor({
     data,
+    design,
     postStagesBlock,
     preStagesBlock,
     showElapsedTime,
@@ -96,7 +104,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
     timerUnit,
     title,
   }: MultiStageOutputOptions<T>) {
-    this.title = title
+    this.design = constructDesignParams(design)
     this.stages = stages
     this.postStagesBlock = postStagesBlock
     this.preStagesBlock = preStagesBlock
@@ -107,7 +115,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
     this.data = data
     this.lastUpdateTime = Date.now()
 
-    ux.stdout(`───── ${this.title} ─────`)
+    if (title) ux.stdout(`───── ${title} ─────`)
     ux.stdout('Stages:')
     for (const stage of this.stages) {
       ux.stdout(`${this.stages.indexOf(stage) + 1}. ${capitalCase(stage)}`)
@@ -151,7 +159,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
           if (Date.now() - this.lastUpdateTime < this.messageTimeout) break
           this.lastUpdateTime = Date.now()
           if (!this.startTimes.has(stage)) this.startTimes.set(stage, Date.now())
-          ux.stdout(`${icons.current} ${capitalCase(stage)}...`)
+          ux.stdout(`${this.design.icons.current} ${capitalCase(stage)}...`)
           this.printInfo(this.preStagesBlock, 3)
           this.printInfo(
             this.stageSpecificBlock?.filter((info) => info.stage === stage),
@@ -169,7 +177,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
             const startTime = this.startTimes.get(stage)
             const elapsedTime = startTime ? Date.now() - startTime : 0
             const displayTime = readableTime(elapsedTime, this.timerUnit)
-            ux.stdout(`${icons[status]} ${capitalCase(stage)} (${displayTime})`)
+            ux.stdout(`${this.design.icons[status]} ${capitalCase(stage)} (${displayTime})`)
             this.printInfo(this.preStagesBlock, 3)
             this.printInfo(
               this.stageSpecificBlock?.filter((info) => info.stage === stage),
@@ -177,9 +185,9 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
             )
             this.printInfo(this.postStagesBlock, 3)
           } else if (status === 'skipped') {
-            ux.stdout(`${icons[status]} ${capitalCase(stage)} - Skipped`)
+            ux.stdout(`${this.design.icons[status]} ${capitalCase(stage)} - Skipped`)
           } else {
-            ux.stdout(`${icons[status]} ${capitalCase(stage)}`)
+            ux.stdout(`${this.design.icons[status]} ${capitalCase(stage)}`)
             this.printInfo(this.preStagesBlock, 3)
             this.printInfo(
               this.stageSpecificBlock?.filter((info) => info.stage === stage),
@@ -216,10 +224,10 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
 export class MultiStageOutput<T extends Record<string, unknown>> implements Disposable {
   private ciInstance: CIMultiStageOutput<T> | undefined
   private data?: Partial<T>
+  private readonly design: RequiredDesign
   private readonly hasElapsedTime?: boolean
   private readonly hasStageTime?: boolean
   private inkInstance: Instance | undefined
-
   private readonly postStagesBlock?: InfoBlock<T>
   private readonly preStagesBlock?: InfoBlock<T>
   private readonly stages: readonly string[] | string[]
@@ -227,10 +235,11 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
   private stageTracker: StageTracker
   private stopped = false
   private readonly timerUnit?: 'ms' | 's'
-  private readonly title: string
+  private readonly title?: string
 
   public constructor({
     data,
+    design,
     jsonEnabled,
     postStagesBlock,
     preStagesBlock,
@@ -242,6 +251,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     title,
   }: MultiStageOutputOptions<T>) {
     this.data = data
+    this.design = constructDesignParams(design)
     this.stages = stages
     this.title = title
     this.postStagesBlock = postStagesBlock
@@ -257,6 +267,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     if (isInCi) {
       this.ciInstance = new CIMultiStageOutput({
         data,
+        design,
         jsonEnabled,
         postStagesBlock,
         preStagesBlock,
@@ -340,6 +351,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
   /** shared method to populate everything needed for Stages cmp */
   private generateStagesInput(): StagesProps {
     return {
+      design: this.design,
       hasElapsedTime: this.hasElapsedTime,
       hasStageTime: this.hasStageTime,
       postStagesBlock: this.formatKeyValuePairs(this.postStagesBlock),

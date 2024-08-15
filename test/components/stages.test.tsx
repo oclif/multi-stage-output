@@ -4,6 +4,7 @@ import React from 'react'
 import stripAnsi from 'strip-ansi'
 
 import {FormattedKeyValue, Stages} from '../../src/components/stages.js'
+import {constructDesignParams} from '../../src/design-elements.js'
 import {StageTracker} from '../../src/stage-tracker.js'
 
 config.truncateThreshold = 0
@@ -17,14 +18,16 @@ function lastValidFrame(frames: string[]): string {
 }
 
 describe('Stages', () => {
+  const {icons, stageSpecific} = constructDesignParams()
+
   it('should render pending stages', async () => {
     const stageTracker = new StageTracker(['step1', 'step2'])
     const {frames, unmount} = render(<Stages stageTracker={stageTracker} title="Test" />)
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('◼ Step1')
-    expect(lastFrame).to.include('◼ Step2')
+    expect(lastFrame).to.include(`${icons.pending} Step1`)
+    expect(lastFrame).to.include(`${icons.pending} Step2`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
@@ -35,8 +38,8 @@ describe('Stages', () => {
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('✔ Step1')
-    expect(lastFrame).to.include('◼ Step2')
+    expect(lastFrame).to.include(`${icons.completed} Step1`)
+    expect(lastFrame).to.include(`${icons.pending} Step2`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
@@ -48,8 +51,8 @@ describe('Stages', () => {
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('◯ Step1 - Skipped')
-    expect(lastFrame).to.include('✔ Step2')
+    expect(lastFrame).to.include(`${icons.skipped} Step1 - Skipped`)
+    expect(lastFrame).to.include(`${icons.completed} Step2`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
@@ -60,8 +63,8 @@ describe('Stages', () => {
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('✘ Step1')
-    expect(lastFrame).to.include('◼ Step2')
+    expect(lastFrame).to.include(`${icons.failed} Step1`)
+    expect(lastFrame).to.include(`${icons.pending} Step2`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
@@ -71,8 +74,8 @@ describe('Stages', () => {
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('◼ Step1')
-    expect(lastFrame).to.include('◼ Step2')
+    expect(lastFrame).to.include(`${icons.pending} Step1`)
+    expect(lastFrame).to.include(`${icons.pending} Step2`)
     expect(lastFrame).to.not.include('Elapsed Time:')
   })
 
@@ -83,8 +86,8 @@ describe('Stages', () => {
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('✔ Step1 0ms')
-    expect(lastFrame).to.include('◼ Step2\n')
+    expect(lastFrame).to.include(`${icons.completed} Step1 0ms`)
+    expect(lastFrame).to.include(`${icons.pending} Step2\n`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
@@ -95,8 +98,8 @@ describe('Stages', () => {
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('✔ Step1\n')
-    expect(lastFrame).to.include('◼ Step2\n')
+    expect(lastFrame).to.include(`${icons.completed} Step1\n`)
+    expect(lastFrame).to.include(`${icons.pending} Step2\n`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
@@ -158,7 +161,7 @@ describe('Stages', () => {
     )
     unmount()
     const lastFrame = lastValidFrame(frames)
-    expect(lastFrame).to.include(` ◼ Step2
+    expect(lastFrame).to.include(` ${icons.pending} Step2
 
  this is a message
  Static: this is a static key:value pair
@@ -193,9 +196,9 @@ describe('Stages', () => {
     )
     unmount()
     const lastFrame = lastValidFrame(frames)
-    expect(lastFrame).to.include(` ✔ Step1 0ms
-      this is a message
-      Static: this is a static key:value pair
-      Dynamic: this is a dynamic key:value pair`)
+    expect(lastFrame).to.include(` ${icons.completed} Step1 0ms
+   ${stageSpecific.icon} this is a message
+   ${stageSpecific.icon} Static: this is a static key:value pair
+   ${stageSpecific.icon} Dynamic: this is a dynamic key:value pair`)
   })
 })
