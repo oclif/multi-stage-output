@@ -2,9 +2,10 @@ import {capitalCase} from 'change-case'
 import {Box, Text} from 'ink'
 import React from 'react'
 
-import {RequiredDesign, constructDesignParams} from '../design-elements.js'
+import {RequiredDesign, constructDesignParams} from '../design.js'
 import {StageTracker} from '../stage-tracker.js'
 import {Divider} from './divider.js'
+import {Icon} from './icon.js'
 import {SpinnerOrError, SpinnerOrErrorOrChildren} from './spinner.js'
 import {Timer} from './timer.js'
 
@@ -113,7 +114,7 @@ function StageInfos({
       if (kv.type === 'message') {
         return (
           <Box key={key} flexDirection="row">
-            {design.stageSpecific.icon && <Text>{design.stageSpecific.icon} </Text>}
+            <Icon icon={design.icons.info} />
             <SimpleMessage {...kv} />
           </Box>
         )
@@ -122,7 +123,7 @@ function StageInfos({
       if (kv.type === 'dynamic-key-value') {
         return (
           <Box key={key}>
-            {design.stageSpecific.icon && <Text>{design.stageSpecific.icon} </Text>}
+            <Icon icon={design.icons.info} />
             <SpinnerOrErrorOrChildren
               error={error}
               label={`${kv.label}:`}
@@ -143,7 +144,7 @@ function StageInfos({
       if (kv.type === 'static-key-value') {
         return (
           <Box key={key}>
-            {design.stageSpecific.icon && <Text>{design.stageSpecific.icon} </Text>}
+            <Icon icon={design.icons.info} />
             <StaticKeyValue key={key} {...kv} />
           </Box>
         )
@@ -231,22 +232,21 @@ export function Stages({
               )}
 
               {status === 'skipped' && (
-                <Text color="dim">
-                  {design.icons.skipped} {capitalCase(stage)} - Skipped
-                </Text>
+                <Icon icon={design.icons.skipped}>
+                  <Text color="dim">{capitalCase(stage)} - Skipped</Text>
+                </Icon>
               )}
 
               {status === 'completed' && (
-                <Box>
-                  <Text color="green">{design.icons.completed}</Text>
+                <Icon icon={design.icons.completed}>
                   <Text>{capitalCase(stage)}</Text>
-                </Box>
+                </Icon>
               )}
 
               {status === 'pending' && (
-                <Text color="dim">
-                  {design.icons.pending} {capitalCase(stage)}
-                </Text>
+                <Icon icon={design.icons.pending}>
+                  <Text>{capitalCase(stage)}</Text>
+                </Icon>
               )}
               {status !== 'pending' && status !== 'skipped' && hasStageTime && (
                 <Box>
@@ -257,7 +257,7 @@ export function Stages({
             </Box>
 
             {stageSpecificBlock && stageSpecificBlock.length > 0 && status !== 'pending' && status !== 'skipped' && (
-              <Box flexDirection="column" marginLeft={design.stageSpecific.leftMargin}>
+              <Box flexDirection="column">
                 <StageInfos design={design} error={error} keyValuePairs={stageSpecificBlock} stage={stage} />
               </Box>
             )}

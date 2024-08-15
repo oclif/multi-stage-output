@@ -25,6 +25,13 @@ function allFramesFound(frames: string[], label?: string, labelPosition?: 'left'
   return expectedFrames.every((expectedFrame) => stripped.some((frame) => frame.includes(expectedFrame)))
 }
 
+const failedIcon = {
+  color: 'red',
+  figure: 'x',
+  paddingLeft: 0,
+  paddingRight: 0,
+}
+
 describe('Spinner', () => {
   it('renders a spinner', async () => {
     const {frames, unmount} = render(<Spinner type={SPINNER} />)
@@ -51,7 +58,7 @@ describe('Spinner', () => {
 describe('SpinnerOrError', () => {
   it('renders a spinner', async () => {
     const {frames, unmount} = render(
-      <SpinnerOrError failedIcon="x" label="Loading" type={SPINNER} labelPosition="right" />,
+      <SpinnerOrError failedIcon={failedIcon} label="Loading" type={SPINNER} labelPosition="right" />,
     )
     await sleep(WAIT_TIME)
     unmount()
@@ -60,7 +67,13 @@ describe('SpinnerOrError', () => {
 
   it('renders an error', async () => {
     const {frames, unmount} = render(
-      <SpinnerOrError failedIcon="x" label="Loading" type={SPINNER} labelPosition="right" error={new Error('Oops')} />,
+      <SpinnerOrError
+        failedIcon={failedIcon}
+        label="Loading"
+        type={SPINNER}
+        labelPosition="right"
+        error={new Error('Oops')}
+      />,
     )
     unmount()
     const lastValidFrame = frames.at(-1) === '\n' ? frames.at(-2) : frames.at(-1)
@@ -71,7 +84,7 @@ describe('SpinnerOrError', () => {
 describe('SpinnerOrErrorOrChildren', async () => {
   it('renders a spinner', () => {
     const {frames, unmount} = render(
-      <SpinnerOrErrorOrChildren failedIcon="x" label="Loading" type={SPINNER} labelPosition="right" />,
+      <SpinnerOrErrorOrChildren failedIcon={failedIcon} label="Loading" type={SPINNER} labelPosition="right" />,
     )
     unmount()
     const lastValidFrame = frames.at(-1) === '\n' ? frames.at(-2) : frames.at(-1)
@@ -81,7 +94,7 @@ describe('SpinnerOrErrorOrChildren', async () => {
   it('renders an error', async () => {
     const {frames, unmount} = render(
       <SpinnerOrErrorOrChildren
-        failedIcon="x"
+        failedIcon={failedIcon}
         label="Loading"
         type={SPINNER}
         labelPosition="right"
@@ -95,7 +108,7 @@ describe('SpinnerOrErrorOrChildren', async () => {
 
   it('renders children', async () => {
     const {frames, unmount} = render(
-      <SpinnerOrErrorOrChildren failedIcon="x" label="Loading" type={SPINNER} labelPosition="left">
+      <SpinnerOrErrorOrChildren failedIcon={failedIcon} label="Loading" type={SPINNER} labelPosition="left">
         <Text>Children</Text>
       </SpinnerOrErrorOrChildren>,
     )

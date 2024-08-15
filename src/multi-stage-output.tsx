@@ -13,7 +13,7 @@ import {
   Stages,
   StagesProps,
 } from './components/stages.js'
-import {Design, RequiredDesign, constructDesignParams} from './design-elements.js'
+import {Design, RequiredDesign, constructDesignParams} from './design.js'
 import {StageTracker} from './stage-tracker.js'
 import {readableTime} from './utils.js'
 

@@ -2,6 +2,8 @@ import spinners, {type SpinnerName} from 'cli-spinners'
 import {Box, Text} from 'ink'
 import React, {useEffect, useState} from 'react'
 
+import {Icon, IconProps} from './icon.js'
+
 type UseSpinnerProps = {
   /**
    * Type of a spinner.
@@ -70,12 +72,12 @@ export function SpinnerOrError({
   failedIcon,
   labelPosition = 'right',
   ...props
-}: SpinnerProps & {readonly error?: Error; readonly failedIcon: string}): React.ReactElement {
+}: SpinnerProps & {readonly error?: Error; readonly failedIcon: IconProps}): React.ReactElement {
   if (error) {
     return (
       <Box>
         {props.label && labelPosition === 'left' && <Text>{props.label} </Text>}
-        <Text color="red">{failedIcon}</Text>
+        <Icon icon={failedIcon} />
         {props.label && labelPosition === 'right' && <Text> {props.label}</Text>}
       </Box>
     )
@@ -91,7 +93,7 @@ export function SpinnerOrErrorOrChildren({
 }: SpinnerProps & {
   readonly children?: React.ReactNode
   readonly error?: Error
-  readonly failedIcon: string
+  readonly failedIcon: IconProps
 }): React.ReactElement {
   if (children) {
     return (
