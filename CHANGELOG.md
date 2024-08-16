@@ -1,3 +1,12 @@
+## [0.2.1](https://github.com/oclif/core/compare/0.2.0...0.2.1) (2024-08-16)
+
+
+### Bug Fixes
+
+* remove jsonEnabled prop ([3246bd4](https://github.com/oclif/core/commit/3246bd4be35c87e99be5e32efd8cddaac91ce911))
+
+
+
 # [0.2.0](https://github.com/oclif/core/compare/0.1.4...0.2.0) (2024-08-16)
 
 
