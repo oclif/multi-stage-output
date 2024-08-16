@@ -1,3 +1,12 @@
+## [0.2.2](https://github.com/oclif/core/compare/0.2.1...0.2.2) (2024-08-16)
+
+
+### Bug Fixes
+
+* move types/react to deps ([e80431a](https://github.com/oclif/core/commit/e80431a499af146fc5383f4335918e5f2322a21a))
+
+
+
 ## [0.2.1](https://github.com/oclif/core/compare/0.2.0...0.2.1) (2024-08-16)
 
 
