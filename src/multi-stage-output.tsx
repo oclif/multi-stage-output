@@ -23,7 +23,7 @@ const isInCi =
   env.CI !== 'false' &&
   ('CI' in env || 'CONTINUOUS_INTEGRATION' in env || Object.keys(env).some((key) => key.startsWith('CI_')))
 
-type MultiStageOutputOptions<T extends Record<string, unknown>> = {
+export type MultiStageOutputOptions<T extends Record<string, unknown>> = {
   /**
    * Stages to render.
    */
@@ -64,12 +64,6 @@ type MultiStageOutputOptions<T extends Record<string, unknown>> = {
    * Data to display in the stages component. This data will be passed to the get function in the info object.
    */
   readonly data?: Partial<T>
-  /**
-   * Whether JSON output is enabled. Defaults to false.
-   *
-   * Pass in this.jsonEnabled() from the command class to determine if JSON output is enabled.
-   */
-  readonly jsonEnabled: boolean
   /**
    * Design options to customize the output.
    */
@@ -240,7 +234,6 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
   public constructor({
     data,
     design,
-    jsonEnabled,
     postStagesBlock,
     preStagesBlock,
     showElapsedTime,
@@ -262,13 +255,10 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     this.stageTracker = new StageTracker(stages)
     this.stageSpecificBlock = stageSpecificBlock
 
-    if (jsonEnabled) return
-
     if (isInCi) {
       this.ciInstance = new CIMultiStageOutput({
         data,
         design,
-        jsonEnabled,
         postStagesBlock,
         preStagesBlock,
         showElapsedTime,
