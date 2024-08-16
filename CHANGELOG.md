@@ -1,3 +1,13 @@
+# [0.2.0](https://github.com/oclif/core/compare/0.1.4...0.2.0) (2024-08-16)
+
+
+### Features
+
+* improve configuration of icons ([4e55cca](https://github.com/oclif/core/commit/4e55ccaecb3dc26ded3a60e0a95e7f3dfeb16363))
+* make design elements configurable ([597badf](https://github.com/oclif/core/commit/597badf8dccdb846d7bc0703d986f422fc730b86))
+
+
+
 ## [0.1.4](https://github.com/oclif/core/compare/0.1.3...0.1.4) (2024-08-08)
 
 
