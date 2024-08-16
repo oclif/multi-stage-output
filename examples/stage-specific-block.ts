@@ -1,4 +1,4 @@
-import {MultiStageOutput} from '../src/components/multi-stage-output.js'
+import {MultiStageOutput} from '../src/multi-stage-output.js'
 
 const SLEEP_TIME = Number.parseInt(process.env.SLEEP ?? '100', 10) ?? 100
 

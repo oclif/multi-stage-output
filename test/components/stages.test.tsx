@@ -3,7 +3,8 @@ import {render} from 'ink-testing-library'
 import React from 'react'
 import stripAnsi from 'strip-ansi'
 
-import {FormattedKeyValue, Stages} from '../../src/components/multi-stage-output.js'
+import {FormattedKeyValue, Stages} from '../../src/components/stages.js'
+import {constructDesignParams} from '../../src/design.js'
 import {StageTracker} from '../../src/stage-tracker.js'
 
 config.truncateThreshold = 0
@@ -17,26 +18,39 @@ function lastValidFrame(frames: string[]): string {
 }
 
 describe('Stages', () => {
+  const design = constructDesignParams({
+    icons: {
+      completed: {
+        figure: 'c',
+        paddingRight: 1,
+      },
+      pending: {
+        figure: 'p',
+        paddingRight: 1,
+      },
+    },
+  })
+
   it('should render pending stages', async () => {
     const stageTracker = new StageTracker(['step1', 'step2'])
-    const {frames, unmount} = render(<Stages stageTracker={stageTracker} title="Test" />)
+    const {frames, unmount} = render(<Stages design={design} stageTracker={stageTracker} title="Test" />)
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('◼ Step1')
-    expect(lastFrame).to.include('◼ Step2')
+    expect(lastFrame).to.include(`${design.icons.pending.figure} Step1`)
+    expect(lastFrame).to.include(`${design.icons.pending.figure} Step2`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
   it('should render completed stages', async () => {
     const stageTracker = new StageTracker(['step1', 'step2'])
     stageTracker.set('step1', 'completed')
-    const {frames, unmount} = render(<Stages stageTracker={stageTracker} title="Test" />)
+    const {frames, unmount} = render(<Stages design={design} stageTracker={stageTracker} title="Test" />)
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('✔ Step1')
-    expect(lastFrame).to.include('◼ Step2')
+    expect(lastFrame).to.include(`${design.icons.completed.figure} Step1`)
+    expect(lastFrame).to.include(`${design.icons.pending.figure} Step2`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
@@ -44,59 +58,65 @@ describe('Stages', () => {
     const stageTracker = new StageTracker(['step1', 'step2'])
     stageTracker.set('step1', 'skipped')
     stageTracker.set('step2', 'completed')
-    const {frames, unmount} = render(<Stages stageTracker={stageTracker} title="Test" />)
+    const {frames, unmount} = render(<Stages design={design} stageTracker={stageTracker} title="Test" />)
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('◯ Step1 - Skipped')
-    expect(lastFrame).to.include('✔ Step2')
+    expect(lastFrame).to.include(`${design.icons.skipped.figure} Step1 - Skipped`)
+    expect(lastFrame).to.include(`${design.icons.completed.figure} Step2`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
   it('should render failed stages', async () => {
     const stageTracker = new StageTracker(['step1', 'step2'])
     stageTracker.set('step1', 'failed')
-    const {frames, unmount} = render(<Stages stageTracker={stageTracker} title="Test" error={new Error('oops')} />)
+    const {frames, unmount} = render(
+      <Stages design={design} stageTracker={stageTracker} title="Test" error={new Error('oops')} />,
+    )
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('✘ Step1')
-    expect(lastFrame).to.include('◼ Step2')
+    expect(lastFrame).to.include(`${design.icons.failed.figure} Step1`)
+    expect(lastFrame).to.include(`${design.icons.pending.figure} Step2`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
   it('should disable elapsed time', async () => {
     const stageTracker = new StageTracker(['step1', 'step2'])
-    const {frames, unmount} = render(<Stages stageTracker={stageTracker} title="Test" hasElapsedTime={false} />)
+    const {frames, unmount} = render(
+      <Stages design={design} stageTracker={stageTracker} title="Test" hasElapsedTime={false} />,
+    )
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('◼ Step1')
-    expect(lastFrame).to.include('◼ Step2')
+    expect(lastFrame).to.include(`${design.icons.pending.figure} Step1`)
+    expect(lastFrame).to.include(`${design.icons.pending.figure} Step2`)
     expect(lastFrame).to.not.include('Elapsed Time:')
   })
 
   it('should enable stage time', async () => {
     const stageTracker = new StageTracker(['step1', 'step2'])
     stageTracker.set('step1', 'completed')
-    const {frames, unmount} = render(<Stages hasStageTime stageTracker={stageTracker} title="Test" />)
+    const {frames, unmount} = render(<Stages hasStageTime design={design} stageTracker={stageTracker} title="Test" />)
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('✔ Step1 0ms')
-    expect(lastFrame).to.include('◼ Step2\n')
+    expect(lastFrame).to.include(`${design.icons.completed.figure} Step1 0ms`)
+    expect(lastFrame).to.include(`${design.icons.pending.figure} Step2\n`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
   it('should disable stage time', async () => {
     const stageTracker = new StageTracker(['step1', 'step2'])
     stageTracker.set('step1', 'completed')
-    const {frames, unmount} = render(<Stages stageTracker={stageTracker} title="Test" hasStageTime={false} />)
+    const {frames, unmount} = render(
+      <Stages design={design} stageTracker={stageTracker} title="Test" hasStageTime={false} />,
+    )
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('✔ Step1\n')
-    expect(lastFrame).to.include('◼ Step2\n')
+    expect(lastFrame).to.include(`${design.icons.completed.figure} Step1\n`)
+    expect(lastFrame).to.include(`${design.icons.pending.figure} Step2\n`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
@@ -121,7 +141,7 @@ describe('Stages', () => {
     ]
 
     const {frames, unmount} = render(
-      <Stages stageTracker={stageTracker} title="Test" preStagesBlock={preStagesBlock} />,
+      <Stages design={design} stageTracker={stageTracker} title="Test" preStagesBlock={preStagesBlock} />,
     )
     unmount()
     const lastFrame = lastValidFrame(frames)
@@ -129,7 +149,7 @@ describe('Stages', () => {
  Static: this is a static key:value pair
  Dynamic: this is a dynamic key:value pair
 
- ◼ Step1
+ ${design.icons.pending.figure} Step1
 `)
   })
 
@@ -154,11 +174,11 @@ describe('Stages', () => {
     ]
 
     const {frames, unmount} = render(
-      <Stages stageTracker={stageTracker} title="Test" postStagesBlock={postStagesBlock} />,
+      <Stages design={design} stageTracker={stageTracker} title="Test" postStagesBlock={postStagesBlock} />,
     )
     unmount()
     const lastFrame = lastValidFrame(frames)
-    expect(lastFrame).to.include(` ◼ Step2
+    expect(lastFrame).to.include(` ${design.icons.pending.figure} Step2
 
  this is a message
  Static: this is a static key:value pair
@@ -189,13 +209,13 @@ describe('Stages', () => {
     ]
 
     const {frames, unmount} = render(
-      <Stages stageTracker={stageTracker} title="Test" stageSpecificBlock={stageSpecificBlock} />,
+      <Stages design={design} stageTracker={stageTracker} title="Test" stageSpecificBlock={stageSpecificBlock} />,
     )
     unmount()
     const lastFrame = lastValidFrame(frames)
-    expect(lastFrame).to.include(` ✔ Step1 0ms
-      this is a message
-      Static: this is a static key:value pair
-      Dynamic: this is a dynamic key:value pair`)
+    expect(lastFrame).to.include(` ${design.icons.completed.figure} Step1 0ms
+   ${design.icons.info.figure} this is a message
+   ${design.icons.info.figure} Static: this is a static key:value pair
+   ${design.icons.info.figure} Dynamic: this is a dynamic key:value pair`)
   })
 })

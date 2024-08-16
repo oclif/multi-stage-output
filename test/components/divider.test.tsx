@@ -28,7 +28,7 @@ describe('Divider', () => {
   })
 
   it('renders a divider with a title and title padding', () => {
-    expect(renderAndStrip(<Divider title="Hello" titlePadding={2} />)).to.equal(
+    expect(renderAndStrip(<Divider title="Hello" textPadding={2} />)).to.equal(
       ' ────────────────────  Hello  ────────────────────',
     )
   })

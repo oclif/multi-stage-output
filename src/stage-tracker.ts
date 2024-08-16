@@ -2,19 +2,28 @@ import {Performance} from '@oclif/core/performance'
 
 export type StageStatus = 'pending' | 'current' | 'completed' | 'skipped' | 'failed'
 
-export class StageTracker extends Map<string, StageStatus> {
+export class StageTracker {
   public current: string | undefined
+  private map = new Map<string, StageStatus>()
   private markers = new Map<string, ReturnType<typeof Performance.mark>>()
 
   public constructor(stages: readonly string[] | string[]) {
-    super(stages.map((stage) => [stage, 'pending']))
+    this.map = new Map(stages.map((stage) => [stage, 'pending']))
+  }
+
+  public entries(): IterableIterator<[string, StageStatus]> {
+    return this.map.entries()
+  }
+
+  public get(stage: string): StageStatus | undefined {
+    return this.map.get(stage)
   }
 
   public refresh(nextStage: string, opts?: {hasError?: boolean; isStopping?: boolean}): void {
-    const stages = [...this.keys()]
+    const stages = [...this.map.keys()]
     for (const stage of stages) {
-      if (this.get(stage) === 'skipped') continue
-      if (this.get(stage) === 'failed') continue
+      if (this.map.get(stage) === 'skipped') continue
+      if (this.map.get(stage) === 'failed') continue
 
       // .stop() was called with an error => set the stage to failed
       if (nextStage === stage && opts?.hasError) {
@@ -42,7 +51,7 @@ export class StageTracker extends Map<string, StageStatus> {
       }
 
       // any stage before the current stage should be marked as skipped if it's still pending
-      if (stages.indexOf(stage) < stages.indexOf(nextStage) && this.get(stage) === 'pending') {
+      if (stages.indexOf(stage) < stages.indexOf(nextStage) && this.map.get(stage) === 'pending') {
         this.set(stage, 'skipped')
         continue
       }
@@ -59,12 +68,16 @@ export class StageTracker extends Map<string, StageStatus> {
     }
   }
 
-  public set(stage: string, status: StageStatus): this {
+  public set(stage: string, status: StageStatus): void {
     if (status === 'current') {
       this.current = stage
     }
 
-    return super.set(stage, status)
+    this.map.set(stage, status)
+  }
+
+  public values(): IterableIterator<StageStatus> {
+    return this.map.values()
   }
 
   private stopMarker(stage: string): void {

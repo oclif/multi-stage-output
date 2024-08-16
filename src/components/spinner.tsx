@@ -2,9 +2,9 @@ import spinners, {type SpinnerName} from 'cli-spinners'
 import {Box, Text} from 'ink'
 import React, {useEffect, useState} from 'react'
 
-import {icons} from '../design-elements.js'
+import {Icon, IconProps} from './icon.js'
 
-export type UseSpinnerProps = {
+type UseSpinnerProps = {
   /**
    * Type of a spinner.
    * See [cli-spinners](https://github.com/sindresorhus/cli-spinners) for available spinners.
@@ -14,11 +14,11 @@ export type UseSpinnerProps = {
   readonly type?: SpinnerName
 }
 
-export type UseSpinnerResult = {
+type UseSpinnerResult = {
   frame: string
 }
 
-export function useSpinner({type = 'dots'}: UseSpinnerProps): UseSpinnerResult {
+function useSpinner({type = 'dots'}: UseSpinnerProps): UseSpinnerResult {
   const [frame, setFrame] = useState(0)
   const spinner = spinners[type]
 
@@ -40,7 +40,7 @@ export function useSpinner({type = 'dots'}: UseSpinnerProps): UseSpinnerResult {
   }
 }
 
-export type SpinnerProps = UseSpinnerProps & {
+type SpinnerProps = UseSpinnerProps & {
   /**
    * Label to show near the spinner.
    */
@@ -69,14 +69,15 @@ export function Spinner({isBold, label, labelPosition = 'right', type}: SpinnerP
 
 export function SpinnerOrError({
   error,
+  failedIcon,
   labelPosition = 'right',
   ...props
-}: SpinnerProps & {readonly error?: Error}): React.ReactElement {
+}: SpinnerProps & {readonly error?: Error; readonly failedIcon: IconProps}): React.ReactElement {
   if (error) {
     return (
       <Box>
         {props.label && labelPosition === 'left' && <Text>{props.label} </Text>}
-        <Text color="red">{icons.failed}</Text>
+        <Icon icon={failedIcon} />
         {props.label && labelPosition === 'right' && <Text> {props.label}</Text>}
       </Box>
     )
@@ -92,6 +93,7 @@ export function SpinnerOrErrorOrChildren({
 }: SpinnerProps & {
   readonly children?: React.ReactNode
   readonly error?: Error
+  readonly failedIcon: IconProps
 }): React.ReactElement {
   if (children) {
     return (
