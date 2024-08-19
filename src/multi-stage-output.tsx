@@ -68,6 +68,10 @@ export type MultiStageOutputOptions<T extends Record<string, unknown>> = {
    * Design options to customize the output.
    */
   readonly design?: Design
+  /**
+   * Set to true when --json flag is passed to the command. This will prevent any output to the console. Defaults to false
+   */
+  readonly jsonEnabled: boolean
 }
 
 class CIMultiStageOutput<T extends Record<string, unknown>> {
@@ -234,6 +238,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
   public constructor({
     data,
     design,
+    jsonEnabled = false,
     postStagesBlock,
     preStagesBlock,
     showElapsedTime,
@@ -255,10 +260,13 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     this.stageTracker = new StageTracker(stages)
     this.stageSpecificBlock = stageSpecificBlock
 
+    if (jsonEnabled) return
+
     if (isInCi) {
       this.ciInstance = new CIMultiStageOutput({
         data,
         design,
+        jsonEnabled,
         postStagesBlock,
         preStagesBlock,
         showElapsedTime,
