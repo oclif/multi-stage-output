@@ -1,3 +1,12 @@
+# [0.3.0](https://github.com/oclif/core/compare/0.2.2...0.3.0) (2024-08-19)
+
+
+### Features
+
+* add back jsonEnabled prop ([65c0d00](https://github.com/oclif/core/commit/65c0d009fa592748b2535e25a9d3ddc89d40264d))
+
+
+
 ## [0.2.2](https://github.com/oclif/core/compare/0.2.1...0.2.2) (2024-08-16)
 
 
