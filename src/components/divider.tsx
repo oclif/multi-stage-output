@@ -10,7 +10,7 @@ export function Divider({
   dividerChar = '─',
   dividerColor = 'dim',
   padding = 1,
-  textColor = 'white',
+  textColor,
   textPadding: titlePadding = 1,
   title = '',
   width = 50,

@@ -46,7 +46,7 @@ export type Design = {
      */
     padding?: number
     /**
-     * Color of the title. Defaults to 'white'
+     * Color of the title
      */
     textColor?: string
     /**
@@ -133,7 +133,7 @@ export function constructDesignParams(design?: Design): RequiredDesign {
       dividerChar: '─',
       dividerColor: 'dim',
       padding: 1,
-      textColor: 'white',
+      textColor: 'reset',
       textPadding: 1,
       width: 50,
       ...design?.title,
