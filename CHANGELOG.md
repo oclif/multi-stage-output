@@ -1,3 +1,12 @@
+## [0.3.1](https://github.com/oclif/core/compare/0.3.0...0.3.1) (2024-08-21)
+
+
+### Bug Fixes
+
+* no color by default for divider ([eb55243](https://github.com/oclif/core/commit/eb55243e6b290a2f1d32c26dd6ec7013d4cdc9f1))
+
+
+
 # [0.3.0](https://github.com/oclif/core/compare/0.2.2...0.3.0) (2024-08-19)
 
 
