@@ -26,8 +26,15 @@ export function Divider({
   const titleString = title ? `${PAD.repeat(titlePadding) + title + PAD.repeat(titlePadding)}` : ''
   const titleWidth = titleString.length
   const terminalWidth = process.stdout.columns ?? 80
-  const widthToUse = width === 'full' ? terminalWidth - titlePadding : width > terminalWidth ? terminalWidth : width
-
+  const widthToUse =
+    width === 'full'
+      ? // if the width is `full`, use the terminal width minus the padding and title padding
+        terminalWidth - titlePadding - padding
+      : // otherwise, if the provided width is greater than the terminal width, use the terminal width minus the padding and title paddding
+        width > terminalWidth
+        ? terminalWidth - titlePadding - padding
+        : // otherwise, use the provided width
+          width
   const dividerWidth = getSideDividerWidth(widthToUse, titleWidth)
   const numberOfCharsPerSide = getNumberOfCharsPerWidth(dividerChar, dividerWidth)
   const dividerSideString = dividerChar.repeat(numberOfCharsPerSide)
