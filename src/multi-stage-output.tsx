@@ -348,10 +348,21 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
 
   /** shared method to populate everything needed for Stages cmp */
   private generateStagesInput(): StagesProps {
+    const lines =
+      this.stages.length +
+      (this.preStagesBlock?.length ?? 0) +
+      (this.postStagesBlock?.length ?? 0) +
+      (this.stageSpecificBlock?.length ?? 0) +
+      (this.title ? 1 : 0) +
+      (this.hasElapsedTime ? 1 : 0) +
+      // add 4 for the top and bottom margins
+      4
+    const height = Math.min(lines, process.stdout.rows - 1)
     return {
       design: this.design,
       hasElapsedTime: this.hasElapsedTime,
       hasStageTime: this.hasStageTime,
+      height,
       postStagesBlock: this.formatKeyValuePairs(this.postStagesBlock),
       preStagesBlock: this.formatKeyValuePairs(this.preStagesBlock),
       stageSpecificBlock: this.formatKeyValuePairs(this.stageSpecificBlock),

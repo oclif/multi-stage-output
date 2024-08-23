@@ -67,14 +67,15 @@ export type FormattedKeyValue = {
 export type StagesProps = {
   readonly design?: RequiredDesign
   readonly error?: Error | undefined
+  readonly hasElapsedTime?: boolean
+  readonly hasStageTime?: boolean
+  readonly height?: number
   readonly postStagesBlock?: FormattedKeyValue[]
   readonly preStagesBlock?: FormattedKeyValue[]
   readonly stageSpecificBlock?: FormattedKeyValue[]
-  readonly title?: string
-  readonly hasElapsedTime?: boolean
-  readonly hasStageTime?: boolean
-  readonly timerUnit?: 'ms' | 's'
   readonly stageTracker: StageTracker
+  readonly timerUnit?: 'ms' | 's'
+  readonly title?: string
 }
 
 function StaticKeyValue({color, isBold, label, value}: FormattedKeyValue): React.ReactNode {
@@ -201,6 +202,7 @@ export function Stages({
   error,
   hasElapsedTime = true,
   hasStageTime = true,
+  height,
   postStagesBlock,
   preStagesBlock,
   stageSpecificBlock,
@@ -209,72 +211,74 @@ export function Stages({
   title,
 }: StagesProps): React.ReactNode {
   return (
-    <Box flexDirection="column" paddingTop={1} paddingBottom={1}>
-      {title && <Divider title={title} {...design.title} />}
+    <Box overflow="visible">
+      <Box flexDirection="column" paddingTop={1} paddingBottom={1}>
+        {title && <Divider title={title} {...design.title} />}
 
-      {preStagesBlock && preStagesBlock.length > 0 && (
+        {preStagesBlock && preStagesBlock.length > 0 && (
+          <Box flexDirection="column" marginLeft={1} paddingTop={1}>
+            <Infos design={design} error={error} keyValuePairs={preStagesBlock} />
+          </Box>
+        )}
+
         <Box flexDirection="column" marginLeft={1} paddingTop={1}>
-          <Infos design={design} error={error} keyValuePairs={preStagesBlock} />
-        </Box>
-      )}
+          {[...stageTracker.entries()].map(([stage, status]) => (
+            <Box key={stage} flexDirection="column">
+              <Box>
+                {(status === 'current' || status === 'failed') && (
+                  <SpinnerOrError
+                    error={error}
+                    label={capitalCase(stage)}
+                    type={design.spinners.stage}
+                    failedIcon={design.icons.failed}
+                  />
+                )}
 
-      <Box flexDirection="column" marginLeft={1} paddingTop={1}>
-        {[...stageTracker.entries()].map(([stage, status]) => (
-          <Box key={stage} flexDirection="column">
-            <Box>
-              {(status === 'current' || status === 'failed') && (
-                <SpinnerOrError
-                  error={error}
-                  label={capitalCase(stage)}
-                  type={design.spinners.stage}
-                  failedIcon={design.icons.failed}
-                />
-              )}
+                {status === 'skipped' && (
+                  <Icon icon={design.icons.skipped}>
+                    <Text color="dim">{capitalCase(stage)} - Skipped</Text>
+                  </Icon>
+                )}
 
-              {status === 'skipped' && (
-                <Icon icon={design.icons.skipped}>
-                  <Text color="dim">{capitalCase(stage)} - Skipped</Text>
-                </Icon>
-              )}
+                {status === 'completed' && (
+                  <Icon icon={design.icons.completed}>
+                    <Text>{capitalCase(stage)}</Text>
+                  </Icon>
+                )}
 
-              {status === 'completed' && (
-                <Icon icon={design.icons.completed}>
-                  <Text>{capitalCase(stage)}</Text>
-                </Icon>
-              )}
+                {status === 'pending' && (
+                  <Icon icon={design.icons.pending}>
+                    <Text>{capitalCase(stage)}</Text>
+                  </Icon>
+                )}
+                {status !== 'pending' && status !== 'skipped' && hasStageTime && (
+                  <Box>
+                    <Text> </Text>
+                    <Timer color="dim" isStopped={status === 'completed'} unit={timerUnit} />
+                  </Box>
+                )}
+              </Box>
 
-              {status === 'pending' && (
-                <Icon icon={design.icons.pending}>
-                  <Text>{capitalCase(stage)}</Text>
-                </Icon>
-              )}
-              {status !== 'pending' && status !== 'skipped' && hasStageTime && (
-                <Box>
-                  <Text> </Text>
-                  <Timer color="dim" isStopped={status === 'completed'} unit={timerUnit} />
-                </Box>
+              {stageSpecificBlock && stageSpecificBlock.length > 0 && status !== 'pending' && status !== 'skipped' && (
+                <StageInfos design={design} error={error} keyValuePairs={stageSpecificBlock} stage={stage} />
               )}
             </Box>
+          ))}
+        </Box>
 
-            {stageSpecificBlock && stageSpecificBlock.length > 0 && status !== 'pending' && status !== 'skipped' && (
-              <StageInfos design={design} error={error} keyValuePairs={stageSpecificBlock} stage={stage} />
-            )}
+        {postStagesBlock && postStagesBlock.length > 0 && (
+          <Box flexDirection="column" marginLeft={1} paddingTop={1}>
+            <Infos design={design} error={error} keyValuePairs={postStagesBlock} />
           </Box>
-        ))}
+        )}
+
+        {hasElapsedTime && (
+          <Box marginLeft={1}>
+            <Text>Elapsed Time: </Text>
+            <Timer unit={timerUnit} />
+          </Box>
+        )}
       </Box>
-
-      {postStagesBlock && postStagesBlock.length > 0 && (
-        <Box flexDirection="column" marginLeft={1} paddingTop={1}>
-          <Infos design={design} error={error} keyValuePairs={postStagesBlock} />
-        </Box>
-      )}
-
-      {hasElapsedTime && (
-        <Box marginLeft={1}>
-          <Text>Elapsed Time: </Text>
-          <Timer unit={timerUnit} />
-        </Box>
-      )}
     </Box>
   )
 }
