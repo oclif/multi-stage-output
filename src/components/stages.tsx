@@ -32,6 +32,10 @@ type Info<T extends Record<string, unknown>> = {
    * Whether the value should be bold.
    */
   bold?: boolean
+  /**
+   * Set to `true` to prevent this key-value pair or message from being collapsed when the window is too short. Defaults to false.
+   */
+  neverCollapse?: boolean
 }
 
 export type KeyValuePair<T extends Record<string, unknown>> = Info<T> & {
@@ -65,11 +69,11 @@ export type FormattedKeyValue = {
 }
 
 export type StagesProps = {
+  readonly compactionLevel?: number
   readonly design?: RequiredDesign
   readonly error?: Error | undefined
   readonly hasElapsedTime?: boolean
   readonly hasStageTime?: boolean
-  readonly height?: number
   readonly postStagesBlock?: FormattedKeyValue[]
   readonly preStagesBlock?: FormattedKeyValue[]
   readonly stageSpecificBlock?: FormattedKeyValue[]
@@ -197,12 +201,123 @@ function Infos({
   })
 }
 
+function CompactStageEntries({
+  design,
+  error,
+  hasStageTime,
+  stageSpecificBlock,
+  stageTracker,
+  timerUnit,
+}: {
+  readonly stageTracker: StageTracker
+  readonly design: RequiredDesign
+  readonly error?: Error
+  readonly hasStageTime: boolean
+  readonly stageSpecificBlock: FormattedKeyValue[] | undefined
+  readonly timerUnit: 'ms' | 's'
+}): React.ReactNode {
+  if (!stageTracker.current) return false
+  return (
+    <Box flexDirection="row">
+      <SpinnerOrError
+        error={error}
+        label={`[${stageTracker.indexOf(stageTracker.current) + 1}/${stageTracker.size}] ${capitalCase(stageTracker.current)}`}
+        type={design.spinners.stage}
+        failedIcon={design.icons.failed}
+      />
+      {stageSpecificBlock && stageSpecificBlock.length > 0 && (
+        <Box flexDirection="column">
+          <StageInfos design={design} error={error} keyValuePairs={stageSpecificBlock} stage={stageTracker.current} />
+        </Box>
+      )}
+
+      {hasStageTime && (
+        <Box>
+          {/* We have to render the Timer for each stage in order to get correct time for each stage */}
+          {[...stageTracker.entries()]
+            .filter(([_, status]) => status !== 'pending' && status !== 'skipped')
+            .map(([stage, status]) => (
+              <Box key={stage} display={status === 'current' ? 'flex' : 'none'}>
+                <Text> </Text>
+                <Timer name={stage} color="dim" isStopped={status === 'completed'} unit={timerUnit} />
+              </Box>
+            ))}
+        </Box>
+      )}
+    </Box>
+  )
+}
+
+function NormalStageEntries({
+  design,
+  error,
+  hasStageTime,
+  stageSpecificBlock,
+  stageTracker,
+  timerUnit,
+}: {
+  readonly stageTracker: StageTracker
+  readonly design: RequiredDesign
+  readonly error?: Error
+  readonly hasStageTime: boolean
+  readonly stageSpecificBlock: FormattedKeyValue[] | undefined
+  readonly timerUnit: 'ms' | 's'
+}): React.ReactNode {
+  return (
+    <>
+      {[...stageTracker.entries()].map(([stage, status]) => (
+        <Box key={stage} flexDirection="column">
+          <Box>
+            {(status === 'current' || status === 'failed') && (
+              <SpinnerOrError
+                error={error}
+                label={capitalCase(stage)}
+                type={design.spinners.stage}
+                failedIcon={design.icons.failed}
+              />
+            )}
+
+            {status === 'skipped' && (
+              <Icon icon={design.icons.skipped}>
+                <Text color="dim">{capitalCase(stage)} - Skipped</Text>
+              </Icon>
+            )}
+
+            {status === 'completed' && (
+              <Icon icon={design.icons.completed}>
+                <Text>{capitalCase(stage)}</Text>
+              </Icon>
+            )}
+
+            {status === 'pending' && (
+              <Icon icon={design.icons.pending}>
+                <Text>{capitalCase(stage)}</Text>
+              </Icon>
+            )}
+
+            {status !== 'pending' && status !== 'skipped' && hasStageTime && (
+              <Box>
+                <Text> </Text>
+                <Timer name={stage} color="dim" isStopped={status === 'completed'} unit={timerUnit} />
+              </Box>
+            )}
+          </Box>
+
+          {stageSpecificBlock && stageSpecificBlock.length > 0 && status !== 'pending' && status !== 'skipped' && (
+            <StageInfos design={design} error={error} keyValuePairs={stageSpecificBlock} stage={stage} />
+          )}
+        </Box>
+      ))}
+    </>
+  )
+}
+
 export function Stages({
+  compactionLevel = 0,
   design = constructDesignParams(),
   error,
   hasElapsedTime = true,
   hasStageTime = true,
-  height,
   postStagesBlock,
   preStagesBlock,
   stageSpecificBlock,
@@ -211,74 +326,49 @@ export function Stages({
   title,
 }: StagesProps): React.ReactNode {
   return (
-    <Box overflow="visible">
-      <Box flexDirection="column" paddingTop={1} paddingBottom={1}>
-        {title && <Divider title={title} {...design.title} />}
+    <Box flexDirection="column" paddingTop={1} paddingBottom={1}>
+      {compactionLevel < 3 && title && <Divider title={title} {...design.title} />}
 
-        {preStagesBlock && preStagesBlock.length > 0 && (
-          <Box flexDirection="column" marginLeft={1} paddingTop={1}>
-            <Infos design={design} error={error} keyValuePairs={preStagesBlock} />
-          </Box>
-        )}
-
+      {preStagesBlock && preStagesBlock.length > 0 && (
         <Box flexDirection="column" marginLeft={1} paddingTop={1}>
-          {[...stageTracker.entries()].map(([stage, status]) => (
-            <Box key={stage} flexDirection="column">
-              <Box>
-                {(status === 'current' || status === 'failed') && (
-                  <SpinnerOrError
-                    error={error}
-                    label={capitalCase(stage)}
-                    type={design.spinners.stage}
-                    failedIcon={design.icons.failed}
-                  />
-                )}
-
-                {status === 'skipped' && (
-                  <Icon icon={design.icons.skipped}>
-                    <Text color="dim">{capitalCase(stage)} - Skipped</Text>
-                  </Icon>
-                )}
-
-                {status === 'completed' && (
-                  <Icon icon={design.icons.completed}>
-                    <Text>{capitalCase(stage)}</Text>
-                  </Icon>
-                )}
-
-                {status === 'pending' && (
-                  <Icon icon={design.icons.pending}>
-                    <Text>{capitalCase(stage)}</Text>
-                  </Icon>
-                )}
-                {status !== 'pending' && status !== 'skipped' && hasStageTime && (
-                  <Box>
-                    <Text> </Text>
-                    <Timer color="dim" isStopped={status === 'completed'} unit={timerUnit} />
-                  </Box>
-                )}
-              </Box>
-
-              {stageSpecificBlock && stageSpecificBlock.length > 0 && status !== 'pending' && status !== 'skipped' && (
-                <StageInfos design={design} error={error} keyValuePairs={stageSpecificBlock} stage={stage} />
-              )}
-            </Box>
-          ))}
+          <Infos design={design} error={error} keyValuePairs={preStagesBlock} />
         </Box>
+      )}
 
-        {postStagesBlock && postStagesBlock.length > 0 && (
-          <Box flexDirection="column" marginLeft={1} paddingTop={1}>
-            <Infos design={design} error={error} keyValuePairs={postStagesBlock} />
-          </Box>
-        )}
-
-        {hasElapsedTime && (
-          <Box marginLeft={1}>
-            <Text>Elapsed Time: </Text>
-            <Timer unit={timerUnit} />
-          </Box>
+      <Box flexDirection="column" marginLeft={1} paddingTop={1}>
+        {compactionLevel >= 1 ? (
+          <CompactStageEntries
+            design={design}
+            error={error}
+            hasStageTime={hasStageTime}
+            stageSpecificBlock={stageSpecificBlock}
+            stageTracker={stageTracker}
+            timerUnit={timerUnit}
+          />
+        ) : (
+          <NormalStageEntries
+            design={design}
+            error={error}
+            hasStageTime={hasStageTime}
+            stageSpecificBlock={stageSpecificBlock}
+            stageTracker={stageTracker}
+            timerUnit={timerUnit}
+          />
         )}
       </Box>
+
+      {postStagesBlock && postStagesBlock.length > 0 && (
+        <Box flexDirection="column" marginLeft={1} paddingTop={1}>
+          <Infos design={design} error={error} keyValuePairs={postStagesBlock} />
+        </Box>
+      )}
+
+      {hasElapsedTime && (
+        <Box marginLeft={1} display={compactionLevel < 2 ? 'flex' : 'none'}>
+          <Text>Elapsed Time: </Text>
+          <Timer name="elapsed" unit={timerUnit} />
+        </Box>
+      )}
     </Box>
   )
 }
