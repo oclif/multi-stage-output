@@ -330,88 +330,34 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     this.update(this.stageTracker.current ?? this.stages[0], data)
   }
 
-  /**
-   * Determine the level of compaction required to render the stages component within the terminal height.
-   *
-   * Compaction levels:
-   * 0 - hide nothing
-   * 1 - only show one stage at a time
-   * 2 - hide the elapsed time
-   * 3 - hide the title
-   * 4 - hide any non-critical info
-   *
-   * @returns the compaction level based on the number of lines that will be displayed
-   */
-  private determineCompactionLevel(): number {
-    const lines =
-      this.stages.length +
-      (this.preStagesBlock?.length ?? 0) +
-      (this.postStagesBlock?.length ?? 0) +
-      (this.stageSpecificBlock?.length ?? 0) +
-      (this.title ? 1 : 0) +
-      (this.hasElapsedTime ? 1 : 0) +
-      // add 4 for the top and bottom margins
-      4
-
-    let compactionLevel = lines >= process.stdout.rows ? 1 : 0
-    // remove the number of stages from the lines count (add back one since we'll still show one stage)
-    let remainingLines = lines - this.stages.length + 1
-    // increase the compaction level if remainingLines is greater that the window
-    if (remainingLines >= process.stdout.rows) {
-      compactionLevel = 2
-    }
-
-    // remove the elapsed time line
-    remainingLines -= 1
-    // increase the compaction level if remaining lines is greater than the window
-    if (remainingLines >= process.stdout.rows) {
-      compactionLevel = 3
-    }
-
-    // remove the title line
-    remainingLines -= 1
-    // increase the compaction level if remaining lines is greater than the window
-    if (remainingLines >= process.stdout.rows) {
-      compactionLevel = 4
-    }
-
-    return compactionLevel
-  }
-
-  private formatKeyValuePairs(
-    infoBlock: InfoBlock<T> | StageInfoBlock<T> | undefined,
-    compactionLevel: number,
-  ): FormattedKeyValue[] {
-    // @ts-expect-error for now
+  private formatKeyValuePairs(infoBlock: InfoBlock<T> | StageInfoBlock<T> | undefined): FormattedKeyValue[] {
     return (
-      infoBlock
-        ?.map((info) => {
-          if (compactionLevel >= 4 && !info.neverCollapse) return
-          const formattedData = info.get ? info.get(this.data as T) : undefined
-          return {
-            color: info.color,
-            isBold: info.bold,
-            type: info.type,
-            value: formattedData,
-            ...(info.type === 'message' ? {} : {label: info.label}),
-            ...('stage' in info ? {stage: info.stage} : {}),
-          }
-        })
-        .filter(Boolean) ?? []
+      infoBlock?.map((info) => {
+        const formattedData = info.get ? info.get(this.data as T) : undefined
+        return {
+          color: info.color,
+          isBold: info.bold,
+          neverCollapse: info.neverCollapse,
+          type: info.type,
+          value: formattedData,
+          ...(info.type === 'message' ? {} : {label: info.label}),
+          ...('stage' in info ? {stage: info.stage} : {}),
+        }
+      }) ?? []
     )
   }
 
   /** shared method to populate everything needed for Stages cmp */
   private generateStagesInput(opts?: {compactionLevel?: number}): StagesProps {
-    const compactionLevel = opts?.compactionLevel ?? this.determineCompactionLevel()
+    const {compactionLevel} = opts ?? {}
     return {
       compactionLevel,
       design: this.design,
       hasElapsedTime: this.hasElapsedTime,
       hasStageTime: this.hasStageTime,
-      postStagesBlock: this.formatKeyValuePairs(this.postStagesBlock, compactionLevel),
-      preStagesBlock: this.formatKeyValuePairs(this.preStagesBlock, compactionLevel),
-      stageSpecificBlock: this.formatKeyValuePairs(this.stageSpecificBlock, compactionLevel),
+      postStagesBlock: this.formatKeyValuePairs(this.postStagesBlock),
+      preStagesBlock: this.formatKeyValuePairs(this.preStagesBlock),
+      stageSpecificBlock: this.formatKeyValuePairs(this.stageSpecificBlock),
       stageTracker: this.stageTracker,
       timerUnit: this.timerUnit,
       title: this.title,

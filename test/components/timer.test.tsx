@@ -14,7 +14,7 @@ async function sleep(ms: number): Promise<void> {
 
 describe('Timer', () => {
   it('renders a timer in milliseconds', async () => {
-    const {lastFrame, unmount} = render(<Timer name="test" unit="ms" />)
+    const {lastFrame, unmount} = render(<Timer unit="ms" />)
     await sleep(100)
     unmount()
     // we can't reliably test the exact output, so we just check that it's not the initial value
@@ -22,7 +22,7 @@ describe('Timer', () => {
   })
 
   it('renders a timer in seconds', async () => {
-    const {lastFrame, unmount} = render(<Timer name="test" unit="s" />)
+    const {lastFrame, unmount} = render(<Timer unit="s" />)
     await sleep(100)
     unmount()
     // we can't reliably test the exact output, so we just check that it's not the initial value

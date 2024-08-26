@@ -3,7 +3,7 @@ import {render} from 'ink-testing-library'
 import React from 'react'
 import stripAnsi from 'strip-ansi'
 
-import {FormattedKeyValue, Stages} from '../../src/components/stages.js'
+import {FormattedKeyValue, Stages, determineCompactionLevel} from '../../src/components/stages.js'
 import {constructDesignParams} from '../../src/design.js'
 import {StageTracker} from '../../src/stage-tracker.js'
 
@@ -217,5 +217,218 @@ describe('Stages', () => {
    ${design.icons.info.figure} this is a message
    ${design.icons.info.figure} Static: this is a static key:value pair
    ${design.icons.info.figure} Dynamic: this is a dynamic key:value pair`)
+  })
+})
+
+describe('determineCompactionLevel', () => {
+  it('should return 0 if the number of stages < the window size', () => {
+    const stages = Array.from({length: 5}, (_, i) => i.toString())
+    const stageTracker = new StageTracker(stages)
+    expect(
+      determineCompactionLevel(
+        {
+          hasElapsedTime: true,
+          postStagesBlock: [],
+          preStagesBlock: [],
+          stageSpecificBlock: [],
+          stageTracker,
+          title: 'Test',
+        },
+        20,
+      ),
+    ).to.equal(0)
+  })
+
+  it('should return 1 if the number of stages = the window size', () => {
+    const stages = Array.from({length: 20}, (_, i) => i.toString())
+    const stageTracker = new StageTracker(stages)
+    expect(
+      determineCompactionLevel(
+        {
+          hasElapsedTime: true,
+          postStagesBlock: [],
+          preStagesBlock: [],
+          stageSpecificBlock: [],
+          stageTracker,
+          title: 'Test',
+        },
+        20,
+      ),
+    ).to.equal(1)
+  })
+
+  it('should return 1 if the number of stages > the window size', () => {
+    const stages = Array.from({length: 23}, (_, i) => i.toString())
+    const stageTracker = new StageTracker(stages)
+    expect(
+      determineCompactionLevel(
+        {
+          hasElapsedTime: true,
+          postStagesBlock: [],
+          preStagesBlock: [],
+          stageSpecificBlock: [],
+          stageTracker,
+          title: 'Test',
+        },
+        20,
+      ),
+    ).to.equal(1)
+  })
+
+  it('should return 2 if the number of stages + the elapsed time > the window size', () => {
+    const stages = Array.from({length: 20}, (_, i) => i.toString())
+    const infos = Array.from({length: 13}, () => ({
+      type: 'message',
+      value: 'hello',
+    })) as FormattedKeyValue[]
+    const stageTracker = new StageTracker(stages)
+
+    // 20 stages + 13 info blocks + 1 title + 1 elapsed time + 4 margin = 39 total lines
+    // remove 19 lines since it will only render one a time and you get 20
+    // remove 1 line for the elapsed time and you get 19, which is less than the window size
+    // so the compaction level should be 2
+    expect(
+      determineCompactionLevel(
+        {
+          hasElapsedTime: true,
+          postStagesBlock: infos,
+          preStagesBlock: [],
+          stageSpecificBlock: [],
+          stageTracker,
+          title: 'Test',
+        },
+        20,
+      ),
+    ).to.equal(2)
+  })
+
+  it('should return 3 if the number of stages + the elapsed time + title > the window size', () => {
+    const stages = Array.from({length: 20}, (_, i) => i.toString())
+    const infos = Array.from({length: 14}, () => ({
+      type: 'message',
+      value: 'hello',
+    })) as FormattedKeyValue[]
+    const stageTracker = new StageTracker(stages)
+
+    // 20 stages + 14 info blocks + 1 title + 1 elapsed time + 4 margin = 40 total lines
+    // remove 19 lines since it will only render one a time and you get 21
+    // remove 1 line for the elapsed time and you get 20,
+    // remove 1 line for the title and you get 19, which is less than the window size
+    // so the compaction level should be 3
+    expect(
+      determineCompactionLevel(
+        {
+          hasElapsedTime: true,
+          postStagesBlock: infos,
+          preStagesBlock: [],
+          stageSpecificBlock: [],
+          stageTracker,
+          title: 'Test',
+        },
+        20,
+      ),
+    ).to.equal(3)
+  })
+
+  it('should return 4 if the number of stages + the elapsed time + title + pre-stages block > the window size', () => {
+    const stages = Array.from({length: 20}, (_, i) => i.toString())
+    const infos = Array.from({length: 15}, () => ({
+      type: 'message',
+      value: 'hello',
+    })) as FormattedKeyValue[]
+    const stageTracker = new StageTracker(stages)
+
+    // 20 stages + 15 info blocks + 1 title + 1 elapsed time + 4 margin = 41 total lines
+    // remove 19 lines since it will only render one a time and you get 22
+    // remove 1 line for the elapsed time and you get 21,
+    // remove 1 line for the title and you get 20
+    // remove the pre-stages block and you get 5, which is less than the window size
+    // so the compaction level should be 4
+    expect(
+      determineCompactionLevel(
+        {
+          hasElapsedTime: true,
+          postStagesBlock: [],
+          preStagesBlock: infos,
+          stageSpecificBlock: [],
+          stageTracker,
+          title: 'Test',
+        },
+        20,
+      ),
+    ).to.equal(4)
+  })
+
+  it('should return 5 if the number of stages + the elapsed time + title + pre-stages block + post-stages block > the window size', () => {
+    const stages = Array.from({length: 20}, (_, i) => i.toString())
+    const postStagesBlock = Array.from({length: 15}, () => ({
+      type: 'message',
+      value: 'hello',
+    })) as FormattedKeyValue[]
+    const preStagesBlock = Array.from({length: 1}, () => ({
+      type: 'message',
+      value: 'hello',
+    })) as FormattedKeyValue[]
+    const stageTracker = new StageTracker(stages)
+
+    // 20 stages + 16 info blocks + 1 title + 1 elapsed time + 4 margin = 42 total lines
+    // remove 19 lines since it will only render one a time and you get 23
+    // remove 1 line for the elapsed time and you get 22,
+    // remove 1 line for the title and you get 21
+    // remove the pre-stages block and you get 20
+    // remove the post-stages block and you get 5, which is less than the window size
+    // so the compaction level should be 5
+    expect(
+      determineCompactionLevel(
+        {
+          hasElapsedTime: true,
+          postStagesBlock,
+          preStagesBlock,
+          stageSpecificBlock: [],
+          stageTracker,
+          title: 'Test',
+        },
+        20,
+      ),
+    ).to.equal(5)
+  })
+
+  it('should return 6 if the number of stages + the elapsed time + title + pre-stages block + post-stages block + stage specific block > the window size', () => {
+    const stages = Array.from({length: 20}, (_, i) => i.toString())
+    const postStagesBlock = Array.from({length: 1}, () => ({
+      type: 'message',
+      value: 'hello',
+    })) as FormattedKeyValue[]
+    const preStagesBlock = Array.from({length: 1}, () => ({
+      type: 'message',
+      value: 'hello',
+    })) as FormattedKeyValue[]
+    const stageSpecificBlock = Array.from({length: 15}, () => ({
+      type: 'message',
+      value: 'hello',
+    })) as FormattedKeyValue[]
+    const stageTracker = new StageTracker(stages)
+
+    // 20 stages + 17 info blocks + 1 title + 1 elapsed time + 4 margin = 43 total lines
+    // remove 19 lines since it will only render one a time and you get 24
+    // remove 1 line for the elapsed time and you get 23,
+    // remove 1 line for the title and you get 22
+    // remove the pre-stages block and you get 21
+    // remove the post-stages block and you get 20
+    // remove the stage specific block and you get 5, which is less than the window size
+    // so the compaction level should be 6
+    expect(
+      determineCompactionLevel(
+        {
+          hasElapsedTime: true,
+          postStagesBlock,
+          preStagesBlock,
+          stageSpecificBlock,
+          stageTracker,
+          title: 'Test',
+        },
+        20,
+      ),
+    ).to.equal(6)
   })
 })

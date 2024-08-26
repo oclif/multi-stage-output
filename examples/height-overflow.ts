@@ -1,6 +1,6 @@
 import {MultiStageOutput} from '../src/multi-stage-output.js'
 
-const SLEEP_TIME = Number.parseInt(process.env.SLEEP ?? '500', 10) ?? 100
+const SLEEP_TIME = Number.parseInt(process.env.SLEEP ?? '100', 10) ?? 100
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -8,11 +8,9 @@ async function sleep(ms: number): Promise<void> {
   })
 }
 
-const stages = Array.from({length: process.stdout.rows + 4}, (_, i) => i.toString())
-
+const stages = Array.from({length: process.stdout.rows + 2}, (_, i) => i.toString())
 const ms = new MultiStageOutput({
   jsonEnabled: false,
-  // showElapsedTime: false,
   stages,
 })
 
