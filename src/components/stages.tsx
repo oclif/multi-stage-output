@@ -355,10 +355,10 @@ function StageEntries({
   )
 }
 
-function filterInfos(infos: FormattedKeyValue[], compactionLevel: number): FormattedKeyValue[] {
+function filterInfos(infos: FormattedKeyValue[], compactionLevel: number, cutOff: number): FormattedKeyValue[] {
   return infos.filter((info) => {
     // return true to keep the info
-    if (compactionLevel < 4 || info.neverCollapse) {
+    if (compactionLevel < cutOff || info.neverCollapse) {
       return true
     }
 
@@ -487,11 +487,14 @@ export function Stages({
     }
   })
 
+  // if compactionLevel is provided, use that instead of the calculated level
   const actualLevelOfCompaction = compactionLevel ?? levelOfCompaction
-  const preStages = filterInfos(preStagesBlock ?? [], actualLevelOfCompaction)
-  const postStages = filterInfos(postStagesBlock ?? [], actualLevelOfCompaction)
-  const stageSpecific = filterInfos(stageSpecificBlock ?? [], actualLevelOfCompaction)
-  const padding = actualLevelOfCompaction < 7 ? 1 : 0
+  // filter out the info blocks based on the compaction level
+  const preStages = filterInfos(preStagesBlock ?? [], actualLevelOfCompaction, 4)
+  const postStages = filterInfos(postStagesBlock ?? [], actualLevelOfCompaction, 5)
+  const stageSpecific = filterInfos(stageSpecificBlock ?? [], actualLevelOfCompaction, 6)
+  // Reduce padding if the compaction level is 7
+  const padding = actualLevelOfCompaction === 7 ? 0 : 1
   return (
     <Box flexDirection="column" paddingTop={padding} paddingBottom={padding}>
       {actualLevelOfCompaction < 3 && title && <Divider title={title} {...design.title} />}
