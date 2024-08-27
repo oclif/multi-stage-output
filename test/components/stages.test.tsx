@@ -218,6 +218,174 @@ describe('Stages', () => {
    ${design.icons.info.figure} Static: this is a static key:value pair
    ${design.icons.info.figure} Dynamic: this is a dynamic key:value pair`)
   })
+
+  it('should render compactionLevel=1', async () => {
+    const stageTracker = new StageTracker(['step1', 'step2'])
+    stageTracker.set('step1', 'current')
+    const preStageInfos = [{type: 'message', value: 'pre-stage hello'}] as FormattedKeyValue[]
+    const postStageInfos = [{type: 'message', value: 'post-stage hello'}] as FormattedKeyValue[]
+    const stageSpecificInfos = [{stage: 'step1', type: 'message', value: 'stage-specific hello'}] as FormattedKeyValue[]
+
+    const {frames, unmount} = render(
+      <Stages
+        preStagesBlock={preStageInfos}
+        postStagesBlock={postStageInfos}
+        stageSpecificBlock={stageSpecificInfos}
+        design={design}
+        stageTracker={stageTracker}
+        title="Test"
+        compactionLevel={1}
+      />,
+    )
+    unmount()
+    const lastFrame = lastValidFrame(frames)
+    expect(lastFrame).to.include('─ Test ─')
+    expect(lastFrame).to.include('pre-stage hello')
+    expect(lastFrame).to.include(`[1/2] Step1`)
+    expect(lastFrame).to.include('stage-specific hello')
+    expect(lastFrame).to.include('post-stage hello')
+    expect(lastFrame).to.include('Elapsed Time:')
+  })
+
+  it('should render compactionLevel=2', async () => {
+    const stageTracker = new StageTracker(['step1', 'step2'])
+    stageTracker.set('step1', 'current')
+    const preStageInfos = [{type: 'message', value: 'pre-stage hello'}] as FormattedKeyValue[]
+    const postStageInfos = [{type: 'message', value: 'post-stage hello'}] as FormattedKeyValue[]
+    const stageSpecificInfos = [{stage: 'step1', type: 'message', value: 'stage-specific hello'}] as FormattedKeyValue[]
+
+    const {frames, unmount} = render(
+      <Stages
+        preStagesBlock={preStageInfos}
+        postStagesBlock={postStageInfos}
+        stageSpecificBlock={stageSpecificInfos}
+        design={design}
+        stageTracker={stageTracker}
+        title="Test"
+        compactionLevel={2}
+      />,
+    )
+    unmount()
+    const lastFrame = lastValidFrame(frames)
+    expect(lastFrame).to.include('─ Test ─')
+    expect(lastFrame).to.include('pre-stage hello')
+    expect(lastFrame).to.include(`[1/2] Step1`)
+    expect(lastFrame).to.include('stage-specific hello')
+    expect(lastFrame).to.include('post-stage hello')
+    expect(lastFrame).to.not.include('Elapsed Time:')
+  })
+
+  it('should render compactionLevel=3', async () => {
+    const stageTracker = new StageTracker(['step1', 'step2'])
+    stageTracker.set('step1', 'current')
+    const preStageInfos = [{type: 'message', value: 'pre-stage hello'}] as FormattedKeyValue[]
+    const postStageInfos = [{type: 'message', value: 'post-stage hello'}] as FormattedKeyValue[]
+    const stageSpecificInfos = [{stage: 'step1', type: 'message', value: 'stage-specific hello'}] as FormattedKeyValue[]
+
+    const {frames, unmount} = render(
+      <Stages
+        preStagesBlock={preStageInfos}
+        postStagesBlock={postStageInfos}
+        stageSpecificBlock={stageSpecificInfos}
+        design={design}
+        stageTracker={stageTracker}
+        title="Test"
+        compactionLevel={3}
+      />,
+    )
+    unmount()
+    const lastFrame = lastValidFrame(frames)
+    expect(lastFrame).to.not.include('─ Test ─')
+    expect(lastFrame).to.include('pre-stage hello')
+    expect(lastFrame).to.include(`[1/2] Step1`)
+    expect(lastFrame).to.include('stage-specific hello')
+    expect(lastFrame).to.include('post-stage hello')
+    expect(lastFrame).to.not.include('Elapsed Time:')
+  })
+
+  it('should render compactionLevel=4', async () => {
+    const stageTracker = new StageTracker(['step1', 'step2'])
+    stageTracker.set('step1', 'current')
+    const preStageInfos = [{type: 'message', value: 'pre-stage hello'}] as FormattedKeyValue[]
+    const postStageInfos = [{type: 'message', value: 'post-stage hello'}] as FormattedKeyValue[]
+    const stageSpecificInfos = [{stage: 'step1', type: 'message', value: 'stage-specific hello'}] as FormattedKeyValue[]
+
+    const {frames, unmount} = render(
+      <Stages
+        preStagesBlock={preStageInfos}
+        postStagesBlock={postStageInfos}
+        stageSpecificBlock={stageSpecificInfos}
+        design={design}
+        stageTracker={stageTracker}
+        title="Test"
+        compactionLevel={4}
+      />,
+    )
+    unmount()
+    const lastFrame = lastValidFrame(frames)
+    expect(lastFrame).to.not.include('─ Test ─')
+    expect(lastFrame).to.not.include('pre-stage hello')
+    expect(lastFrame).to.include(`[1/2] Step1`)
+    expect(lastFrame).to.include('stage-specific hello')
+    expect(lastFrame).to.include('post-stage hello')
+    expect(lastFrame).to.not.include('Elapsed Time:')
+  })
+
+  it('should render compactionLevel=5', async () => {
+    const stageTracker = new StageTracker(['step1', 'step2'])
+    stageTracker.set('step1', 'current')
+    const preStageInfos = [{type: 'message', value: 'pre-stage hello'}] as FormattedKeyValue[]
+    const postStageInfos = [{type: 'message', value: 'post-stage hello'}] as FormattedKeyValue[]
+    const stageSpecificInfos = [{stage: 'step1', type: 'message', value: 'stage-specific hello'}] as FormattedKeyValue[]
+
+    const {frames, unmount} = render(
+      <Stages
+        preStagesBlock={preStageInfos}
+        postStagesBlock={postStageInfos}
+        stageSpecificBlock={stageSpecificInfos}
+        design={design}
+        stageTracker={stageTracker}
+        title="Test"
+        compactionLevel={5}
+      />,
+    )
+    unmount()
+    const lastFrame = lastValidFrame(frames)
+    expect(lastFrame).to.not.include('─ Test ─')
+    expect(lastFrame).to.not.include('pre-stage hello')
+    expect(lastFrame).to.include(`[1/2] Step1`)
+    expect(lastFrame).to.include('stage-specific hello')
+    expect(lastFrame).to.not.include('post-stage hello')
+    expect(lastFrame).to.not.include('Elapsed Time:')
+  })
+
+  it('should render compactionLevel=6', async () => {
+    const stageTracker = new StageTracker(['step1', 'step2'])
+    stageTracker.set('step1', 'current')
+    const preStageInfos = [{type: 'message', value: 'pre-stage hello'}] as FormattedKeyValue[]
+    const postStageInfos = [{type: 'message', value: 'post-stage hello'}] as FormattedKeyValue[]
+    const stageSpecificInfos = [{stage: 'step1', type: 'message', value: 'stage-specific hello'}] as FormattedKeyValue[]
+
+    const {frames, unmount} = render(
+      <Stages
+        preStagesBlock={preStageInfos}
+        postStagesBlock={postStageInfos}
+        stageSpecificBlock={stageSpecificInfos}
+        design={design}
+        stageTracker={stageTracker}
+        title="Test"
+        compactionLevel={6}
+      />,
+    )
+    unmount()
+    const lastFrame = lastValidFrame(frames)
+    expect(lastFrame).to.not.include('─ Test ─')
+    expect(lastFrame).to.not.include('pre-stage hello')
+    expect(lastFrame).to.include(`[1/2] Step1`)
+    expect(lastFrame).to.not.include('stage-specific hello')
+    expect(lastFrame).to.not.include('post-stage hello')
+    expect(lastFrame).to.not.include('Elapsed Time:')
+  })
 })
 
 describe('determineCompactionLevel', () => {
