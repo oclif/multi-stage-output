@@ -203,7 +203,7 @@ function Infos({
   })
 }
 
-function Compact({
+function CompactStage({
   design,
   error,
   stage,
@@ -236,7 +236,7 @@ function Compact({
   )
 }
 
-function NoCompact({
+function Stage({
   design,
   error,
   stage,
@@ -298,13 +298,27 @@ function StageEntries({
 }): React.ReactNode {
   return (
     <>
+      {/*
+        Non-Compact view
+        ✔ Stage 1 0ms
+          ▸ stage specific info
+        ⣾ Stage 2 0ms
+          ▸ stage specific info
+        ◼ Stage 3 0ms
+          ▸ stage specific info
+
+        Compact view
+        ⣾ [1/3] Stage 1 ▸ stage specific info
+      */}
       {[...stageTracker.entries()].map(([stage, status]) => (
         <Box key={stage} flexDirection="column">
           <Box>
             {compactionLevel === 0 ? (
-              <NoCompact stage={stage} status={status} design={design} error={error} />
+              // Render the stage name and spinner
+              <Stage stage={stage} status={status} design={design} error={error} />
             ) : (
-              <Compact
+              // Render the stage name, spinner, and stage specific info
+              <CompactStage
                 stage={stage}
                 status={status}
                 design={design}
@@ -314,6 +328,11 @@ function StageEntries({
               />
             )}
 
+            {/*
+              Render the stage timer for current, completed, and failed stages.
+              If compactionLevel > 0, we need to render the timer but hide it if the stage is not current.
+              This allows us to keep accurate time for all the stages while only displaying the current stage's time.
+            */}
             {status !== 'pending' && status !== 'skipped' && hasStageTime && (
               <Box display={compactionLevel === 0 ? 'flex' : status === 'current' ? 'flex' : 'none'}>
                 <Text> </Text>
@@ -322,6 +341,7 @@ function StageEntries({
             )}
           </Box>
 
+          {/* Render the stage specific info for non-compact view */}
           {compactionLevel === 0 &&
             stageSpecificBlock &&
             stageSpecificBlock.length > 0 &&
