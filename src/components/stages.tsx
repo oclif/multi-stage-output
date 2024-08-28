@@ -211,12 +211,12 @@ function CompactStage({
   stageTracker,
   status,
 }: {
-  readonly stage: string
-  readonly status: string
-  readonly stageTracker: StageTracker
   readonly design: RequiredDesign
   readonly error?: Error
+  readonly stage: string
   readonly stageSpecificBlock: FormattedKeyValue[] | undefined
+  readonly stageTracker: StageTracker
+  readonly status: string
 }): React.ReactNode {
   if (status !== 'current') return false
   return (
@@ -313,7 +313,7 @@ function StageEntries({
       {[...stageTracker.entries()].map(([stage, status]) => (
         <Box key={stage} flexDirection="column">
           <Box>
-            {compactionLevel === 0 ? (
+            {compactionLevel < 6 ? (
               // Render the stage name and spinner
               <Stage stage={stage} status={status} design={design} error={error} />
             ) : (
@@ -342,7 +342,7 @@ function StageEntries({
           </Box>
 
           {/* Render the stage specific info for non-compact view */}
-          {compactionLevel === 0 &&
+          {compactionLevel < 6 &&
             stageSpecificBlock &&
             stageSpecificBlock.length > 0 &&
             status !== 'pending' &&
@@ -371,54 +371,166 @@ function filterInfos(infos: FormattedKeyValue[], compactionLevel: number, cutOff
  *
  * Compaction levels:
  * 0 - hide nothing
- * 1 - only show one stage at a time
+ * 1 - only show one stage at a time, with stage specific info nested under the stage
  * 2 - hide the elapsed time
  * 3 - hide the title
  * 4 - hide the pre-stages block
  * 5 - hide the post-stages block
- * 6 - hide the stage-specific block
- * 7 - reduce the padding between boxes
+ * 6 - put the stage specific info directly next to the stage
+ * 7 - hide the stage-specific block
+ * 8 - reduce the padding between boxes
  * @returns the compaction level based on the number of lines that will be displayed
  */
 export function determineCompactionLevel(
-  {hasElapsedTime = true, postStagesBlock, preStagesBlock, stageSpecificBlock, stageTracker, title}: StagesProps,
+  {
+    design = constructDesignParams(),
+    hasElapsedTime,
+    hasStageTime,
+    postStagesBlock,
+    preStagesBlock,
+    stageSpecificBlock,
+    stageTracker,
+    title,
+  }: StagesProps,
   rows: number,
+  columns: number,
 ): number {
+  // 3 at minimum because: 1 for paddingTop on entire component, 1 for paddingBottom on entire component, 1 for paddingTop on StageEntries
+  const paddings = 3 + (preStagesBlock ? 1 : 0) + (postStagesBlock ? 1 : 0)
+
+  const calculateHeightOfBlock = (block: FormattedKeyValue[] | undefined): number => {
+    if (!block) return 0
+    return block.reduce((acc, info) => {
+      if (info.type === 'message') {
+        if (!info.value) return acc
+
+        if (info.value.length > columns) {
+          // if the message is longer than the terminal width, add the number of lines
+          return acc + Math.ceil(info.value.length / columns)
+        }
+
+        // if the message is multiline, add the number of lines
+        return acc + info.value.split('\n').length
+      }
+
+      const {label = '', value} = info
+      // if there's no value we still add 1 for the label
+      if (!value) return acc + 1
+      if (label.length + Number(': '.length) + value.length > columns) {
+        // if the value is longer than the terminal width, add the number of lines
+        return acc + Math.ceil(value.length / columns)
+      }
+
+      return acc + value.split('\n').length
+    }, 1)
+  }
+
+  const calculateHeightOfStage = (stage: string): number => {
+    const status = stageTracker.get(stage) ?? 'pending'
+    const skipped = status === 'skipped' ? ' - Skipped' : ''
+    // We don't have access to the exact stage time, so we're taking a conservative estimate of
+    // 7 characters + 1 character for the space between the stage and timer,
+    // examples: 999ms (5), 59s (3), 59m 59s (7), 23h 59m (7)
+    const stageTimeLength = hasStageTime ? 8 : 0
+    if (
+      design.icons[status].paddingLeft +
+        design.icons[status].figure.length +
+        design.icons[status].paddingRight +
+        stage.length +
+        skipped.length +
+        stageTimeLength >
+      columns
+    ) {
+      return Math.ceil(stage.length / columns)
+    }
+
+    return 1
+  }
+
+  const calculateWidthOfCompactStage = (stage: string): number => {
+    const status = stageTracker.get(stage) ?? 'current'
+    // We don't have access to the exact stage time, so we're taking a conservative estimate of
+    // 7 characters + 1 character for the space between the stage and timer,
+    // examples: 999ms (5), 59s (3), 59m 59s (7), 23h 59m (7)
+    const stageTimeLength = hasStageTime ? 8 : 0
+
+    const firstStageSpecificBlock = stageSpecificBlock?.find((block) => block.stage === stage)
+    const firstStageSpecificBlockLength =
+      firstStageSpecificBlock?.type === 'message'
+        ? (firstStageSpecificBlock?.value?.length ?? 0)
+        : (firstStageSpecificBlock?.label?.length ?? 0) + (firstStageSpecificBlock?.value?.length ?? 0) + 2
+
+    const width =
+      design.icons[status].paddingLeft +
+      design.icons[status].figure.length +
+      design.icons[status].paddingRight +
+      `[${stageTracker.indexOf(stage) + 1}/${stageTracker.size}] ${stage}`.length +
+      stageTimeLength +
+      firstStageSpecificBlockLength
+
+    return width
+  }
+
+  const stagesHeight = [...stageTracker.values()].reduce((acc, stage) => acc + calculateHeightOfStage(stage), 0)
+  const preStagesBlockHeight = calculateHeightOfBlock(preStagesBlock)
+  const postStagesBlockHeight = calculateHeightOfBlock(postStagesBlock)
+  const stageSpecificBlockHeight = calculateHeightOfBlock(stageSpecificBlock)
+
   const lines =
-    stageTracker.size +
-    (preStagesBlock?.length ?? 0) +
-    (postStagesBlock?.length ?? 0) +
-    (stageSpecificBlock?.length ?? 0) +
+    stagesHeight +
+    preStagesBlockHeight +
+    postStagesBlockHeight +
+    stageSpecificBlockHeight +
     (title ? 1 : 0) +
     (hasElapsedTime ? 1 : 0) +
-    // add 4 for the top and bottom margins
-    4
+    paddings +
+    // add one for good measure
+    1
 
   let cLevel = 0
 
   const levels = [
-    // stages => 1
-    (remainingLines: number) => remainingLines - stageTracker.size + 1,
-    // elapsed time => 2
+    // 1: only show one stage at a time, with stage specific info nested under the stage
+    (remainingLines: number) => remainingLines - stagesHeight + 1,
+    // 2: hide the elapsed time
     (remainingLines: number) => remainingLines - 1,
-    // title => 3
+    // 3: hide the title
     (remainingLines: number) => remainingLines - 1,
-    // pre-stages block => 4
-    (remainingLines: number) => remainingLines - (preStagesBlock ? preStagesBlock.length : 0),
-    // post-stages block => 5
-    (remainingLines: number) => remainingLines - (postStagesBlock ? postStagesBlock.length : 0),
-    // stage-specific block => 6
-    (remainingLines: number) => remainingLines - (stageSpecificBlock ? stageSpecificBlock.length : 0),
-    // padding => 7
+    // 4: hide the pre-stages block
+    (remainingLines: number) => remainingLines - preStagesBlockHeight,
+    // 5: hide the post-stages block
+    (remainingLines: number) => remainingLines - postStagesBlockHeight,
+    // 6: put the stage specific info directly next to the stage
+    (remainingLines: number) => remainingLines - stageSpecificBlockHeight,
+    // 7: hide the stage-specific block
+    (remainingLines: number) => remainingLines,
+    // 8: reduce the padding between boxes
     (remainingLines: number) => remainingLines - 1,
   ]
 
   let remainingLines = lines
-  while (cLevel < 7 && remainingLines >= rows) {
+  while (cLevel < 8 && remainingLines >= rows) {
     remainingLines = levels[cLevel](remainingLines)
     cLevel++
   }
 
+  // it's possible that the collapsed stage might extend beyond the terminal width, so we need to check for that
+  // if so, we need to bump the compaction level up to 7 so that the stage specific info is hidden
+  if (cLevel === 6 && stageTracker.current && calculateWidthOfCompactStage(stageTracker.current) >= columns) {
+    cLevel = 7
+  }
+
+  // console.log({
+  //   cLevel,
+  //   lines,
+  //   paddings,
+  //   postStagesBlockHeight,
+  //   preStagesBlockHeight,
+  //   remainingLines,
+  //   rows,
+  //   stageSpecificBlockHeight,
+  //   stagesHeight,
+  // })
   return cLevel
 }
 
@@ -440,12 +552,15 @@ export function Stages({
     determineCompactionLevel(
       {
         hasElapsedTime,
+        hasStageTime,
         postStagesBlock,
         preStagesBlock,
+        stageSpecificBlock,
         stageTracker,
         title,
       },
       stdout.rows - 1,
+      stdout.columns,
     ),
   )
 
@@ -454,15 +569,29 @@ export function Stages({
       determineCompactionLevel(
         {
           hasElapsedTime,
+          hasStageTime,
           postStagesBlock,
           preStagesBlock,
+          stageSpecificBlock,
           stageTracker,
           title,
         },
         stdout.rows - 1,
+        stdout.columns,
       ),
     )
-  }, [stdout.rows, compactionLevel, hasElapsedTime, postStagesBlock, preStagesBlock, stageTracker, title])
+  }, [
+    compactionLevel,
+    hasElapsedTime,
+    hasStageTime,
+    postStagesBlock,
+    preStagesBlock,
+    stageSpecificBlock,
+    stageTracker,
+    stdout.columns,
+    stdout.rows,
+    title,
+  ])
 
   React.useEffect(() => {
     const handler = () => {
@@ -470,12 +599,15 @@ export function Stages({
         determineCompactionLevel(
           {
             hasElapsedTime,
+            hasStageTime,
             postStagesBlock,
             preStagesBlock,
+            stageSpecificBlock,
             stageTracker,
             title,
           },
           stdout.rows - 1,
+          stdout.columns,
         ),
       )
     }
@@ -492,13 +624,15 @@ export function Stages({
   // filter out the info blocks based on the compaction level
   const preStages = filterInfos(preStagesBlock ?? [], actualLevelOfCompaction, 4)
   const postStages = filterInfos(postStagesBlock ?? [], actualLevelOfCompaction, 5)
-  const stageSpecific = filterInfos(stageSpecificBlock ?? [], actualLevelOfCompaction, 6)
-  // Reduce padding if the compaction level is 7
-  const padding = actualLevelOfCompaction === 7 ? 0 : 1
+  const stageSpecific = filterInfos(stageSpecificBlock ?? [], actualLevelOfCompaction, 7)
+  // Reduce padding if the compaction level is 8
+  const padding = actualLevelOfCompaction === 8 ? 0 : 1
+
   return (
     <Box flexDirection="column" paddingTop={padding} paddingBottom={padding}>
-      {actualLevelOfCompaction < 3 && title && <Divider title={title} {...design.title} />}
-
+      {actualLevelOfCompaction < 3 && title && (
+        <Divider title={title} {...design.title} terminalWidth={stdout.columns} />
+      )}
       {preStages && preStages.length > 0 && (
         <Box flexDirection="column" marginLeft={1} paddingTop={padding}>
           <Infos design={design} error={error} keyValuePairs={preStages} />
