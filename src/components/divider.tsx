@@ -39,12 +39,7 @@ export function Divider({
   const dividerWidth = getSideDividerWidth(widthToUse, titleWidth)
   const numberOfCharsPerSide = getNumberOfCharsPerWidth(dividerChar, dividerWidth)
   const dividerSideString = dividerChar.repeat(numberOfCharsPerSide)
-  const entireString = titleString + dividerSideString + dividerSideString
-  const remainingWidth = widthToUse - entireString.length
-
-  // trim the padding string to the remaining width
-  const paddingWidth = getNumberOfCharsPerWidth(PAD.repeat(padding), remainingWidth)
-  const paddingString = PAD.repeat(paddingWidth)
+  const paddingString = PAD.repeat(padding)
 
   return (
     <Box flexDirection="row">

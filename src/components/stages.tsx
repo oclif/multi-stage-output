@@ -314,8 +314,10 @@ function StageEntries({
         <Box key={stage} flexDirection="column">
           <Box>
             {compactionLevel < 6 ? (
-              // Render the stage name and spinner
-              <Stage stage={stage} status={status} design={design} error={error} />
+              // Render the stage name and spinner but hide it if the stage is not current and compactionLevel > 0
+              <Box display={compactionLevel === 0 ? 'flex' : status === 'current' ? 'flex' : 'none'}>
+                <Stage stage={stage} status={status} design={design} error={error} />
+              </Box>
             ) : (
               // Render the stage name, spinner, and stage specific info
               <CompactStage
@@ -394,10 +396,7 @@ export function determineCompactionLevel(
   }: StagesProps,
   rows: number,
   columns: number,
-): number {
-  // 3 at minimum because: 1 for paddingTop on entire component, 1 for paddingBottom on entire component, 1 for paddingTop on StageEntries
-  const paddings = 3 + (preStagesBlock ? 1 : 0) + (postStagesBlock ? 1 : 0)
-
+): {compactionLevel: number; totalHeight: number} {
   const calculateHeightOfBlock = (block: FormattedKeyValue[] | undefined): number => {
     if (!block) return 0
     return block.reduce((acc, info) => {
@@ -422,7 +421,7 @@ export function determineCompactionLevel(
       }
 
       return acc + value.split('\n').length
-    }, 1)
+    }, 0)
   }
 
   const calculateHeightOfStage = (stage: string): number => {
@@ -433,7 +432,9 @@ export function determineCompactionLevel(
     // examples: 999ms (5), 59s (3), 59m 59s (7), 23h 59m (7)
     const stageTimeLength = hasStageTime ? 8 : 0
     if (
-      design.icons[status].paddingLeft +
+      // 1 for the left margin
+      1 +
+        design.icons[status].paddingLeft +
         design.icons[status].figure.length +
         design.icons[status].paddingRight +
         stage.length +
@@ -461,6 +462,8 @@ export function determineCompactionLevel(
         : (firstStageSpecificBlock?.label?.length ?? 0) + (firstStageSpecificBlock?.value?.length ?? 0) + 2
 
     const width =
+      // 1 for the left margin
+      1 +
       design.icons[status].paddingLeft +
       design.icons[status].figure.length +
       design.icons[status].paddingRight +
@@ -475,8 +478,10 @@ export function determineCompactionLevel(
   const preStagesBlockHeight = calculateHeightOfBlock(preStagesBlock)
   const postStagesBlockHeight = calculateHeightOfBlock(postStagesBlock)
   const stageSpecificBlockHeight = calculateHeightOfBlock(stageSpecificBlock)
+  // 3 at minimum because: 1 for marginTop on entire component, 1 for marginBottom on entire component, 1 for paddingBottom on StageEntries
+  const paddings = 3 + (preStagesBlock ? 1 : 0) + (postStagesBlock ? 1 : 0) + (title ? 1 : 0)
 
-  const lines =
+  const totalHeight =
     stagesHeight +
     preStagesBlockHeight +
     postStagesBlockHeight +
@@ -484,54 +489,46 @@ export function determineCompactionLevel(
     (title ? 1 : 0) +
     (hasElapsedTime ? 1 : 0) +
     paddings +
-    // add one for good measure
+    // add one for good measure - iTerm2 will flicker on every render if the height is exactly the same as the terminal height so it's better to be safe
     1
 
   let cLevel = 0
 
   const levels = [
     // 1: only show one stage at a time, with stage specific info nested under the stage
-    (remainingLines: number) => remainingLines - stagesHeight + 1,
+    (remainingHeight: number) => remainingHeight - stagesHeight + 1,
     // 2: hide the elapsed time
-    (remainingLines: number) => remainingLines - 1,
-    // 3: hide the title
-    (remainingLines: number) => remainingLines - 1,
-    // 4: hide the pre-stages block
-    (remainingLines: number) => remainingLines - preStagesBlockHeight,
+    (remainingHeight: number) => remainingHeight - 1,
+    // 3: hide the title (subtract 1 for title and 1 for paddingBottom)
+    (remainingHeight: number) => remainingHeight - 2,
+    // 4: hide the pre-stages block (subtract 1 for paddingBottom)
+    (remainingHeight: number) => remainingHeight - preStagesBlockHeight - 1,
     // 5: hide the post-stages block
-    (remainingLines: number) => remainingLines - postStagesBlockHeight,
+    (remainingHeight: number) => remainingHeight - postStagesBlockHeight,
     // 6: put the stage specific info directly next to the stage
-    (remainingLines: number) => remainingLines - stageSpecificBlockHeight,
+    (remainingHeight: number) => remainingHeight - stageSpecificBlockHeight,
     // 7: hide the stage-specific block
-    (remainingLines: number) => remainingLines,
+    (remainingHeight: number) => remainingHeight - stageSpecificBlockHeight,
     // 8: reduce the padding between boxes
-    (remainingLines: number) => remainingLines - 1,
+    (remainingHeight: number) => remainingHeight - 1,
   ]
 
-  let remainingLines = lines
-  while (cLevel < 8 && remainingLines >= rows) {
-    remainingLines = levels[cLevel](remainingLines)
+  let remainingHeight = totalHeight
+  while (cLevel < 8 && remainingHeight >= rows) {
+    remainingHeight = levels[cLevel](remainingHeight)
     cLevel++
   }
 
-  // it's possible that the collapsed stage might extend beyond the terminal width, so we need to check for that
-  // if so, we need to bump the compaction level up to 7 so that the stage specific info is hidden
+  // It's possible that the collapsed stage might extend beyond the terminal width.
+  // If so, we need to bump the compaction level up to 7 so that the stage specific info is hidden
   if (cLevel === 6 && stageTracker.current && calculateWidthOfCompactStage(stageTracker.current) >= columns) {
     cLevel = 7
   }
 
-  // console.log({
-  //   cLevel,
-  //   lines,
-  //   paddings,
-  //   postStagesBlockHeight,
-  //   preStagesBlockHeight,
-  //   remainingLines,
-  //   rows,
-  //   stageSpecificBlockHeight,
-  //   stagesHeight,
-  // })
-  return cLevel
+  return {
+    compactionLevel: cLevel,
+    totalHeight,
+  }
 }
 
 export function Stages({
@@ -561,7 +558,7 @@ export function Stages({
       },
       stdout.rows - 1,
       stdout.columns,
-    ),
+    ).compactionLevel,
   )
 
   React.useEffect(() => {
@@ -578,7 +575,7 @@ export function Stages({
         },
         stdout.rows - 1,
         stdout.columns,
-      ),
+      ).compactionLevel,
     )
   }, [
     compactionLevel,
@@ -608,7 +605,7 @@ export function Stages({
           },
           stdout.rows - 1,
           stdout.columns,
-        ),
+        ).compactionLevel,
       )
     }
 
@@ -629,17 +626,20 @@ export function Stages({
   const padding = actualLevelOfCompaction === 8 ? 0 : 1
 
   return (
-    <Box flexDirection="column" paddingTop={padding} paddingBottom={padding}>
+    <Box flexDirection="column" marginTop={padding} marginBottom={padding}>
       {actualLevelOfCompaction < 3 && title && (
-        <Divider title={title} {...design.title} terminalWidth={stdout.columns} />
+        <Box paddingBottom={padding}>
+          <Divider title={title} {...design.title} terminalWidth={stdout.columns} />
+        </Box>
       )}
+
       {preStages && preStages.length > 0 && (
-        <Box flexDirection="column" marginLeft={1} paddingTop={padding}>
+        <Box flexDirection="column" marginLeft={1} paddingBottom={padding}>
           <Infos design={design} error={error} keyValuePairs={preStages} />
         </Box>
       )}
 
-      <Box flexDirection="column" marginLeft={1} paddingTop={padding}>
+      <Box flexDirection="column" marginLeft={1} paddingBottom={padding}>
         <StageEntries
           compactionLevel={actualLevelOfCompaction}
           design={design}
@@ -652,13 +652,13 @@ export function Stages({
       </Box>
 
       {postStages && postStages.length > 0 && (
-        <Box flexDirection="column" marginLeft={1} paddingTop={padding}>
+        <Box flexDirection="column" marginLeft={1}>
           <Infos design={design} error={error} keyValuePairs={postStages} />
         </Box>
       )}
 
       {hasElapsedTime && (
-        <Box marginLeft={padding} display={actualLevelOfCompaction < 2 ? 'flex' : 'none'}>
+        <Box marginLeft={1} display={actualLevelOfCompaction < 2 ? 'flex' : 'none'}>
           <Text>Elapsed Time: </Text>
           <Timer unit={timerUnit} />
         </Box>

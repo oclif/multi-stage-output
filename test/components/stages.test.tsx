@@ -17,20 +17,20 @@ function lastValidFrame(frames: string[]): string {
   return ''
 }
 
-describe('Stages', () => {
-  const design = constructDesignParams({
-    icons: {
-      completed: {
-        figure: 'c',
-        paddingRight: 1,
-      },
-      pending: {
-        figure: 'p',
-        paddingRight: 1,
-      },
+const design = constructDesignParams({
+  icons: {
+    completed: {
+      figure: 'c',
+      paddingRight: 1,
     },
-  })
+    pending: {
+      figure: 'p',
+      paddingRight: 1,
+    },
+  },
+})
 
+describe('Stages', () => {
   it('should render pending stages', async () => {
     const stageTracker = new StageTracker(['step1', 'step2'])
     const {frames, unmount} = render(<Stages design={design} stageTracker={stageTracker} title="Test" />)
@@ -219,384 +219,388 @@ describe('Stages', () => {
    ${design.icons.info.figure} Dynamic: this is a dynamic key:value pair`)
   })
 
-  it('should render compactionLevel=1', async () => {
-    const stageTracker = new StageTracker(['step1', 'step2'])
-    stageTracker.set('step1', 'current')
-    const preStageInfos = [{type: 'message', value: 'pre-stage hello'}] as FormattedKeyValue[]
-    const postStageInfos = [{type: 'message', value: 'post-stage hello'}] as FormattedKeyValue[]
-    const stageSpecificInfos = [{stage: 'step1', type: 'message', value: 'stage-specific hello'}] as FormattedKeyValue[]
+  describe('compactionLevel', () => {
+    function renderStages(compactionLevel: number): string {
+      const stageTracker = new StageTracker(['step1', 'step2'])
+      stageTracker.set('step1', 'current')
 
-    const {frames, unmount} = render(
-      <Stages
-        preStagesBlock={preStageInfos}
-        postStagesBlock={postStageInfos}
-        stageSpecificBlock={stageSpecificInfos}
-        design={design}
-        stageTracker={stageTracker}
-        title="Test"
-        compactionLevel={1}
-      />,
-    )
-    unmount()
-    const lastFrame = lastValidFrame(frames)
-    expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('pre-stage hello')
-    expect(lastFrame).to.include(`[1/2] Step1`)
-    expect(lastFrame).to.include('stage-specific hello')
-    expect(lastFrame).to.include('post-stage hello')
-    expect(lastFrame).to.include('Elapsed Time:')
-  })
+      const props = {
+        compactionLevel,
+        design,
+        postStagesBlock: [{type: 'message', value: 'post-stage hello'}] as FormattedKeyValue[],
+        preStagesBlock: [{type: 'message', value: 'pre-stage hello'}] as FormattedKeyValue[],
+        stageSpecificBlock: [{stage: 'step1', type: 'message', value: 'stage-specific hello'}] as FormattedKeyValue[],
+        stageTracker,
+        title: 'Test',
+      }
+      const {frames, unmount} = render(<Stages {...props} />)
+      unmount()
+      return lastValidFrame(frames)
+    }
 
-  it('should render compactionLevel=2', async () => {
-    const stageTracker = new StageTracker(['step1', 'step2'])
-    stageTracker.set('step1', 'current')
-    const preStageInfos = [{type: 'message', value: 'pre-stage hello'}] as FormattedKeyValue[]
-    const postStageInfos = [{type: 'message', value: 'post-stage hello'}] as FormattedKeyValue[]
-    const stageSpecificInfos = [{stage: 'step1', type: 'message', value: 'stage-specific hello'}] as FormattedKeyValue[]
+    it('should render compactionLevel=1', async () => {
+      const lastFrame = renderStages(1)
+      expect(lastFrame).to.include('─ Test ─')
+      expect(lastFrame).to.include('pre-stage hello')
+      expect(lastFrame).to.include(`Step1 0ms`)
+      expect(lastFrame).to.not.include(`${design.icons.pending.figure} Step2`)
+      expect(lastFrame).to.include('stage-specific hello')
+      expect(lastFrame).to.include('post-stage hello')
+      expect(lastFrame).to.include('Elapsed Time:')
+    })
 
-    const {frames, unmount} = render(
-      <Stages
-        preStagesBlock={preStageInfos}
-        postStagesBlock={postStageInfos}
-        stageSpecificBlock={stageSpecificInfos}
-        design={design}
-        stageTracker={stageTracker}
-        title="Test"
-        compactionLevel={2}
-      />,
-    )
-    unmount()
-    const lastFrame = lastValidFrame(frames)
-    expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include('pre-stage hello')
-    expect(lastFrame).to.include(`[1/2] Step1`)
-    expect(lastFrame).to.include('stage-specific hello')
-    expect(lastFrame).to.include('post-stage hello')
-    expect(lastFrame).to.not.include('Elapsed Time:')
-  })
+    it('should render compactionLevel=2', async () => {
+      const lastFrame = renderStages(2)
+      expect(lastFrame).to.include('─ Test ─')
+      expect(lastFrame).to.include('pre-stage hello')
+      expect(lastFrame).to.include(`Step1 0ms`)
+      expect(lastFrame).to.not.include(`${design.icons.pending.figure} Step2`)
+      expect(lastFrame).to.include('stage-specific hello')
+      expect(lastFrame).to.include('post-stage hello')
+      expect(lastFrame).to.not.include('Elapsed Time:')
+    })
 
-  it('should render compactionLevel=3', async () => {
-    const stageTracker = new StageTracker(['step1', 'step2'])
-    stageTracker.set('step1', 'current')
-    const preStageInfos = [{type: 'message', value: 'pre-stage hello'}] as FormattedKeyValue[]
-    const postStageInfos = [{type: 'message', value: 'post-stage hello'}] as FormattedKeyValue[]
-    const stageSpecificInfos = [{stage: 'step1', type: 'message', value: 'stage-specific hello'}] as FormattedKeyValue[]
+    it('should render compactionLevel=3', async () => {
+      const lastFrame = renderStages(3)
+      expect(lastFrame).to.not.include('─ Test ─')
+      expect(lastFrame).to.include('pre-stage hello')
+      expect(lastFrame).to.include(`Step1 0ms`)
+      expect(lastFrame).to.not.include(`${design.icons.pending.figure} Step2`)
+      expect(lastFrame).to.include('stage-specific hello')
+      expect(lastFrame).to.include('post-stage hello')
+      expect(lastFrame).to.not.include('Elapsed Time:')
+    })
 
-    const {frames, unmount} = render(
-      <Stages
-        preStagesBlock={preStageInfos}
-        postStagesBlock={postStageInfos}
-        stageSpecificBlock={stageSpecificInfos}
-        design={design}
-        stageTracker={stageTracker}
-        title="Test"
-        compactionLevel={3}
-      />,
-    )
-    unmount()
-    const lastFrame = lastValidFrame(frames)
-    expect(lastFrame).to.not.include('─ Test ─')
-    expect(lastFrame).to.include('pre-stage hello')
-    expect(lastFrame).to.include(`[1/2] Step1`)
-    expect(lastFrame).to.include('stage-specific hello')
-    expect(lastFrame).to.include('post-stage hello')
-    expect(lastFrame).to.not.include('Elapsed Time:')
-  })
+    it('should render compactionLevel=4', async () => {
+      const lastFrame = renderStages(4)
+      expect(lastFrame).to.not.include('─ Test ─')
+      expect(lastFrame).to.not.include('pre-stage hello')
+      expect(lastFrame).to.include(`Step1 0ms`)
+      expect(lastFrame).to.not.include(`${design.icons.pending.figure} Step2`)
+      expect(lastFrame).to.include('stage-specific hello')
+      expect(lastFrame).to.include('post-stage hello')
+      expect(lastFrame).to.not.include('Elapsed Time:')
+    })
 
-  it('should render compactionLevel=4', async () => {
-    const stageTracker = new StageTracker(['step1', 'step2'])
-    stageTracker.set('step1', 'current')
-    const preStageInfos = [{type: 'message', value: 'pre-stage hello'}] as FormattedKeyValue[]
-    const postStageInfos = [{type: 'message', value: 'post-stage hello'}] as FormattedKeyValue[]
-    const stageSpecificInfos = [{stage: 'step1', type: 'message', value: 'stage-specific hello'}] as FormattedKeyValue[]
+    it('should render compactionLevel=5', async () => {
+      const lastFrame = renderStages(5)
+      expect(lastFrame).to.not.include('─ Test ─')
+      expect(lastFrame).to.not.include('pre-stage hello')
+      expect(lastFrame).to.include(`Step1 0ms`)
+      expect(lastFrame).to.not.include(`${design.icons.pending.figure} Step2`)
+      expect(lastFrame).to.include('stage-specific hello')
+      expect(lastFrame).to.not.include('post-stage hello')
+      expect(lastFrame).to.not.include('Elapsed Time:')
+    })
 
-    const {frames, unmount} = render(
-      <Stages
-        preStagesBlock={preStageInfos}
-        postStagesBlock={postStageInfos}
-        stageSpecificBlock={stageSpecificInfos}
-        design={design}
-        stageTracker={stageTracker}
-        title="Test"
-        compactionLevel={4}
-      />,
-    )
-    unmount()
-    const lastFrame = lastValidFrame(frames)
-    expect(lastFrame).to.not.include('─ Test ─')
-    expect(lastFrame).to.not.include('pre-stage hello')
-    expect(lastFrame).to.include(`[1/2] Step1`)
-    expect(lastFrame).to.include('stage-specific hello')
-    expect(lastFrame).to.include('post-stage hello')
-    expect(lastFrame).to.not.include('Elapsed Time:')
-  })
+    it('should render compactionLevel=6', async () => {
+      const lastFrame = renderStages(6)
+      expect(lastFrame).to.not.include('─ Test ─')
+      expect(lastFrame).to.not.include('pre-stage hello')
+      expect(lastFrame).to.include(`[1/2] Step1`)
+      expect(lastFrame).to.include('stage-specific hello 0ms')
+      expect(lastFrame).to.not.include(`${design.icons.pending.figure} Step2`)
+      expect(lastFrame).to.not.include('post-stage hello')
+      expect(lastFrame).to.not.include('Elapsed Time:')
+    })
 
-  it('should render compactionLevel=5', async () => {
-    const stageTracker = new StageTracker(['step1', 'step2'])
-    stageTracker.set('step1', 'current')
-    const preStageInfos = [{type: 'message', value: 'pre-stage hello'}] as FormattedKeyValue[]
-    const postStageInfos = [{type: 'message', value: 'post-stage hello'}] as FormattedKeyValue[]
-    const stageSpecificInfos = [{stage: 'step1', type: 'message', value: 'stage-specific hello'}] as FormattedKeyValue[]
-
-    const {frames, unmount} = render(
-      <Stages
-        preStagesBlock={preStageInfos}
-        postStagesBlock={postStageInfos}
-        stageSpecificBlock={stageSpecificInfos}
-        design={design}
-        stageTracker={stageTracker}
-        title="Test"
-        compactionLevel={5}
-      />,
-    )
-    unmount()
-    const lastFrame = lastValidFrame(frames)
-    expect(lastFrame).to.not.include('─ Test ─')
-    expect(lastFrame).to.not.include('pre-stage hello')
-    expect(lastFrame).to.include(`[1/2] Step1`)
-    expect(lastFrame).to.include('stage-specific hello')
-    expect(lastFrame).to.not.include('post-stage hello')
-    expect(lastFrame).to.not.include('Elapsed Time:')
-  })
-
-  it('should render compactionLevel=6', async () => {
-    const stageTracker = new StageTracker(['step1', 'step2'])
-    stageTracker.set('step1', 'current')
-    const preStageInfos = [{type: 'message', value: 'pre-stage hello'}] as FormattedKeyValue[]
-    const postStageInfos = [{type: 'message', value: 'post-stage hello'}] as FormattedKeyValue[]
-    const stageSpecificInfos = [{stage: 'step1', type: 'message', value: 'stage-specific hello'}] as FormattedKeyValue[]
-
-    const {frames, unmount} = render(
-      <Stages
-        preStagesBlock={preStageInfos}
-        postStagesBlock={postStageInfos}
-        stageSpecificBlock={stageSpecificInfos}
-        design={design}
-        stageTracker={stageTracker}
-        title="Test"
-        compactionLevel={6}
-      />,
-    )
-    unmount()
-    const lastFrame = lastValidFrame(frames)
-    expect(lastFrame).to.not.include('─ Test ─')
-    expect(lastFrame).to.not.include('pre-stage hello')
-    expect(lastFrame).to.include(`[1/2] Step1`)
-    expect(lastFrame).to.not.include('stage-specific hello')
-    expect(lastFrame).to.not.include('post-stage hello')
-    expect(lastFrame).to.not.include('Elapsed Time:')
+    it('should render compactionLevel=7', async () => {
+      const lastFrame = renderStages(7)
+      expect(lastFrame).to.not.include('─ Test ─')
+      expect(lastFrame).to.not.include('pre-stage hello')
+      expect(lastFrame).to.include(`[1/2] Step1`)
+      expect(lastFrame).to.not.include('stage-specific hello 0ms')
+      expect(lastFrame).to.not.include(`${design.icons.pending.figure} Step2`)
+      expect(lastFrame).to.not.include('post-stage hello')
+      expect(lastFrame).to.not.include('Elapsed Time:')
+    })
   })
 })
 
 describe('determineCompactionLevel', () => {
-  it('should return 0 if the number of stages < the window size', () => {
-    const stages = Array.from({length: 5}, (_, i) => i.toString())
+  type InfoBlockOptions = {
+    count: number
+    type: 'message' | 'static-key-value' | 'dynamic-key-value'
+    width: number
+  }
+
+  function makeBlock(opts: InfoBlockOptions, stage?: string) {
+    return Array.from({length: opts.count}, (_, i) => ({
+      type: opts.type,
+      value: i.toString().repeat(opts.width),
+      ...(stage ? {stage} : {}),
+      ...(opts.type === 'message' ? {} : {label: 'label'}),
+    })) as FormattedKeyValue[]
+  }
+
+  function makeInputs(opts: {
+    hasElapsedTime?: boolean
+    hasStageTime?: boolean
+    title?: string
+    preStagesBlock?: InfoBlockOptions
+    postStagesBlock?: InfoBlockOptions
+    stageSpecificBlock?: InfoBlockOptions
+    stageCount: number
+    stageNameLength: number
+  }) {
+    const stages = Array.from({length: opts.stageCount}, (_, i) => i.toString().repeat(opts.stageNameLength))
     const stageTracker = new StageTracker(stages)
-    expect(
-      determineCompactionLevel(
-        {
-          hasElapsedTime: true,
-          postStagesBlock: [],
-          preStagesBlock: [],
-          stageSpecificBlock: [],
-          stageTracker,
-          title: 'Test',
-        },
-        20,
-      ),
-    ).to.equal(0)
+
+    const inputs = {
+      design,
+      stageTracker,
+      ...(opts.hasElapsedTime ? {hasElapsedTime: opts.hasElapsedTime} : {}),
+      ...(opts.hasStageTime ? {hasStageTime: opts.hasStageTime} : {}),
+      ...(opts.title ? {title: opts.title} : {}),
+      ...(opts.preStagesBlock ? {preStagesBlock: makeBlock(opts.preStagesBlock)} : {}),
+      ...(opts.postStagesBlock ? {postStagesBlock: makeBlock(opts.postStagesBlock)} : {}),
+      ...(opts.stageSpecificBlock ? {stageSpecificBlock: makeBlock(opts.stageSpecificBlock, stages[0])} : {}),
+    }
+
+    return inputs
+  }
+
+  describe('stages', () => {
+    // total height will be 9 (5 stages + 3 padding + 1 extra)
+    const inputs = makeInputs({
+      stageCount: 5,
+      stageNameLength: 1,
+    })
+
+    it('returns 0 if total height is less than the window height', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 10, 100)
+      expect(totalHeight).to.equal(9)
+      expect(compactionLevel).to.equal(0)
+    })
+
+    it('returns 1 if collapsing stages is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 9, 100)
+      expect(totalHeight).to.equal(9)
+      expect(compactionLevel).to.equal(1)
+    })
   })
 
-  it('should return 1 if the number of stages = the window size', () => {
-    const stages = Array.from({length: 20}, (_, i) => i.toString())
-    const stageTracker = new StageTracker(stages)
-    expect(
-      determineCompactionLevel(
-        {
-          hasElapsedTime: true,
-          postStagesBlock: [],
-          preStagesBlock: [],
-          stageSpecificBlock: [],
-          stageTracker,
-          title: 'Test',
-        },
-        20,
-      ),
-    ).to.equal(1)
+  describe('stages + elapsed time', () => {
+    // total height will be 9 (4 stages + 1 elapsed time + 3 padding + 1 extra)
+    const inputs = makeInputs({
+      hasElapsedTime: true,
+      stageCount: 4,
+      stageNameLength: 1,
+    })
+
+    it('returns 0 if total height is less than the window height', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 10, 100)
+      expect(totalHeight).to.equal(9)
+      expect(compactionLevel).to.equal(0)
+    })
+
+    it('returns 1 if collapsing stages is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 8, 100)
+      expect(totalHeight).to.equal(9)
+      expect(compactionLevel).to.equal(1)
+    })
+
+    it('returns 2 if collapsing stages and elapsed time is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 6, 100)
+      expect(totalHeight).to.equal(9)
+      expect(compactionLevel).to.equal(2)
+    })
   })
 
-  it('should return 1 if the number of stages > the window size', () => {
-    const stages = Array.from({length: 23}, (_, i) => i.toString())
-    const stageTracker = new StageTracker(stages)
-    expect(
-      determineCompactionLevel(
-        {
-          hasElapsedTime: true,
-          postStagesBlock: [],
-          preStagesBlock: [],
-          stageSpecificBlock: [],
-          stageTracker,
-          title: 'Test',
-        },
-        20,
-      ),
-    ).to.equal(1)
+  describe('stages + elapsed time + title', () => {
+    // total height will be 9 (2 stages + 1 elapsed time + 1 title + 4 padding + 1 extra)
+    const inputs = makeInputs({
+      hasElapsedTime: true,
+      stageCount: 2,
+      stageNameLength: 1,
+      title: 'title',
+    })
+
+    it('returns 0 if total height is less than the window height', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 10, 100)
+      expect(totalHeight).to.equal(9)
+      expect(compactionLevel).to.equal(0)
+    })
+
+    it('returns 1 if collapsing stages is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 9, 100)
+      expect(totalHeight).to.equal(9)
+      expect(compactionLevel).to.equal(1)
+    })
+
+    it('returns 2 if collapsing stages and elapsed time is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 8, 100)
+      expect(totalHeight).to.equal(9)
+      expect(compactionLevel).to.equal(2)
+    })
+
+    it('returns 3 if collapsing stages, elapsed time, and title is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 7, 100)
+      expect(totalHeight).to.equal(9)
+      expect(compactionLevel).to.equal(3)
+    })
   })
 
-  it('should return 2 if the number of stages + the elapsed time > the window size', () => {
-    const stages = Array.from({length: 20}, (_, i) => i.toString())
-    const infos = Array.from({length: 13}, () => ({
-      type: 'message',
-      value: 'hello',
-    })) as FormattedKeyValue[]
-    const stageTracker = new StageTracker(stages)
+  describe('stages + elapsed time + title + pre-stages block', () => {
+    // total height will be 18 (5 stages + 5 pre-stage infos + 1 elapsed time + 1 title + 5 padding + 1 extra)
+    const inputs = makeInputs({
+      hasElapsedTime: true,
+      preStagesBlock: {count: 5, type: 'message', width: 1},
+      stageCount: 5,
+      stageNameLength: 1,
+      title: 'title',
+    })
 
-    // 20 stages + 13 info blocks + 1 title + 1 elapsed time + 4 margin = 39 total lines
-    // remove 19 lines since it will only render one a time and you get 20
-    // remove 1 line for the elapsed time and you get 19, which is less than the window size
-    // so the compaction level should be 2
-    expect(
-      determineCompactionLevel(
-        {
-          hasElapsedTime: true,
-          postStagesBlock: infos,
-          preStagesBlock: [],
-          stageSpecificBlock: [],
-          stageTracker,
-          title: 'Test',
-        },
-        20,
-      ),
-    ).to.equal(2)
+    it('returns 0 if total height is less than the window height', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 20, 100)
+      expect(totalHeight).to.equal(18)
+      expect(compactionLevel).to.equal(0)
+    })
+
+    it('returns 1 if collapsing stages is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 18, 100)
+      expect(totalHeight).to.equal(18)
+      expect(compactionLevel).to.equal(1)
+    })
+
+    it('returns 2 if collapsing stages and elapsed time is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 14, 100)
+      expect(totalHeight).to.equal(18)
+      expect(compactionLevel).to.equal(2)
+    })
+
+    it('returns 3 if collapsing stages, elapsed time, and title is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 13, 100)
+      expect(totalHeight).to.equal(18)
+      expect(compactionLevel).to.equal(3)
+    })
+
+    it('returns 4 if collapsing stages, elapsed time, title, and pre-stages is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 11, 100)
+      expect(totalHeight).to.equal(18)
+      expect(compactionLevel).to.equal(4)
+    })
   })
 
-  it('should return 3 if the number of stages + the elapsed time + title > the window size', () => {
-    const stages = Array.from({length: 20}, (_, i) => i.toString())
-    const infos = Array.from({length: 14}, () => ({
-      type: 'message',
-      value: 'hello',
-    })) as FormattedKeyValue[]
-    const stageTracker = new StageTracker(stages)
+  describe('stages + elapsed time + title + pre-stages block + post-stages block', () => {
+    // total height will be 24 (5 stages + 5 pre-stage infos + 5 post-stage infos + 1 elapsed time + 1 title + 6 padding + 1 extra)
+    const inputs = makeInputs({
+      hasElapsedTime: true,
+      postStagesBlock: {count: 5, type: 'message', width: 1},
+      preStagesBlock: {count: 5, type: 'message', width: 1},
+      stageCount: 5,
+      stageNameLength: 1,
+      title: 'title',
+    })
 
-    // 20 stages + 14 info blocks + 1 title + 1 elapsed time + 4 margin = 40 total lines
-    // remove 19 lines since it will only render one a time and you get 21
-    // remove 1 line for the elapsed time and you get 20,
-    // remove 1 line for the title and you get 19, which is less than the window size
-    // so the compaction level should be 3
-    expect(
-      determineCompactionLevel(
-        {
-          hasElapsedTime: true,
-          postStagesBlock: infos,
-          preStagesBlock: [],
-          stageSpecificBlock: [],
-          stageTracker,
-          title: 'Test',
-        },
-        20,
-      ),
-    ).to.equal(3)
+    it('returns 0 if total height is less than the window height', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 25, 100)
+      expect(totalHeight).to.equal(24)
+      expect(compactionLevel).to.equal(0)
+    })
+
+    it('returns 1 if collapsing stages is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 23, 100)
+      expect(totalHeight).to.equal(24)
+      expect(compactionLevel).to.equal(1)
+    })
+
+    it('returns 2 if collapsing stages and elapsed time is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 20, 100)
+      expect(totalHeight).to.equal(24)
+      expect(compactionLevel).to.equal(2)
+    })
+
+    it('returns 3 if collapsing stages, elapsed time, and title is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 19, 100)
+      expect(totalHeight).to.equal(24)
+      expect(compactionLevel).to.equal(3)
+    })
+
+    it('returns 4 if collapsing stages, elapsed time, title, and pre-stages is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 17, 100)
+      expect(totalHeight).to.equal(24)
+      expect(compactionLevel).to.equal(4)
+    })
+
+    it('returns 5 if collapsing stages, elapsed time, title, pre-stages, and post-stages is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 11, 100)
+      expect(totalHeight).to.equal(24)
+      expect(compactionLevel).to.equal(5)
+    })
   })
 
-  it('should return 4 if the number of stages + the elapsed time + title + pre-stages block > the window size', () => {
-    const stages = Array.from({length: 20}, (_, i) => i.toString())
-    const infos = Array.from({length: 15}, () => ({
-      type: 'message',
-      value: 'hello',
-    })) as FormattedKeyValue[]
-    const stageTracker = new StageTracker(stages)
+  describe('stages + elapsed time + title + pre-stages block + post-stages block + stage-specific block', () => {
+    // total height will be 29 (5 stages + 5 pre-stage infos + 5 post-stage infos + 5 stage-specific infos + 1 elapsed time + 1 title + 6 padding + 1 extra)
+    const inputs = makeInputs({
+      hasElapsedTime: true,
+      postStagesBlock: {count: 5, type: 'message', width: 1},
+      preStagesBlock: {count: 5, type: 'message', width: 1},
+      stageCount: 5,
+      stageNameLength: 1,
+      stageSpecificBlock: {count: 5, type: 'message', width: 20},
+      title: 'title',
+    })
 
-    // 20 stages + 15 info blocks + 1 title + 1 elapsed time + 4 margin = 41 total lines
-    // remove 19 lines since it will only render one a time and you get 22
-    // remove 1 line for the elapsed time and you get 21,
-    // remove 1 line for the title and you get 20
-    // remove the pre-stages block and you get 5, which is less than the window size
-    // so the compaction level should be 4
-    expect(
-      determineCompactionLevel(
-        {
-          hasElapsedTime: true,
-          postStagesBlock: [],
-          preStagesBlock: infos,
-          stageSpecificBlock: [],
-          stageTracker,
-          title: 'Test',
-        },
-        20,
-      ),
-    ).to.equal(4)
-  })
+    it('returns 0 if total height is less than the window height', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 30, 100)
+      expect(totalHeight).to.equal(29)
+      expect(compactionLevel).to.equal(0)
+    })
 
-  it('should return 5 if the number of stages + the elapsed time + title + pre-stages block + post-stages block > the window size', () => {
-    const stages = Array.from({length: 20}, (_, i) => i.toString())
-    const postStagesBlock = Array.from({length: 15}, () => ({
-      type: 'message',
-      value: 'hello',
-    })) as FormattedKeyValue[]
-    const preStagesBlock = Array.from({length: 1}, () => ({
-      type: 'message',
-      value: 'hello',
-    })) as FormattedKeyValue[]
-    const stageTracker = new StageTracker(stages)
+    it('returns 1 if collapsing stages is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 28, 100)
+      expect(totalHeight).to.equal(29)
+      expect(compactionLevel).to.equal(1)
+    })
 
-    // 20 stages + 16 info blocks + 1 title + 1 elapsed time + 4 margin = 42 total lines
-    // remove 19 lines since it will only render one a time and you get 23
-    // remove 1 line for the elapsed time and you get 22,
-    // remove 1 line for the title and you get 21
-    // remove the pre-stages block and you get 20
-    // remove the post-stages block and you get 5, which is less than the window size
-    // so the compaction level should be 5
-    expect(
-      determineCompactionLevel(
-        {
-          hasElapsedTime: true,
-          postStagesBlock,
-          preStagesBlock,
-          stageSpecificBlock: [],
-          stageTracker,
-          title: 'Test',
-        },
-        20,
-      ),
-    ).to.equal(5)
-  })
+    it('returns 2 if collapsing stages and elapsed time is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 25, 100)
+      expect(totalHeight).to.equal(29)
+      expect(compactionLevel).to.equal(2)
+    })
 
-  it('should return 6 if the number of stages + the elapsed time + title + pre-stages block + post-stages block + stage specific block > the window size', () => {
-    const stages = Array.from({length: 20}, (_, i) => i.toString())
-    const postStagesBlock = Array.from({length: 1}, () => ({
-      type: 'message',
-      value: 'hello',
-    })) as FormattedKeyValue[]
-    const preStagesBlock = Array.from({length: 1}, () => ({
-      type: 'message',
-      value: 'hello',
-    })) as FormattedKeyValue[]
-    const stageSpecificBlock = Array.from({length: 15}, () => ({
-      type: 'message',
-      value: 'hello',
-    })) as FormattedKeyValue[]
-    const stageTracker = new StageTracker(stages)
+    it('returns 3 if collapsing stages, elapsed time, and title is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 24, 100)
+      expect(totalHeight).to.equal(29)
+      expect(compactionLevel).to.equal(3)
+    })
 
-    // 20 stages + 17 info blocks + 1 title + 1 elapsed time + 4 margin = 43 total lines
-    // remove 19 lines since it will only render one a time and you get 24
-    // remove 1 line for the elapsed time and you get 23,
-    // remove 1 line for the title and you get 22
-    // remove the pre-stages block and you get 21
-    // remove the post-stages block and you get 20
-    // remove the stage specific block and you get 5, which is less than the window size
-    // so the compaction level should be 6
-    expect(
-      determineCompactionLevel(
-        {
-          hasElapsedTime: true,
-          postStagesBlock,
-          preStagesBlock,
-          stageSpecificBlock,
-          stageTracker,
-          title: 'Test',
-        },
-        20,
-      ),
-    ).to.equal(6)
+    it('returns 4 if collapsing stages, elapsed time, title, and pre-stages is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 22, 100)
+      expect(totalHeight).to.equal(29)
+      expect(compactionLevel).to.equal(4)
+    })
+
+    it('returns 5 if collapsing stages, elapsed time, title, pre-stages, and post-stages is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 16, 100)
+      expect(totalHeight).to.equal(29)
+      expect(compactionLevel).to.equal(5)
+    })
+
+    it('returns 6 if collapsing stages, elapsed time, title, pre-stages, post-stages, and stage-specific is sufficient', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 11, 100)
+      expect(totalHeight).to.equal(29)
+      expect(compactionLevel).to.equal(6)
+    })
+
+    it('returns 7 if it needs to hide all stage-specific blocks', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 6, 100)
+      expect(totalHeight).to.equal(29)
+      expect(compactionLevel).to.equal(7)
+    })
+
+    it('returns 7 if window is too narrow to show all stage-specific blocks', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 6, 10)
+      // height is taller here since lines are being wrapped to accommodate the narrow window
+      expect(totalHeight).to.equal(34)
+      expect(compactionLevel).to.equal(7)
+    })
+
+    it('returns 8 if it needs to reduce padding', () => {
+      const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 1, 100)
+      expect(totalHeight).to.equal(29)
+      expect(compactionLevel).to.equal(8)
+    })
   })
 })
