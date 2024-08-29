@@ -205,6 +205,7 @@ function Infos({
 
 function CompactStage({
   design,
+  direction = 'row',
   error,
   stage,
   stageSpecificBlock,
@@ -212,6 +213,7 @@ function CompactStage({
   status,
 }: {
   readonly design: RequiredDesign
+  readonly direction?: 'row' | 'column'
   readonly error?: Error
   readonly stage: string
   readonly stageSpecificBlock: FormattedKeyValue[] | undefined
@@ -220,7 +222,7 @@ function CompactStage({
 }): React.ReactNode {
   if (status !== 'current') return false
   return (
-    <Box flexDirection="row">
+    <Box flexDirection={direction}>
       <SpinnerOrError
         error={error}
         label={`[${stageTracker.indexOf(stage) + 1}/${stageTracker.size}] ${capitalCase(stage)}`}
@@ -299,7 +301,7 @@ function StageEntries({
   return (
     <>
       {/*
-        Non-Compact view
+        Non-Compact view (compactionLevel === 0)
         ✔ Stage 1 0ms
           ▸ stage specific info
         ⣾ Stage 2 0ms
@@ -307,17 +309,18 @@ function StageEntries({
         ◼ Stage 3 0ms
           ▸ stage specific info
 
-        Compact view
-        ⣾ [1/3] Stage 1 ▸ stage specific info
+        Semi-Compact view (compactionLevel < 6)
+        ⣾ [1/3] Stage 1 0ms
+          ▸ stage specific info
+
+        Compact view (compactionLevel >= 6)
+        ⣾ [1/3] Stage 1 ▸ stage specific info 0ms
       */}
       {[...stageTracker.entries()].map(([stage, status]) => (
         <Box key={stage} flexDirection="column">
           <Box>
-            {compactionLevel < 6 ? (
-              // Render the stage name and spinner but hide it if the stage is not current and compactionLevel > 0
-              <Box display={compactionLevel === 0 ? 'flex' : status === 'current' ? 'flex' : 'none'}>
-                <Stage stage={stage} status={status} design={design} error={error} />
-              </Box>
+            {compactionLevel === 0 ? (
+              <Stage stage={stage} status={status} design={design} error={error} />
             ) : (
               // Render the stage name, spinner, and stage specific info
               <CompactStage
@@ -327,6 +330,7 @@ function StageEntries({
                 error={error}
                 stageSpecificBlock={stageSpecificBlock}
                 stageTracker={stageTracker}
+                direction={compactionLevel >= 6 ? 'row' : 'column'}
               />
             )}
 
@@ -344,7 +348,7 @@ function StageEntries({
           </Box>
 
           {/* Render the stage specific info for non-compact view */}
-          {compactionLevel < 6 &&
+          {compactionLevel === 0 &&
             stageSpecificBlock &&
             stageSpecificBlock.length > 0 &&
             status !== 'pending' &&
@@ -428,9 +432,9 @@ export function determineCompactionLevel(
     const status = stageTracker.get(stage) ?? 'pending'
     const skipped = status === 'skipped' ? ' - Skipped' : ''
     // We don't have access to the exact stage time, so we're taking a conservative estimate of
-    // 7 characters + 1 character for the space between the stage and timer,
-    // examples: 999ms (5), 59s (3), 59m 59s (7), 23h 59m (7)
-    const stageTimeLength = hasStageTime ? 8 : 0
+    // 10 characters + 1 character for the space between the stage and timer,
+    // examples: 999ms (5), 59.99s (6), 59m 59.99s (10), 23h 59m (7)
+    const stageTimeLength = hasStageTime ? 11 : 0
     if (
       // 1 for the left margin
       1 +
