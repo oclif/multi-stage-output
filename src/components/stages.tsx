@@ -3,7 +3,7 @@ import {Box, Text, useStdout} from 'ink'
 import React from 'react'
 
 import {RequiredDesign, constructDesignParams} from '../design.js'
-import {StageTracker} from '../stage-tracker.js'
+import {StageStatus, StageTracker} from '../stage-tracker.js'
 import {Divider} from './divider.js'
 import {Icon} from './icon.js'
 import {SpinnerOrError, SpinnerOrErrorOrChildren} from './spinner.js'
@@ -136,7 +136,7 @@ function StageInfos({
               label={`${kv.label}:`}
               labelPosition="left"
               type={design.spinners.info}
-              failedIcon={design.icons.failed}
+              design={design}
             >
               {kv.value && (
                 <Text bold={kv.isBold} color={kv.color}>
@@ -184,7 +184,7 @@ function Infos({
           label={`${kv.label}:`}
           labelPosition="left"
           type={design.spinners.info}
-          failedIcon={design.icons.failed}
+          design={design}
         >
           {kv.value && (
             <Text bold={kv.isBold} color={kv.color}>
@@ -227,7 +227,7 @@ function CompactStage({
         error={error}
         label={`[${stageTracker.indexOf(stage) + 1}/${stageTracker.size}] ${capitalCase(stage)}`}
         type={design.spinners.stage}
-        failedIcon={design.icons.failed}
+        design={design}
       />
       {stageSpecificBlock && stageSpecificBlock.length > 0 && (
         <Box flexDirection="column">
@@ -245,19 +245,14 @@ function Stage({
   status,
 }: {
   readonly stage: string
-  readonly status: string
+  readonly status: StageStatus
   readonly design: RequiredDesign
   readonly error?: Error
 }): React.ReactElement {
   return (
     <Box>
       {(status === 'current' || status === 'failed') && (
-        <SpinnerOrError
-          error={error}
-          label={capitalCase(stage)}
-          type={design.spinners.stage}
-          failedIcon={design.icons.failed}
-        />
+        <SpinnerOrError error={error} label={capitalCase(stage)} type={design.spinners.stage} design={design} />
       )}
 
       {status === 'skipped' && (
@@ -266,8 +261,20 @@ function Stage({
         </Icon>
       )}
 
-      {status === 'completed' && (
+      {status !== 'skipped' && status !== 'failed' && status !== 'current' && (
+        <Icon icon={design.icons[status]}>
+          <Text>{capitalCase(stage)}</Text>
+        </Icon>
+      )}
+
+      {/* {status === 'completed' && (
         <Icon icon={design.icons.completed}>
+          <Text>{capitalCase(stage)}</Text>
+        </Icon>
+      )}
+
+      {status === 'aborted' && (
+        <Icon icon={design.icons.aborted}>
           <Text>{capitalCase(stage)}</Text>
         </Icon>
       )}
@@ -276,7 +283,7 @@ function Stage({
         <Icon icon={design.icons.pending}>
           <Text>{capitalCase(stage)}</Text>
         </Icon>
-      )}
+      )} */}
     </Box>
   )
 }

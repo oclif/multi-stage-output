@@ -6,7 +6,7 @@ import {IconProps} from './components/icon.js'
 export type Design = {
   icons?: {
     /**
-     * Icon to display for a completed stage. Defaults to '✔'
+     * Icon to display for a completed stage. Defaults to green '✔'
      */
     completed?: IconProps
     /**
@@ -16,21 +16,33 @@ export type Design = {
      */
     current?: IconProps
     /**
-     * Icon to display for a failed stage. Defaults to '✘'
+     * Icon to display for a failed stage. Defaults to red '✘'
      */
     failed?: IconProps
     /**
-     * Icon to display for a pending stage. Defaults to '◼'
+     * Icon to display for a pending stage. Defaults to dim '◼'
      */
     pending?: IconProps
     /**
-     * Icon to display for a skipped stage. Defaults to '◯'
+     * Icon to display for a skipped stage. Defaults to dim '◯'
      */
     skipped?: IconProps
     /**
      * Icon to display for stage specific information. Defaults to '▸'
      */
     info?: IconProps
+    /**
+     * Icon to display for a aborted stage. Defaults to red '◼'
+     */
+    aborted?: IconProps
+    /**
+     * Icon to display for a paused stage. Defaults to magenta '●'
+     */
+    paused?: IconProps
+    /**
+     * Icon to display for an async stage. Defaults to magenta '▶'
+     */
+    async?: IconProps
   }
   title?: {
     /**
@@ -81,6 +93,20 @@ export type RequiredDesign = RecursiveRequired<Design>
 export function constructDesignParams(design?: Design): RequiredDesign {
   return {
     icons: {
+      aborted: {
+        color: 'red',
+        figure: figures.squareSmallFilled,
+        paddingLeft: 0,
+        paddingRight: 0,
+        ...design?.icons?.current,
+      },
+      async: {
+        color: 'magenta',
+        figure: figures.play,
+        paddingLeft: 0,
+        paddingRight: 0,
+        ...design?.icons?.current,
+      },
       completed: {
         color: 'green',
         figure: figures.tick,
@@ -108,6 +134,13 @@ export function constructDesignParams(design?: Design): RequiredDesign {
         paddingLeft: 2,
         paddingRight: 1,
         ...design?.icons?.info,
+      },
+      paused: {
+        color: 'magenta',
+        figure: figures.bullet,
+        paddingLeft: 0,
+        paddingRight: 1,
+        ...design?.icons?.current,
       },
       pending: {
         color: 'dim',
