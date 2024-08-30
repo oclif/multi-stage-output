@@ -18,13 +18,33 @@ describe('StageTracker', () => {
 
   it("should set the current stage to error when there's an error", () => {
     const tracker = new StageTracker(['one', 'two', 'three'])
-    tracker.refresh('two', {hasError: true})
+    tracker.refresh('two', {finalStatus: 'failed'})
     expect(tracker.get('two')).to.equal('failed')
   })
 
   it('should set the current stage to completed when stopping', () => {
     const tracker = new StageTracker(['one', 'two', 'three'])
-    tracker.refresh('two', {isStopping: true})
+    tracker.refresh('two', {finalStatus: 'completed'})
     expect(tracker.get('two')).to.equal('completed')
+  })
+
+  it('should mark bypassed steps as completed', () => {
+    const tracker = new StageTracker(['one', 'two', 'three'])
+    tracker.refresh('three', {bypassStatus: 'completed'})
+    expect(tracker.get('two')).to.equal('completed')
+  })
+
+  it('should mark bypassed steps as skipped', () => {
+    const tracker = new StageTracker(['one', 'two', 'three'])
+    tracker.refresh('three', {bypassStatus: 'skipped'})
+    expect(tracker.get('two')).to.equal('skipped')
+  })
+
+  it('should mark previous current step as completed', () => {
+    const tracker = new StageTracker(['one', 'two', 'three'])
+    tracker.refresh('one')
+    tracker.refresh('two')
+    expect(tracker.get('one')).to.equal('completed')
+    expect(tracker.get('two')).to.equal('current')
   })
 })
