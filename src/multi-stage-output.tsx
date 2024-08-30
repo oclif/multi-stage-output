@@ -14,7 +14,7 @@ import {
   StagesProps,
 } from './components/stages.js'
 import {Design, RequiredDesign, constructDesignParams} from './design.js'
-import {StageTracker} from './stage-tracker.js'
+import {StageStatus, StageTracker} from './stage-tracker.js'
 import {readableTime} from './utils.js'
 
 // Taken from https://github.com/sindresorhus/is-in-ci
@@ -281,6 +281,24 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     }
   }
 
+  /**
+   * Stop multi-stage output from running with a failed status.
+   */
+  public error(): void {
+    this.stop('failed')
+  }
+
+  /**
+   * Go to a stage, marking any stages in between the current stage and the provided stage as completed.
+   *
+   * If the stage does not exist or is before the current stage, nothing will happen.
+   *
+   * If the stage is the same as the current stage, the data will be updated.
+   *
+   * @param stage Stage to go to
+   * @param data - Optional data to pass to the next stage.
+   * @returns void
+   */
   public goto(stage: string, data?: Partial<T>): void {
     if (this.stopped) return
 
@@ -290,28 +308,72 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     // prevent going to a previous stage
     if (this.stages.indexOf(stage) < this.stages.indexOf(this.stageTracker.current ?? this.stages[0])) return
 
-    this.update(stage, data)
+    this.update(stage, 'completed', data)
   }
 
+  /**
+   * Moves to the next stage of the process.
+   *
+   * @param data - Optional data to pass to the next stage.
+   * @returns void
+   */
   public next(data?: Partial<T>): void {
     if (this.stopped) return
 
     const nextStageIndex = this.stages.indexOf(this.stageTracker.current ?? this.stages[0]) + 1
     if (nextStageIndex < this.stages.length) {
-      this.update(this.stages[nextStageIndex], data)
+      this.update(this.stages[nextStageIndex], 'completed', data)
     }
   }
 
-  public stop(error?: Error): void {
+  /**
+   * Go to a stage, marking any stages in between the current stage and the provided stage as skipped.
+   *
+   * If the stage does not exist or is before the current stage, nothing will happen.
+   *
+   * If the stage is the same as the current stage, the data will be updated.
+   *
+   * @param stage Stage to go to
+   * @param data - Optional data to pass to the next stage.
+   * @returns void
+   */
+  public skipTo(stage: string, data?: Partial<T>): void {
+    if (this.stopped) return
+
+    // ignore non-existent stages
+    if (!this.stages.includes(stage)) return
+
+    // prevent going to a previous stage
+    if (this.stages.indexOf(stage) < this.stages.indexOf(this.stageTracker.current ?? this.stages[0])) return
+
+    this.update(stage, 'skipped', data)
+  }
+
+  /**
+   * Stop multi-stage output from running.
+   *
+   * The stage currently running will be changed to the provided `finalStatus`.
+   *
+   * @param finalStatus - The status to set the current stage to.
+   * @returns void
+   */
+  public stop(finalStatus: StageStatus = 'completed'): void {
     if (this.stopped) return
     this.stopped = true
 
-    this.stageTracker.refresh(this.stageTracker.current ?? this.stages[0], {hasError: Boolean(error), isStopping: true})
+    this.stageTracker.refresh(this.stageTracker.current ?? this.stages[0], {
+      finalStatus,
+    })
 
     if (isInCi) {
       this.ciInstance?.stop(this.stageTracker)
       return
     }
+
+    // The underlying components expect an Error, although they don't currently use anything on the error - they check if it exists.
+    // Instead of refactoring the components to take a boolean, we pass in a placeholder Error,
+    // which, gives us the flexibility in the future to pass in an actual Error if we want
+    const error = finalStatus === 'failed' ? new Error('Error') : undefined
 
     const stagesInput = {...this.generateStagesInput({compactionLevel: 0}), ...(error ? {error} : {})}
 
@@ -323,11 +385,17 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     this.inkInstance?.unmount()
   }
 
+  /**
+   * Updates the data of the component.
+   *
+   * @param data - The partial data object to update the component's data with.
+   * @returns void
+   */
   public updateData(data: Partial<T>): void {
     if (this.stopped) return
     this.data = {...this.data, ...data} as T
 
-    this.update(this.stageTracker.current ?? this.stages[0], data)
+    this.rerender()
   }
 
   private formatKeyValuePairs(infoBlock: InfoBlock<T> | StageInfoBlock<T> | undefined): FormattedKeyValue[] {
@@ -364,15 +432,19 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     }
   }
 
-  private update(stage: string, data?: Partial<T>): void {
-    this.data = {...this.data, ...data} as Partial<T>
-
-    this.stageTracker.refresh(stage)
-
+  private rerender(): void {
     if (isInCi) {
       this.ciInstance?.update(this.stageTracker, this.data)
     } else {
       this.inkInstance?.rerender(<Stages {...this.generateStagesInput()} />)
     }
+  }
+
+  private update(stage: string, bypassStatus: StageStatus, data?: Partial<T>): void {
+    this.data = {...this.data, ...data} as Partial<T>
+
+    this.stageTracker.refresh(stage, {bypassStatus})
+
+    this.rerender()
   }
 }

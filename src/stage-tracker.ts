@@ -36,22 +36,16 @@ export class StageTracker {
     return this.stages.indexOf(stage)
   }
 
-  public refresh(nextStage: string, opts?: {hasError?: boolean; isStopping?: boolean}): void {
+  public refresh(nextStage: string, opts?: {finalStatus?: StageStatus; bypassStatus?: StageStatus}): void {
     const stages = [...this.map.keys()]
+
     for (const stage of stages) {
       if (this.map.get(stage) === 'skipped') continue
       if (this.map.get(stage) === 'failed') continue
 
-      // .stop() was called with an error => set the stage to failed
-      if (nextStage === stage && opts?.hasError) {
-        this.set(stage, 'failed')
-        this.stopMarker(stage)
-        continue
-      }
-
-      // .stop() was called without an error => set the stage to completed
-      if (nextStage === stage && opts?.isStopping) {
-        this.set(stage, 'completed')
+      // .stop() was called with a finalStatus
+      if (nextStage === stage && opts?.finalStatus) {
+        this.set(stage, opts.finalStatus)
         this.stopMarker(stage)
         continue
       }
@@ -67,13 +61,13 @@ export class StageTracker {
         continue
       }
 
-      // any stage before the current stage should be marked as skipped if it's still pending
+      // any pending stage before the current stage should be marked using opts.bypassStatus
       if (stages.indexOf(stage) < stages.indexOf(nextStage) && this.map.get(stage) === 'pending') {
-        this.set(stage, 'skipped')
+        this.set(stage, opts?.bypassStatus ?? 'completed')
         continue
       }
 
-      // any stage before the current stage should be as completed (if it hasn't been marked as skipped or failed yet)
+      // any stage before the current stage should be marked as completed (if it hasn't been marked as skipped or failed yet)
       if (stages.indexOf(nextStage) > stages.indexOf(stage)) {
         this.set(stage, 'completed')
         this.stopMarker(stage)
