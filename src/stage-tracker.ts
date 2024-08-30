@@ -44,7 +44,7 @@ export class StageTracker {
         continue
       }
 
-      // any pending stage before the current stage should be marked using opts.bypassStage
+      // any pending stage before the current stage should be marked using opts.bypassStatus
       if (stages.indexOf(stage) < stages.indexOf(nextStage) && this.map.get(stage) === 'pending') {
         this.set(stage, opts?.bypassStatus ?? 'completed')
         continue
