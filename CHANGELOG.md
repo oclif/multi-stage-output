@@ -1,3 +1,12 @@
+# [0.4.0](https://github.com/oclif/core/compare/0.3.4...0.4.0) (2024-08-30)
+
+
+### Features
+
+* implement .skipTo and refactor .stop ([5bfe300](https://github.com/oclif/core/commit/5bfe300e87176e72ab5219e9473edb60e9134b36))
+
+
+
 ## [0.3.4](https://github.com/oclif/core/compare/0.3.3...0.3.4) (2024-08-25)
 
 
