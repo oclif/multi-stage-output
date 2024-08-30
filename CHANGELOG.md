@@ -1,3 +1,12 @@
+## [0.4.1](https://github.com/oclif/core/compare/0.4.0...0.4.1) (2024-08-30)
+
+
+### Bug Fixes
+
+* show icons in CI ([0eff915](https://github.com/oclif/core/commit/0eff915e25a1da12e8bb2028754a76ca26315511))
+
+
+
 # [0.4.0](https://github.com/oclif/core/compare/0.3.4...0.4.0) (2024-08-30)
 
 
