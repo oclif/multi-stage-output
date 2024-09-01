@@ -6,7 +6,7 @@
   "bugs": "https://github.com/oclif/multi-stage-output/issues",
   "dependencies": {
     "@oclif/core": "^4",
-    "@types/react": "^18.3.4",
+    "@types/react": "^18.3.5",
     "change-case": "^5.4.4",
     "cli-spinners": "^2",
     "figures": "^6.1.0",
