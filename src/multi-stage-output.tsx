@@ -83,11 +83,11 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
   private readonly messageTimeout = Number.parseInt(env.SF_CI_MESSAGE_TIMEOUT ?? '5000', 10) ?? 5000
   private readonly postStagesBlock?: InfoBlock<T>
   private readonly preStagesBlock?: InfoBlock<T>
-  private seenStages: Set<string> = new Set()
+  private readonly seenStages: Set<string> = new Set()
   private readonly stages: readonly string[] | string[]
   private readonly stageSpecificBlock?: StageInfoBlock<T>
-  private startTime: number | undefined
-  private startTimes: Map<string, number> = new Map()
+  private readonly startTime: number | undefined
+  private readonly startTimes: Map<string, number> = new Map()
   private readonly timerUnit: 'ms' | 's'
 
   public constructor({
@@ -220,17 +220,17 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
 }
 
 export class MultiStageOutput<T extends Record<string, unknown>> implements Disposable {
-  private ciInstance: CIMultiStageOutput<T> | undefined
+  private readonly ciInstance: CIMultiStageOutput<T> | undefined
   private data?: Partial<T>
   private readonly design: RequiredDesign
   private readonly hasElapsedTime?: boolean
   private readonly hasStageTime?: boolean
-  private inkInstance: Instance | undefined
+  private readonly inkInstance: Instance | undefined
   private readonly postStagesBlock?: InfoBlock<T>
   private readonly preStagesBlock?: InfoBlock<T>
   private readonly stages: readonly string[] | string[]
   private readonly stageSpecificBlock?: StageInfoBlock<T>
-  private stageTracker: StageTracker
+  private readonly stageTracker: StageTracker
   private stopped = false
   private readonly timerUnit?: 'ms' | 's'
   private readonly title?: string
