@@ -17,7 +17,7 @@ const ms = new MultiStageOutput({
 ms.goto('one')
 await sleep(SLEEP_TIME)
 
-ms.goto('three')
+ms.skipTo('three')
 await sleep(SLEEP_TIME)
 
 ms.stop()
