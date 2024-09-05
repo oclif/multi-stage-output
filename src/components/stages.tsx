@@ -87,7 +87,7 @@ export type StagesProps = {
 function StaticKeyValue({color, isBold, label, value}: FormattedKeyValue): React.ReactNode {
   if (!value) return false
   return (
-    <Box key={label}>
+    <Box key={label} flexWrap="wrap">
       <Text bold={isBold}>{label}: </Text>
       <Text color={color}>{value}</Text>
     </Box>
