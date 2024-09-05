@@ -63,7 +63,7 @@ const ms = new MultiStageOutput<{message: string; staticValue: string; dynamicVa
   jsonEnabled: false,
   stages: ['stage 1', 'stage 2', 'stage 3'],
   // preStagesBlock will be displayed BEFORE the list of stages
-  postStagesBlock: [
+  preStagesBlock: [
     {
       get: (data) => data?.message,
       type: 'message',
