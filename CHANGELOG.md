@@ -1,96 +1,204 @@
-## [0.4.2](https://github.com/oclif/core/compare/0.4.1...0.4.2) (2024-09-01)
+# [0.5.0](https://github.com/oclif/core/compare/0.4.3-dev.2...0.5.0) (2024-09-05)
+
+
+
+## [0.4.3-dev.2](https://github.com/oclif/core/compare/0.4.3-dev.1...0.4.3-dev.2) (2024-09-05)
+
+
+### Features
+
+* add warning status ([b6bcad2](https://github.com/oclif/core/commit/b6bcad2b1d0d8a6b3509bbce785babf6fbb93207))
+
+
+
+## [0.4.3-dev.1](https://github.com/oclif/core/compare/0.4.3-dev.0...0.4.3-dev.1) (2024-09-05)
+
 
 ### Bug Fixes
 
-- **deps:** bump @types/react from 18.3.4 to 18.3.5 ([106af0a](https://github.com/oclif/core/commit/106af0ae1ab510c9161cb05c2ab043fe18dcaeaf))
+* flexWrap ([fb002bc](https://github.com/oclif/core/commit/fb002bcb4cd3831bf7cbd10a3e40e566dcea2f1d))
+* handle narrow windows with long divider ([aa0dce7](https://github.com/oclif/core/commit/aa0dce70d8ae786b6cc78eadfd04e57c3c023def))
+
+
+
+## [0.4.3-dev.0](https://github.com/oclif/core/compare/0.4.1-dev.0...0.4.3-dev.0) (2024-09-04)
+
+
+
+## [0.4.2](https://github.com/oclif/core/compare/0.4.1...0.4.2) (2024-09-01)
+
+
+### Bug Fixes
+
+* **deps:** bump @types/react from 18.3.4 to 18.3.5 ([106af0a](https://github.com/oclif/core/commit/106af0ae1ab510c9161cb05c2ab043fe18dcaeaf))
+
+
 
 ## [0.4.1](https://github.com/oclif/core/compare/0.4.0...0.4.1) (2024-08-30)
 
+
+
+## [0.4.1-dev.0](https://github.com/oclif/core/compare/0.4.2...0.4.1-dev.0) (2024-09-04)
+
+
 ### Bug Fixes
 
-- show icons in CI ([0eff915](https://github.com/oclif/core/commit/0eff915e25a1da12e8bb2028754a76ca26315511))
+* account for narrow windows ([a685d84](https://github.com/oclif/core/commit/a685d847bdfd53475d43fc8d33582f79568890f8))
+* ensure title divider never wraps ([1820e74](https://github.com/oclif/core/commit/1820e74b543d0ab88788d0f6d0c2c35189ccbeef))
+* implement different levels of compaction ([ba03d73](https://github.com/oclif/core/commit/ba03d73443787ea31fa38316997b4e872266e376))
+* show stage count in semi-compact stage view ([0e44278](https://github.com/oclif/core/commit/0e44278d72d2862f8a0516b51d228712004aaafc))
+
+
+### Features
+
+* add new stage statuses ([0e34440](https://github.com/oclif/core/commit/0e34440335a735ca5c283531462914ba5cfbe5cd))
+* responsive design ([ca0637c](https://github.com/oclif/core/commit/ca0637c0fbccc43eabf67561f39f54b61ca7fd63))
+* set height on Stages ([acc4e14](https://github.com/oclif/core/commit/acc4e14aae2c510e9903bcec7a532174d85c2a65))
+
+
+
+## [0.4.2](https://github.com/oclif/core/compare/0.4.1...0.4.2) (2024-09-01)
+
+
+### Bug Fixes
+
+* **deps:** bump @types/react from 18.3.4 to 18.3.5 ([106af0a](https://github.com/oclif/core/commit/106af0ae1ab510c9161cb05c2ab043fe18dcaeaf))
+
+
+
+## [0.4.1](https://github.com/oclif/core/compare/0.4.0...0.4.1) (2024-08-30)
+
+
+### Bug Fixes
+
+* show icons in CI ([0eff915](https://github.com/oclif/core/commit/0eff915e25a1da12e8bb2028754a76ca26315511))
+
+
 
 # [0.4.0](https://github.com/oclif/core/compare/0.3.4...0.4.0) (2024-08-30)
 
+
 ### Features
 
-- implement .skipTo and refactor .stop ([5bfe300](https://github.com/oclif/core/commit/5bfe300e87176e72ab5219e9473edb60e9134b36))
+* implement .skipTo and refactor .stop ([5bfe300](https://github.com/oclif/core/commit/5bfe300e87176e72ab5219e9473edb60e9134b36))
+
+
 
 ## [0.3.4](https://github.com/oclif/core/compare/0.3.3...0.3.4) (2024-08-25)
 
+
 ### Bug Fixes
 
-- **deps:** bump @oclif/core from 4.0.17 to 4.0.19 ([08ae4d6](https://github.com/oclif/core/commit/08ae4d621a9fa6797a3fe3d2fb7077884028cc01))
+* **deps:** bump @oclif/core from 4.0.17 to 4.0.19 ([08ae4d6](https://github.com/oclif/core/commit/08ae4d621a9fa6797a3fe3d2fb7077884028cc01))
+
+
 
 ## [0.3.3](https://github.com/oclif/core/compare/0.3.2...0.3.3) (2024-08-25)
 
+
 ### Bug Fixes
 
-- **deps:** bump micromatch from 4.0.7 to 4.0.8 ([99b1321](https://github.com/oclif/core/commit/99b13213993e442301d39f78423fa787463bce1a))
+* **deps:** bump micromatch from 4.0.7 to 4.0.8 ([99b1321](https://github.com/oclif/core/commit/99b13213993e442301d39f78423fa787463bce1a))
+
+
 
 ## [0.3.2](https://github.com/oclif/core/compare/0.3.1...0.3.2) (2024-08-25)
 
+
 ### Bug Fixes
 
-- **deps:** bump @types/react from 18.3.3 to 18.3.4 ([3f30fa5](https://github.com/oclif/core/commit/3f30fa575ed1c713ffc9e51a8450fed363f681f8))
+* **deps:** bump @types/react from 18.3.3 to 18.3.4 ([3f30fa5](https://github.com/oclif/core/commit/3f30fa575ed1c713ffc9e51a8450fed363f681f8))
+
+
 
 ## [0.3.1](https://github.com/oclif/core/compare/0.3.0...0.3.1) (2024-08-21)
 
+
 ### Bug Fixes
 
-- no color by default for divider ([eb55243](https://github.com/oclif/core/commit/eb55243e6b290a2f1d32c26dd6ec7013d4cdc9f1))
+* no color by default for divider ([eb55243](https://github.com/oclif/core/commit/eb55243e6b290a2f1d32c26dd6ec7013d4cdc9f1))
+
+
 
 # [0.3.0](https://github.com/oclif/core/compare/0.2.2...0.3.0) (2024-08-19)
 
+
 ### Features
 
-- add back jsonEnabled prop ([65c0d00](https://github.com/oclif/core/commit/65c0d009fa592748b2535e25a9d3ddc89d40264d))
+* add back jsonEnabled prop ([65c0d00](https://github.com/oclif/core/commit/65c0d009fa592748b2535e25a9d3ddc89d40264d))
+
+
 
 ## [0.2.2](https://github.com/oclif/core/compare/0.2.1...0.2.2) (2024-08-16)
 
+
 ### Bug Fixes
 
-- move types/react to deps ([e80431a](https://github.com/oclif/core/commit/e80431a499af146fc5383f4335918e5f2322a21a))
+* move types/react to deps ([e80431a](https://github.com/oclif/core/commit/e80431a499af146fc5383f4335918e5f2322a21a))
+
+
 
 ## [0.2.1](https://github.com/oclif/core/compare/0.2.0...0.2.1) (2024-08-16)
 
+
 ### Bug Fixes
 
-- remove jsonEnabled prop ([3246bd4](https://github.com/oclif/core/commit/3246bd4be35c87e99be5e32efd8cddaac91ce911))
+* remove jsonEnabled prop ([3246bd4](https://github.com/oclif/core/commit/3246bd4be35c87e99be5e32efd8cddaac91ce911))
+
+
 
 # [0.2.0](https://github.com/oclif/core/compare/0.1.4...0.2.0) (2024-08-16)
 
+
 ### Features
 
-- improve configuration of icons ([4e55cca](https://github.com/oclif/core/commit/4e55ccaecb3dc26ded3a60e0a95e7f3dfeb16363))
-- make design elements configurable ([597badf](https://github.com/oclif/core/commit/597badf8dccdb846d7bc0703d986f422fc730b86))
+* improve configuration of icons ([4e55cca](https://github.com/oclif/core/commit/4e55ccaecb3dc26ded3a60e0a95e7f3dfeb16363))
+* make design elements configurable ([597badf](https://github.com/oclif/core/commit/597badf8dccdb846d7bc0703d986f422fc730b86))
+
+
 
 ## [0.1.4](https://github.com/oclif/core/compare/0.1.3...0.1.4) (2024-08-08)
 
+
 ### Bug Fixes
 
-- padding ([e830e26](https://github.com/oclif/core/commit/e830e26034d8bed963885b3ba5a7eab410a91b76))
+* padding ([e830e26](https://github.com/oclif/core/commit/e830e26034d8bed963885b3ba5a7eab410a91b76))
+
+
 
 ## [0.1.3](https://github.com/oclif/core/compare/0.1.2...0.1.3) (2024-08-08)
 
+
 ### Bug Fixes
 
-- remove ci override prop ([6b3caf1](https://github.com/oclif/core/commit/6b3caf15751709a691b8b4d3c9c9ea9daf3a3c8f))
+* remove ci override prop ([6b3caf1](https://github.com/oclif/core/commit/6b3caf15751709a691b8b4d3c9c9ea9daf3a3c8f))
+
+
 
 ## [0.1.2](https://github.com/oclif/core/compare/0.1.1...0.1.2) (2024-08-07)
 
+
 ### Bug Fixes
 
-- spacing issue of dynamic key values ([d0c21f6](https://github.com/oclif/core/commit/d0c21f6b2da3c5fe9c6482a3534ce7a877a4678f))
+* spacing issue of dynamic key values ([d0c21f6](https://github.com/oclif/core/commit/d0c21f6b2da3c5fe9c6482a3534ce7a877a4678f))
+
+
 
 ## [0.1.1](https://github.com/oclif/core/compare/0.1.0...0.1.1) (2024-08-07)
 
+
 ### Bug Fixes
 
-- remove unused dep ([832739b](https://github.com/oclif/core/commit/832739b2bbc16a4071bd6db55139430067fe377c))
+* remove unused dep ([832739b](https://github.com/oclif/core/commit/832739b2bbc16a4071bd6db55139430067fe377c))
+
+
 
 # [0.1.0](https://github.com/oclif/core/compare/5f3fb7d13379eb54f2e618f3d32e8e341eef2ae0...0.1.0) (2024-08-07)
 
+
 ### Features
 
-- initial commit ([5f3fb7d](https://github.com/oclif/core/commit/5f3fb7d13379eb54f2e618f3d32e8e341eef2ae0))
+* initial commit ([5f3fb7d](https://github.com/oclif/core/commit/5f3fb7d13379eb54f2e618f3d32e8e341eef2ae0))
+
+
+
