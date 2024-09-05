@@ -43,6 +43,10 @@ export type Design = {
      * Icon to display for an async stage. Defaults to magenta '▶'
      */
     async?: IconProps
+    /**
+     * Icon to display for a warning. Defaults to yellow '⚠'
+     */
+    warning?: IconProps
   }
   title?: {
     /**
@@ -155,6 +159,13 @@ export function constructDesignParams(design?: Design): RequiredDesign {
         paddingLeft: 0,
         paddingRight: 1,
         ...design?.icons?.skipped,
+      },
+      warning: {
+        color: 'yellow',
+        figure: figures.warning,
+        paddingLeft: 0,
+        paddingRight: 0,
+        ...design?.icons?.warning,
       },
     },
     spinners: {

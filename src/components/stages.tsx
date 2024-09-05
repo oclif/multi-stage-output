@@ -266,24 +266,6 @@ function Stage({
           <Text>{capitalCase(stage)}</Text>
         </Icon>
       )}
-
-      {/* {status === 'completed' && (
-        <Icon icon={design.icons.completed}>
-          <Text>{capitalCase(stage)}</Text>
-        </Icon>
-      )}
-
-      {status === 'aborted' && (
-        <Icon icon={design.icons.aborted}>
-          <Text>{capitalCase(stage)}</Text>
-        </Icon>
-      )}
-
-      {status === 'pending' && (
-        <Icon icon={design.icons.pending}>
-          <Text>{capitalCase(stage)}</Text>
-        </Icon>
-      )} */}
     </Box>
   )
 }

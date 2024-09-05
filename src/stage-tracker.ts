@@ -1,6 +1,15 @@
 import {Performance} from '@oclif/core/performance'
 
-export type StageStatus = 'aborted' | 'async' | 'completed' | 'current' | 'failed' | 'paused' | 'pending' | 'skipped'
+export type StageStatus =
+  | 'aborted'
+  | 'async'
+  | 'completed'
+  | 'current'
+  | 'failed'
+  | 'paused'
+  | 'pending'
+  | 'skipped'
+  | 'warning'
 
 export class StageTracker {
   public current: string | undefined
