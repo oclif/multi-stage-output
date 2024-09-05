@@ -36,6 +36,12 @@ export function Divider({
         ? terminalWidth - textPadding - padding
         : // otherwise, use the provided width
           width
+
+  // Don't render if the available width is less than the title width
+  if (widthToUse < titleWidth) {
+    return
+  }
+
   const dividerWidth = getSideDividerWidth(widthToUse, titleWidth)
   const numberOfCharsPerSide = getNumberOfCharsPerWidth(dividerChar, dividerWidth)
   const dividerSideString = dividerChar.repeat(numberOfCharsPerSide)
