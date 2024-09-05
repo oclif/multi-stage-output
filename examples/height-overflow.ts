@@ -8,16 +8,16 @@ async function sleep(ms: number): Promise<void> {
   })
 }
 
+const stages = Array.from({length: process.stdout.rows + 2}, (_, i) => i.toString())
 const ms = new MultiStageOutput({
   jsonEnabled: false,
-  stages: ['one', 'two', 'three'],
-  title: 'Example',
+  stages,
 })
 
-ms.goto('one')
-await sleep(SLEEP_TIME)
-
-ms.skipTo('three')
-await sleep(SLEEP_TIME)
+for (const stage of stages) {
+  ms.goto(stage)
+  // eslint-disable-next-line no-await-in-loop
+  await sleep(SLEEP_TIME)
+}
 
 ms.stop()

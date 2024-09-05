@@ -10,8 +10,9 @@ export function Divider({
   dividerChar = '─',
   dividerColor = 'dim',
   padding = 1,
+  terminalWidth = process.stdout.columns ?? 80,
   textColor,
-  textPadding: titlePadding = 1,
+  textPadding = 1,
   title = '',
   width = 50,
 }: {
@@ -22,16 +23,28 @@ export function Divider({
   readonly textPadding?: number
   readonly dividerChar?: string
   readonly dividerColor?: string
+  readonly terminalWidth?: number
 }): React.ReactNode {
-  const titleString = title ? `${PAD.repeat(titlePadding) + title + PAD.repeat(titlePadding)}` : ''
+  const titleString = title ? `${PAD.repeat(textPadding) + title + PAD.repeat(textPadding)}` : ''
   const titleWidth = titleString.length
-  const terminalWidth = process.stdout.columns ?? 80
-  const widthToUse = width === 'full' ? terminalWidth - titlePadding : width > terminalWidth ? terminalWidth : width
+  const widthToUse =
+    width === 'full'
+      ? // if the width is `full`, use the terminal width minus the padding and title padding
+        terminalWidth - textPadding - padding
+      : // otherwise, if the provided width is greater than the terminal width, use the terminal width minus the padding and title paddding
+        width > terminalWidth
+        ? terminalWidth - textPadding - padding
+        : // otherwise, use the provided width
+          width
+
+  // Don't render if the available width is less than the title width
+  if (widthToUse < titleWidth) {
+    return
+  }
 
   const dividerWidth = getSideDividerWidth(widthToUse, titleWidth)
   const numberOfCharsPerSide = getNumberOfCharsPerWidth(dividerChar, dividerWidth)
   const dividerSideString = dividerChar.repeat(numberOfCharsPerSide)
-
   const paddingString = PAD.repeat(padding)
 
   return (

@@ -1,14 +1,27 @@
 import {Performance} from '@oclif/core/performance'
 
-export type StageStatus = 'pending' | 'current' | 'completed' | 'skipped' | 'failed'
+export type StageStatus =
+  | 'aborted'
+  | 'async'
+  | 'completed'
+  | 'current'
+  | 'failed'
+  | 'paused'
+  | 'pending'
+  | 'skipped'
+  | 'warning'
 
 export class StageTracker {
   public current: string | undefined
   private map = new Map<string, StageStatus>()
   private markers = new Map<string, ReturnType<typeof Performance.mark>>()
 
-  public constructor(stages: readonly string[] | string[]) {
+  public constructor(private stages: readonly string[] | string[]) {
     this.map = new Map(stages.map((stage) => [stage, 'pending']))
+  }
+
+  public get size(): number {
+    return this.map.size
   }
 
   public entries(): IterableIterator<[string, StageStatus]> {
@@ -17,6 +30,19 @@ export class StageTracker {
 
   public get(stage: string): StageStatus | undefined {
     return this.map.get(stage)
+  }
+
+  public getCurrent(): {stage: string; status: StageStatus} | undefined {
+    if (this.current) {
+      return {
+        stage: this.current,
+        status: this.map.get(this.current) as StageStatus,
+      }
+    }
+  }
+
+  public indexOf(stage: string): number {
+    return this.stages.indexOf(stage)
   }
 
   public refresh(nextStage: string, opts?: {finalStatus?: StageStatus; bypassStatus?: StageStatus}): void {

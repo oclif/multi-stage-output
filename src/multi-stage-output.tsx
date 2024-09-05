@@ -83,11 +83,11 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
   private readonly messageTimeout = Number.parseInt(env.SF_CI_MESSAGE_TIMEOUT ?? '5000', 10) ?? 5000
   private readonly postStagesBlock?: InfoBlock<T>
   private readonly preStagesBlock?: InfoBlock<T>
-  private seenStages: Set<string> = new Set()
+  private readonly seenStages: Set<string> = new Set()
   private readonly stages: readonly string[] | string[]
   private readonly stageSpecificBlock?: StageInfoBlock<T>
-  private startTime: number | undefined
-  private startTimes: Map<string, number> = new Map()
+  private readonly startTime: number | undefined
+  private readonly startTimes: Map<string, number> = new Map()
   private readonly timerUnit: 'ms' | 's'
 
   public constructor({
@@ -220,17 +220,17 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
 }
 
 export class MultiStageOutput<T extends Record<string, unknown>> implements Disposable {
-  private ciInstance: CIMultiStageOutput<T> | undefined
+  private readonly ciInstance: CIMultiStageOutput<T> | undefined
   private data?: Partial<T>
   private readonly design: RequiredDesign
   private readonly hasElapsedTime?: boolean
   private readonly hasStageTime?: boolean
-  private inkInstance: Instance | undefined
+  private readonly inkInstance: Instance | undefined
   private readonly postStagesBlock?: InfoBlock<T>
   private readonly preStagesBlock?: InfoBlock<T>
   private readonly stages: readonly string[] | string[]
   private readonly stageSpecificBlock?: StageInfoBlock<T>
-  private stageTracker: StageTracker
+  private readonly stageTracker: StageTracker
   private stopped = false
   private readonly timerUnit?: 'ms' | 's'
   private readonly title?: string
@@ -375,9 +375,9 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     // which, gives us the flexibility in the future to pass in an actual Error if we want
     const error = finalStatus === 'failed' ? new Error('Error') : undefined
 
-    const stagesInput = {...this.generateStagesInput(), ...(error ? {error} : {})}
+    const stagesInput = {...this.generateStagesInput({compactionLevel: 0}), ...(error ? {error} : {})}
 
-    this.inkInstance?.rerender(<Stages {...stagesInput} />)
+    this.inkInstance?.rerender(<Stages {...stagesInput} compactionLevel={0} />)
     this.inkInstance?.unmount()
   }
 
@@ -405,6 +405,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
         return {
           color: info.color,
           isBold: info.bold,
+          neverCollapse: info.neverCollapse,
           type: info.type,
           value: formattedData,
           ...(info.type === 'message' ? {} : {label: info.label}),
@@ -415,8 +416,10 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
   }
 
   /** shared method to populate everything needed for Stages cmp */
-  private generateStagesInput(): StagesProps {
+  private generateStagesInput(opts?: {compactionLevel?: number}): StagesProps {
+    const {compactionLevel} = opts ?? {}
     return {
+      compactionLevel,
       design: this.design,
       hasElapsedTime: this.hasElapsedTime,
       hasStageTime: this.hasStageTime,
