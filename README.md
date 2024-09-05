@@ -23,7 +23,7 @@ You can see examples of how to use it in the [examples](./examples/) directory.
 You can run any of these with the following:
 
 ```
-node --loader=ts-node/esm examples/basic.ts
+tsx examples/basic.ts
 ```
 
 # Usage
