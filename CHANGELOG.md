@@ -1,3 +1,12 @@
+## [0.5.1](https://github.com/oclif/core/compare/0.5.0...0.5.1) (2024-09-06)
+
+
+### Bug Fixes
+
+* compaction on narrow and tall screens ([d77a4a2](https://github.com/oclif/core/commit/d77a4a200ede662f6e8d4b98bf0c7fef5cfb2afd))
+
+
+
 # [0.5.0](https://github.com/oclif/core/compare/0.4.3-dev.2...0.5.0) (2024-09-05)
 
 
