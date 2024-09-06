@@ -593,7 +593,7 @@ describe('determineCompactionLevel', () => {
     it('returns 7 if window is too narrow to show all stage-specific blocks', () => {
       const {compactionLevel, totalHeight} = determineCompactionLevel(inputs, 6, 10)
       // height is taller here since lines are being wrapped to accommodate the narrow window
-      expect(totalHeight).to.equal(34)
+      expect(totalHeight).to.equal(36)
       expect(compactionLevel).to.equal(7)
     })
 

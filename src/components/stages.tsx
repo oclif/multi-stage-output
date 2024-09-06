@@ -129,7 +129,7 @@ function StageInfos({
 
       if (kv.type === 'dynamic-key-value') {
         return (
-          <Box key={key}>
+          <Box key={key} flexWrap="wrap">
             <Icon icon={design.icons.info} />
             <SpinnerOrErrorOrChildren
               error={error}
@@ -178,20 +178,21 @@ function Infos({
 
     if (kv.type === 'dynamic-key-value') {
       return (
-        <SpinnerOrErrorOrChildren
-          key={key}
-          error={error}
-          label={`${kv.label}:`}
-          labelPosition="left"
-          type={design.spinners.info}
-          design={design}
-        >
-          {kv.value && (
-            <Text bold={kv.isBold} color={kv.color}>
-              {kv.value}
-            </Text>
-          )}
-        </SpinnerOrErrorOrChildren>
+        <Box key={key} flexWrap="wrap">
+          <SpinnerOrErrorOrChildren
+            error={error}
+            label={`${kv.label}:`}
+            labelPosition="left"
+            type={design.spinners.info}
+            design={design}
+          >
+            {kv.value && (
+              <Text bold={kv.isBold} color={kv.color}>
+                {kv.value}
+              </Text>
+            )}
+          </SpinnerOrErrorOrChildren>
+        </Box>
       )
     }
 
@@ -250,7 +251,7 @@ function Stage({
   readonly error?: Error
 }): React.ReactElement {
   return (
-    <Box>
+    <Box flexWrap="wrap">
       {(status === 'current' || status === 'failed') && (
         <SpinnerOrError error={error} label={capitalCase(stage)} type={design.spinners.stage} design={design} />
       )}
@@ -307,7 +308,7 @@ function StageEntries({
       */}
       {[...stageTracker.entries()].map(([stage, status]) => (
         <Box key={stage} flexDirection="column">
-          <Box>
+          <Box flexWrap="wrap">
             {compactionLevel === 0 ? (
               <Stage stage={stage} status={status} design={design} error={error} />
             ) : (
@@ -390,6 +391,19 @@ export function determineCompactionLevel(
   rows: number,
   columns: number,
 ): {compactionLevel: number; totalHeight: number} {
+  // We don't have access to the exact stage time, so we're taking a conservative estimate of
+  // 10 characters + 1 character for the space between the stage and timer,
+  // examples: 999ms (5), 59.99s (6), 59m 59.99s (10), 23h 59m (7)
+  const estimatedTimeLength = 11
+
+  const calculateWrappedHeight = (length: number): number => {
+    if (length > columns) {
+      return Math.ceil(length / columns)
+    }
+
+    return 1
+  }
+
   const calculateHeightOfBlock = (block: FormattedKeyValue[] | undefined): number => {
     if (!block) return 0
     return block.reduce((acc, info) => {
@@ -398,7 +412,7 @@ export function determineCompactionLevel(
 
         if (info.value.length > columns) {
           // if the message is longer than the terminal width, add the number of lines
-          return acc + Math.ceil(info.value.length / columns)
+          return acc + calculateWrappedHeight(info.value.length)
         }
 
         // if the message is multiline, add the number of lines
@@ -408,9 +422,10 @@ export function determineCompactionLevel(
       const {label = '', value} = info
       // if there's no value we still add 1 for the label
       if (!value) return acc + 1
-      if (label.length + Number(': '.length) + value.length > columns) {
+      const totalLength = `${label}: ${value}`.length
+      if (totalLength > columns) {
         // if the value is longer than the terminal width, add the number of lines
-        return acc + Math.ceil(value.length / columns)
+        return acc + calculateWrappedHeight(totalLength)
       }
 
       return acc + value.split('\n').length
@@ -420,25 +435,16 @@ export function determineCompactionLevel(
   const calculateHeightOfStage = (stage: string): number => {
     const status = stageTracker.get(stage) ?? 'pending'
     const skipped = status === 'skipped' ? ' - Skipped' : ''
-    // We don't have access to the exact stage time, so we're taking a conservative estimate of
-    // 10 characters + 1 character for the space between the stage and timer,
-    // examples: 999ms (5), 59.99s (6), 59m 59.99s (10), 23h 59m (7)
-    const stageTimeLength = hasStageTime ? 11 : 0
-    if (
-      // 1 for the left margin
-      1 +
-        design.icons[status].paddingLeft +
-        design.icons[status].figure.length +
-        design.icons[status].paddingRight +
-        stage.length +
-        skipped.length +
-        stageTimeLength >
-      columns
-    ) {
-      return Math.ceil(stage.length / columns)
-    }
+    const stageTimeLength = hasStageTime ? estimatedTimeLength : 0
+    const totalLength =
+      design.icons[status].paddingLeft +
+      design.icons[status].figure.length +
+      design.icons[status].paddingRight +
+      stage.length +
+      skipped.length +
+      stageTimeLength
 
-    return 1
+    return calculateWrappedHeight(totalLength)
   }
 
   const calculateWidthOfCompactStage = (stage: string): number => {
@@ -473,14 +479,15 @@ export function determineCompactionLevel(
   const stageSpecificBlockHeight = calculateHeightOfBlock(stageSpecificBlock)
   // 3 at minimum because: 1 for marginTop on entire component, 1 for marginBottom on entire component, 1 for paddingBottom on StageEntries
   const paddings = 3 + (preStagesBlock ? 1 : 0) + (postStagesBlock ? 1 : 0) + (title ? 1 : 0)
-
+  const elapsedTimeHeight = hasElapsedTime ? calculateWrappedHeight('Elapsed Time:'.length + estimatedTimeLength) : 0
+  const titleHeight = title ? calculateWrappedHeight(title.length) : 0
   const totalHeight =
     stagesHeight +
     preStagesBlockHeight +
     postStagesBlockHeight +
     stageSpecificBlockHeight +
-    (title ? 1 : 0) +
-    (hasElapsedTime ? 1 : 0) +
+    elapsedTimeHeight +
+    titleHeight +
     paddings +
     // add one for good measure - iTerm2 will flicker on every render if the height is exactly the same as the terminal height so it's better to be safe
     1
@@ -550,7 +557,7 @@ export function Stages({
         title,
       },
       stdout.rows - 1,
-      stdout.columns,
+      stdout.columns - 1,
     ).compactionLevel,
   )
 
@@ -567,7 +574,7 @@ export function Stages({
           title,
         },
         stdout.rows - 1,
-        stdout.columns,
+        stdout.columns - 1,
       ).compactionLevel,
     )
   }, [
@@ -597,7 +604,7 @@ export function Stages({
             title,
           },
           stdout.rows - 1,
-          stdout.columns,
+          stdout.columns - 1,
         ).compactionLevel,
       )
     }
@@ -616,7 +623,7 @@ export function Stages({
   const postStages = filterInfos(postStagesBlock ?? [], actualLevelOfCompaction, 5)
   const stageSpecific = filterInfos(stageSpecificBlock ?? [], actualLevelOfCompaction, 7)
   // Reduce padding if the compaction level is 8
-  const padding = actualLevelOfCompaction === 8 ? 0 : 1
+  const padding = actualLevelOfCompaction >= 8 ? 0 : 1
 
   return (
     <Box flexDirection="column" marginTop={padding} marginBottom={padding}>
@@ -651,7 +658,7 @@ export function Stages({
       )}
 
       {hasElapsedTime && (
-        <Box marginLeft={1} display={actualLevelOfCompaction < 2 ? 'flex' : 'none'}>
+        <Box marginLeft={1} display={actualLevelOfCompaction < 2 ? 'flex' : 'none'} flexWrap="wrap">
           <Text>Elapsed Time: </Text>
           <Timer unit={timerUnit} />
         </Box>

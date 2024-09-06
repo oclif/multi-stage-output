@@ -101,7 +101,7 @@ export function SpinnerOrErrorOrChildren({
 }): React.ReactElement {
   if (children) {
     return (
-      <Box>
+      <Box flexWrap="wrap">
         {props.label && props.labelPosition === 'left' && <Text>{props.label} </Text>}
         {children}
         {props.label && props.labelPosition === 'right' && <Text> {props.label}</Text>}

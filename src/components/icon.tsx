@@ -17,7 +17,7 @@ export function Icon({
 }): React.ReactNode {
   if (!icon) return false
   return (
-    <Box>
+    <Box flexWrap="wrap">
       <Box paddingLeft={icon.paddingLeft} paddingRight={icon.paddingRight}>
         {icon.color && <Text color={icon.color}>{icon.figure}</Text>}
         {!icon.color && <Text>{icon.figure}</Text>}
