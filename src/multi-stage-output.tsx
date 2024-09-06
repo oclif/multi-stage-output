@@ -17,11 +17,34 @@ import {Design, RequiredDesign, constructDesignParams} from './design.js'
 import {StageStatus, StageTracker} from './stage-tracker.js'
 import {readableTime} from './utils.js'
 
-// Taken from https://github.com/sindresorhus/is-in-ci
-const isInCi =
-  env.CI !== '0' &&
-  env.CI !== 'false' &&
-  ('CI' in env || 'CONTINUOUS_INTEGRATION' in env || Object.keys(env).some((key) => key.startsWith('CI_')))
+function isTruthy(value: string | undefined): boolean {
+  return Boolean(value) && value !== '0' && value !== 'false'
+}
+
+/**
+ * Determines whether the CI mode should be used.
+ *
+ * If the MSO_DISABLE_CI_MODE environment variable is set to a truthy value, CI mode will be disabled.
+ *
+ * If the CI environment variable is set, CI mode will be enabled.
+ *
+ * If the DEBUG environment variable is set, CI mode will be enabled.
+ *
+ * @returns {boolean} True if CI mode should be used, false otherwise.
+ */
+function shouldUseCIMode(): boolean {
+  if (isTruthy(env.MSO_DISABLE_CI_MODE)) return false
+  // Inspired by https://github.com/sindresorhus/is-in-ci
+  if (
+    isTruthy(env.CI) &&
+    ('CI' in env || 'CONTINUOUS_INTEGRATION' in env || Object.keys(env).some((key) => key.startsWith('CI_')))
+  )
+    return true
+  if (isTruthy(env.DEBUG)) return true
+  return false
+}
+
+const isInCi = shouldUseCIMode()
 
 export type MultiStageOutputOptions<T extends Record<string, unknown>> = {
   /**
