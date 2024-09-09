@@ -18,7 +18,7 @@ import {StageStatus, StageTracker} from './stage-tracker.js'
 import {readableTime} from './utils.js'
 
 function isTruthy(value: string | undefined): boolean {
-  return Boolean(value) && value !== '0' && value !== 'false'
+  return value !== '0' && value !== 'false'
 }
 
 /**
@@ -33,14 +33,14 @@ function isTruthy(value: string | undefined): boolean {
  * @returns {boolean} True if CI mode should be used, false otherwise.
  */
 function shouldUseCIMode(): boolean {
-  if (isTruthy(env.MSO_DISABLE_CI_MODE)) return false
+  if (env.MSO_DISABLE_CI_MODE && isTruthy(env.MSO_DISABLE_CI_MODE)) return false
   // Inspired by https://github.com/sindresorhus/is-in-ci
   if (
     isTruthy(env.CI) &&
     ('CI' in env || 'CONTINUOUS_INTEGRATION' in env || Object.keys(env).some((key) => key.startsWith('CI_')))
   )
     return true
-  if (isTruthy(env.DEBUG)) return true
+  if (env.DEBUG && isTruthy(env.DEBUG)) return true
   return false
 }
 
