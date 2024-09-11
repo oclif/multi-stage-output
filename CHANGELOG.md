@@ -1,3 +1,25 @@
+## [0.5.4](https://github.com/oclif/core/compare/0.5.4-qa.0...0.5.4) (2024-09-11)
+
+
+
+## [0.5.4-qa.0](https://github.com/oclif/core/compare/0.5.3...0.5.4-qa.0) (2024-09-11)
+
+
+### Bug Fixes
+
+* improve CI check ([85965fa](https://github.com/oclif/core/commit/85965fac7576bc6875a466c5e85346cbc650133c))
+
+
+
+## [0.5.2-qa.0](https://github.com/oclif/core/compare/0.5.1...0.5.2-qa.0) (2024-09-06)
+
+
+### Bug Fixes
+
+* use CI mode if DEBUG is set ([d9ad6d2](https://github.com/oclif/core/commit/d9ad6d2a9e4122528ac086060e019835cc5a1ece))
+
+
+
 ## [0.5.3](https://github.com/oclif/core/compare/0.5.2...0.5.3) (2024-09-11)
 
 
@@ -7,12 +29,21 @@
 
 
 
-## [0.5.2](https://github.com/oclif/core/compare/0.5.1...0.5.2) (2024-09-08)
+## [0.5.2](https://github.com/oclif/core/compare/0.5.2-qa.0...0.5.2) (2024-09-08)
 
 
 ### Bug Fixes
 
 * **deps:** bump @oclif/core from 4.0.19 to 4.0.21 ([3ae7b58](https://github.com/oclif/core/commit/3ae7b58e43bd71f4d6a93aa0958e29cd65555bab))
+
+
+
+## [0.5.2-qa.0](https://github.com/oclif/core/compare/0.5.1...0.5.2-qa.0) (2024-09-06)
+
+
+### Bug Fixes
+
+* use CI mode if DEBUG is set ([d9ad6d2](https://github.com/oclif/core/commit/d9ad6d2a9e4122528ac086060e019835cc5a1ece))
 
 
 
