@@ -1,3 +1,12 @@
+## [0.5.5](https://github.com/oclif/core/compare/0.5.4...0.5.5) (2024-09-11)
+
+
+### Bug Fixes
+
+* use wrap-ansi to predict height ([6b61e49](https://github.com/oclif/core/commit/6b61e49b43438fca44496204972b2b1d64d2b03e))
+
+
+
 ## [0.5.4](https://github.com/oclif/core/compare/0.5.4-qa.0...0.5.4) (2024-09-11)
 
 
