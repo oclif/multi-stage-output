@@ -1,3 +1,12 @@
+## [0.5.3](https://github.com/oclif/core/compare/0.5.2...0.5.3) (2024-09-11)
+
+
+### Bug Fixes
+
+* use ErrorBoundary to prevent stack traces ([6c405d0](https://github.com/oclif/core/commit/6c405d03a5c9db94d1aecc86c48b431d0c06717f))
+
+
+
 ## [0.5.2](https://github.com/oclif/core/compare/0.5.1...0.5.2) (2024-09-08)
 
 
