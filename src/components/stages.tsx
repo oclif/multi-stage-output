@@ -1,6 +1,7 @@
+import {getLogger} from '@oclif/core/logger'
 import {capitalCase} from 'change-case'
 import {Box, Text, useStdout} from 'ink'
-import React from 'react'
+import React, {ErrorInfo} from 'react'
 
 import {RequiredDesign, constructDesignParams} from '../design.js'
 import {StageStatus, StageTracker} from '../stage-tracker.js'
@@ -531,6 +532,37 @@ export function determineCompactionLevel(
   }
 }
 
+class ErrorBoundary extends React.Component<{
+  children: React.ReactNode
+  getFallbackText?: () => string
+}> {
+  public state = {
+    hasError: false,
+  }
+
+  static getDerivedStateFromError() {
+    // Update state so the next render will show the fallback UI.
+    return {hasError: true}
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    getLogger('multi-stage-output').debug(error)
+    getLogger('multi-stage-output').debug(info)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      if (this.props.getFallbackText) {
+        return <Text>{this.props.getFallbackText()}</Text>
+      }
+
+      return false
+    }
+
+    return this.props.children
+  }
+}
+
 export function Stages({
   compactionLevel,
   design = constructDesignParams(),
@@ -629,38 +661,52 @@ export function Stages({
     <Box flexDirection="column" marginTop={padding} marginBottom={padding}>
       {actualLevelOfCompaction < 3 && title && (
         <Box paddingBottom={padding}>
-          <Divider title={title} {...design.title} terminalWidth={stdout.columns} />
+          <ErrorBoundary getFallbackText={() => title}>
+            <Divider title={title} {...design.title} terminalWidth={stdout.columns} />
+          </ErrorBoundary>
         </Box>
       )}
 
       {preStages && preStages.length > 0 && (
         <Box flexDirection="column" marginLeft={1} paddingBottom={padding}>
-          <Infos design={design} error={error} keyValuePairs={preStages} />
+          <ErrorBoundary
+            getFallbackText={() => preStages.map((s) => (s.label ? `${s.label}: ${s.value}` : s.value)).join('\n')}
+          >
+            <Infos design={design} error={error} keyValuePairs={preStages} />
+          </ErrorBoundary>
         </Box>
       )}
 
       <Box flexDirection="column" marginLeft={1} paddingBottom={padding}>
-        <StageEntries
-          compactionLevel={actualLevelOfCompaction}
-          design={design}
-          error={error}
-          hasStageTime={hasStageTime}
-          stageSpecificBlock={stageSpecific}
-          stageTracker={stageTracker}
-          timerUnit={timerUnit}
-        />
+        <ErrorBoundary getFallbackText={() => stageTracker.current ?? 'unknown'}>
+          <StageEntries
+            compactionLevel={actualLevelOfCompaction}
+            design={design}
+            error={error}
+            hasStageTime={hasStageTime}
+            stageSpecificBlock={stageSpecific}
+            stageTracker={stageTracker}
+            timerUnit={timerUnit}
+          />
+        </ErrorBoundary>
       </Box>
 
       {postStages && postStages.length > 0 && (
         <Box flexDirection="column" marginLeft={1}>
-          <Infos design={design} error={error} keyValuePairs={postStages} />
+          <ErrorBoundary
+            getFallbackText={() => postStages.map((s) => (s.label ? `${s.label}: ${s.value}` : s.value)).join('\n')}
+          >
+            <Infos design={design} error={error} keyValuePairs={postStages} />
+          </ErrorBoundary>
         </Box>
       )}
 
       {hasElapsedTime && (
         <Box marginLeft={1} display={actualLevelOfCompaction < 2 ? 'flex' : 'none'} flexWrap="wrap">
-          <Text>Elapsed Time: </Text>
-          <Timer unit={timerUnit} />
+          <ErrorBoundary>
+            <Text>Elapsed Time: </Text>
+            <Timer unit={timerUnit} />
+          </ErrorBoundary>
         </Box>
       )}
     </Box>
