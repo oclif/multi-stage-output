@@ -2,6 +2,7 @@ import {getLogger} from '@oclif/core/logger'
 import {capitalCase} from 'change-case'
 import {Box, Text, useStdout} from 'ink'
 import React, {ErrorInfo} from 'react'
+import wrapAnsi from 'wrap-ansi'
 
 import {RequiredDesign, constructDesignParams} from '../design.js'
 import {StageStatus, StageTracker} from '../stage-tracker.js'
@@ -397,12 +398,9 @@ export function determineCompactionLevel(
   // examples: 999ms (5), 59.99s (6), 59m 59.99s (10), 23h 59m (7)
   const estimatedTimeLength = 11
 
-  const calculateWrappedHeight = (length: number): number => {
-    if (length > columns) {
-      return Math.ceil(length / columns)
-    }
-
-    return 1
+  const calculateWrappedHeight = (text: string): number => {
+    const wrapped = wrapAnsi(text, columns, {hard: true, trim: false, wordWrap: true})
+    return wrapped.split('\n').length
   }
 
   const calculateHeightOfBlock = (block: FormattedKeyValue[] | undefined): number => {
@@ -413,7 +411,7 @@ export function determineCompactionLevel(
 
         if (info.value.length > columns) {
           // if the message is longer than the terminal width, add the number of lines
-          return acc + calculateWrappedHeight(info.value.length)
+          return acc + calculateWrappedHeight(info.value)
         }
 
         // if the message is multiline, add the number of lines
@@ -426,7 +424,7 @@ export function determineCompactionLevel(
       const totalLength = `${label}: ${value}`.length
       if (totalLength > columns) {
         // if the value is longer than the terminal width, add the number of lines
-        return acc + calculateWrappedHeight(totalLength)
+        return acc + calculateWrappedHeight(`${label}: ${value}`)
       }
 
       return acc + value.split('\n').length
@@ -437,15 +435,16 @@ export function determineCompactionLevel(
     const status = stageTracker.get(stage) ?? 'pending'
     const skipped = status === 'skipped' ? ' - Skipped' : ''
     const stageTimeLength = hasStageTime ? estimatedTimeLength : 0
-    const totalLength =
-      design.icons[status].paddingLeft +
-      design.icons[status].figure.length +
-      design.icons[status].paddingRight +
-      stage.length +
-      skipped.length +
-      stageTimeLength
+    const parts = [
+      ' '.repeat(design.icons[status].paddingLeft),
+      design.icons[status].figure,
+      ' '.repeat(design.icons[status].paddingRight),
+      stage,
+      skipped,
+      '0'.repeat(stageTimeLength),
+    ]
 
-    return calculateWrappedHeight(totalLength)
+    return calculateWrappedHeight(parts.join(''))
   }
 
   const calculateWidthOfCompactStage = (stage: string): number => {
@@ -480,8 +479,10 @@ export function determineCompactionLevel(
   const stageSpecificBlockHeight = calculateHeightOfBlock(stageSpecificBlock)
   // 3 at minimum because: 1 for marginTop on entire component, 1 for marginBottom on entire component, 1 for paddingBottom on StageEntries
   const paddings = 3 + (preStagesBlock ? 1 : 0) + (postStagesBlock ? 1 : 0) + (title ? 1 : 0)
-  const elapsedTimeHeight = hasElapsedTime ? calculateWrappedHeight('Elapsed Time:'.length + estimatedTimeLength) : 0
-  const titleHeight = title ? calculateWrappedHeight(title.length) : 0
+  const elapsedTimeHeight = hasElapsedTime
+    ? calculateWrappedHeight(`Elapsed Time:${'0'.repeat(estimatedTimeLength)}`)
+    : 0
+  const titleHeight = title ? calculateWrappedHeight(title) : 0
   const totalHeight =
     stagesHeight +
     preStagesBlockHeight +
