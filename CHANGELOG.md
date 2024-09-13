@@ -1,3 +1,12 @@
+## [0.5.6](https://github.com/oclif/core/compare/0.5.5...0.5.6) (2024-09-13)
+
+
+### Bug Fixes
+
+* **deps:** bump path-to-regexp from 6.2.2 to 6.3.0 ([400d13d](https://github.com/oclif/core/commit/400d13d299014078391d21b20292b6e7f47c5631))
+
+
+
 ## [0.5.5](https://github.com/oclif/core/compare/0.5.4...0.5.5) (2024-09-11)
 
 
