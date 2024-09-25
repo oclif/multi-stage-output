@@ -1,5 +1,4 @@
 import {getLogger} from '@oclif/core/logger'
-import {capitalCase} from 'change-case'
 import {Box, Text, useStdout} from 'ink'
 import React, {ErrorInfo} from 'react'
 import wrapAnsi from 'wrap-ansi'
@@ -228,7 +227,7 @@ function CompactStage({
     <Box flexDirection={direction}>
       <SpinnerOrError
         error={error}
-        label={`[${stageTracker.indexOf(stage) + 1}/${stageTracker.size}] ${capitalCase(stage)}`}
+        label={`[${stageTracker.indexOf(stage) + 1}/${stageTracker.size}] ${stage}`}
         type={design.spinners.stage}
         design={design}
       />
@@ -255,18 +254,18 @@ function Stage({
   return (
     <Box flexWrap="wrap">
       {(status === 'current' || status === 'failed') && (
-        <SpinnerOrError error={error} label={capitalCase(stage)} type={design.spinners.stage} design={design} />
+        <SpinnerOrError error={error} label={stage} type={design.spinners.stage} design={design} />
       )}
 
       {status === 'skipped' && (
         <Icon icon={design.icons.skipped}>
-          <Text color="dim">{capitalCase(stage)} - Skipped</Text>
+          <Text color="dim">{stage} - Skipped</Text>
         </Icon>
       )}
 
       {status !== 'skipped' && status !== 'failed' && status !== 'current' && (
         <Icon icon={design.icons[status]}>
-          <Text>{capitalCase(stage)}</Text>
+          <Text>{stage}</Text>
         </Icon>
       )}
     </Box>

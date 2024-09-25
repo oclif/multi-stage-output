@@ -37,8 +37,8 @@ describe('Stages', () => {
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include(`${design.icons.pending.figure} Step1`)
-    expect(lastFrame).to.include(`${design.icons.pending.figure} Step2`)
+    expect(lastFrame).to.include(`${design.icons.pending.figure} step1`)
+    expect(lastFrame).to.include(`${design.icons.pending.figure} step2`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
@@ -49,8 +49,8 @@ describe('Stages', () => {
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include(`${design.icons.completed.figure} Step1`)
-    expect(lastFrame).to.include(`${design.icons.pending.figure} Step2`)
+    expect(lastFrame).to.include(`${design.icons.completed.figure} step1`)
+    expect(lastFrame).to.include(`${design.icons.pending.figure} step2`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
@@ -62,8 +62,8 @@ describe('Stages', () => {
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include(`${design.icons.skipped.figure} Step1 - Skipped`)
-    expect(lastFrame).to.include(`${design.icons.completed.figure} Step2`)
+    expect(lastFrame).to.include(`${design.icons.skipped.figure} step1 - Skipped`)
+    expect(lastFrame).to.include(`${design.icons.completed.figure} step2`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
@@ -76,8 +76,8 @@ describe('Stages', () => {
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include(`${design.icons.failed.figure} Step1`)
-    expect(lastFrame).to.include(`${design.icons.pending.figure} Step2`)
+    expect(lastFrame).to.include(`${design.icons.failed.figure} step1`)
+    expect(lastFrame).to.include(`${design.icons.pending.figure} step2`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
@@ -89,8 +89,8 @@ describe('Stages', () => {
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include(`${design.icons.pending.figure} Step1`)
-    expect(lastFrame).to.include(`${design.icons.pending.figure} Step2`)
+    expect(lastFrame).to.include(`${design.icons.pending.figure} step1`)
+    expect(lastFrame).to.include(`${design.icons.pending.figure} step2`)
     expect(lastFrame).to.not.include('Elapsed Time:')
   })
 
@@ -101,8 +101,8 @@ describe('Stages', () => {
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include(`${design.icons.completed.figure} Step1 0ms`)
-    expect(lastFrame).to.include(`${design.icons.pending.figure} Step2\n`)
+    expect(lastFrame).to.include(`${design.icons.completed.figure} step1 0ms`)
+    expect(lastFrame).to.include(`${design.icons.pending.figure} step2\n`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
@@ -115,8 +115,8 @@ describe('Stages', () => {
     unmount()
     const lastFrame = lastValidFrame(frames)
     expect(lastFrame).to.include('─ Test ─')
-    expect(lastFrame).to.include(`${design.icons.completed.figure} Step1\n`)
-    expect(lastFrame).to.include(`${design.icons.pending.figure} Step2\n`)
+    expect(lastFrame).to.include(`${design.icons.completed.figure} step1\n`)
+    expect(lastFrame).to.include(`${design.icons.pending.figure} step2\n`)
     expect(lastFrame).to.include('Elapsed Time:')
   })
 
@@ -149,7 +149,7 @@ describe('Stages', () => {
  Static: this is a static key:value pair
  Dynamic: this is a dynamic key:value pair
 
- ${design.icons.pending.figure} Step1
+ ${design.icons.pending.figure} step1
 `)
   })
 
@@ -178,7 +178,7 @@ describe('Stages', () => {
     )
     unmount()
     const lastFrame = lastValidFrame(frames)
-    expect(lastFrame).to.include(` ${design.icons.pending.figure} Step2
+    expect(lastFrame).to.include(` ${design.icons.pending.figure} step2
 
  this is a message
  Static: this is a static key:value pair
@@ -213,7 +213,7 @@ describe('Stages', () => {
     )
     unmount()
     const lastFrame = lastValidFrame(frames)
-    expect(lastFrame).to.include(` ${design.icons.completed.figure} Step1 0ms
+    expect(lastFrame).to.include(` ${design.icons.completed.figure} step1 0ms
    ${design.icons.info.figure} this is a message
    ${design.icons.info.figure} Static: this is a static key:value pair
    ${design.icons.info.figure} Dynamic: this is a dynamic key:value pair`)
@@ -242,8 +242,8 @@ describe('Stages', () => {
       const lastFrame = renderStages(1)
       expect(lastFrame).to.include('─ Test ─')
       expect(lastFrame).to.include('pre-stage hello')
-      expect(lastFrame).to.include(`[1/2] Step1`)
-      expect(lastFrame).to.not.include(`${design.icons.pending.figure} Step2`)
+      expect(lastFrame).to.include(`[1/2] step1`)
+      expect(lastFrame).to.not.include(`${design.icons.pending.figure} step2`)
       expect(lastFrame).to.include('stage-specific hello')
       expect(lastFrame).to.include('post-stage hello')
       expect(lastFrame).to.include('Elapsed Time:')
@@ -253,8 +253,8 @@ describe('Stages', () => {
       const lastFrame = renderStages(2)
       expect(lastFrame).to.include('─ Test ─')
       expect(lastFrame).to.include('pre-stage hello')
-      expect(lastFrame).to.include(`[1/2] Step1`)
-      expect(lastFrame).to.not.include(`${design.icons.pending.figure} Step2`)
+      expect(lastFrame).to.include(`[1/2] step1`)
+      expect(lastFrame).to.not.include(`${design.icons.pending.figure} step2`)
       expect(lastFrame).to.include('stage-specific hello')
       expect(lastFrame).to.include('post-stage hello')
       expect(lastFrame).to.not.include('Elapsed Time:')
@@ -264,8 +264,8 @@ describe('Stages', () => {
       const lastFrame = renderStages(3)
       expect(lastFrame).to.not.include('─ Test ─')
       expect(lastFrame).to.include('pre-stage hello')
-      expect(lastFrame).to.include(`[1/2] Step1`)
-      expect(lastFrame).to.not.include(`${design.icons.pending.figure} Step2`)
+      expect(lastFrame).to.include(`[1/2] step1`)
+      expect(lastFrame).to.not.include(`${design.icons.pending.figure} step2`)
       expect(lastFrame).to.include('stage-specific hello')
       expect(lastFrame).to.include('post-stage hello')
       expect(lastFrame).to.not.include('Elapsed Time:')
@@ -275,8 +275,8 @@ describe('Stages', () => {
       const lastFrame = renderStages(4)
       expect(lastFrame).to.not.include('─ Test ─')
       expect(lastFrame).to.not.include('pre-stage hello')
-      expect(lastFrame).to.include(`[1/2] Step1`)
-      expect(lastFrame).to.not.include(`${design.icons.pending.figure} Step2`)
+      expect(lastFrame).to.include(`[1/2] step1`)
+      expect(lastFrame).to.not.include(`${design.icons.pending.figure} step2`)
       expect(lastFrame).to.include('stage-specific hello')
       expect(lastFrame).to.include('post-stage hello')
       expect(lastFrame).to.not.include('Elapsed Time:')
@@ -286,8 +286,8 @@ describe('Stages', () => {
       const lastFrame = renderStages(5)
       expect(lastFrame).to.not.include('─ Test ─')
       expect(lastFrame).to.not.include('pre-stage hello')
-      expect(lastFrame).to.include(`[1/2] Step1`)
-      expect(lastFrame).to.not.include(`${design.icons.pending.figure} Step2`)
+      expect(lastFrame).to.include(`[1/2] step1`)
+      expect(lastFrame).to.not.include(`${design.icons.pending.figure} step2`)
       expect(lastFrame).to.include('stage-specific hello')
       expect(lastFrame).to.not.include('post-stage hello')
       expect(lastFrame).to.not.include('Elapsed Time:')
@@ -297,9 +297,9 @@ describe('Stages', () => {
       const lastFrame = renderStages(6)
       expect(lastFrame).to.not.include('─ Test ─')
       expect(lastFrame).to.not.include('pre-stage hello')
-      expect(lastFrame).to.include(`[1/2] Step1`)
+      expect(lastFrame).to.include(`[1/2] step1`)
       expect(lastFrame).to.include('stage-specific hello 0ms')
-      expect(lastFrame).to.not.include(`${design.icons.pending.figure} Step2`)
+      expect(lastFrame).to.not.include(`${design.icons.pending.figure} step2`)
       expect(lastFrame).to.not.include('post-stage hello')
       expect(lastFrame).to.not.include('Elapsed Time:')
     })
@@ -308,9 +308,9 @@ describe('Stages', () => {
       const lastFrame = renderStages(7)
       expect(lastFrame).to.not.include('─ Test ─')
       expect(lastFrame).to.not.include('pre-stage hello')
-      expect(lastFrame).to.include(`[1/2] Step1`)
+      expect(lastFrame).to.include(`[1/2] step1`)
       expect(lastFrame).to.not.include('stage-specific hello 0ms')
-      expect(lastFrame).to.not.include(`${design.icons.pending.figure} Step2`)
+      expect(lastFrame).to.not.include(`${design.icons.pending.figure} step2`)
       expect(lastFrame).to.not.include('post-stage hello')
       expect(lastFrame).to.not.include('Elapsed Time:')
     })

@@ -7,7 +7,6 @@
   "dependencies": {
     "@oclif/core": "^4",
     "@types/react": "^18.3.8",
-    "change-case": "^5.4.4",
     "cli-spinners": "^2",
     "figures": "^6.1.0",
     "ink": "^5.0.1",

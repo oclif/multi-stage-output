@@ -1,5 +1,4 @@
 import {ux} from '@oclif/core/ux'
-import {capitalCase} from 'change-case'
 import {Instance, render} from 'ink'
 import {env} from 'node:process'
 import React from 'react'
@@ -139,7 +138,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
     if (title) ux.stdout(`───── ${title} ─────`)
     ux.stdout('Stages:')
     for (const stage of this.stages) {
-      ux.stdout(`${this.stages.indexOf(stage) + 1}. ${capitalCase(stage)}`)
+      ux.stdout(`${this.stages.indexOf(stage) + 1}. ${stage}`)
     }
 
     ux.stdout()
