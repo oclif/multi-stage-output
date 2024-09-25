@@ -20,4 +20,4 @@ await sleep(SLEEP_TIME)
 ms.goto('two')
 await sleep(SLEEP_TIME)
 
-ms.stop(new Error('An error occurred'))
+ms.stop('failed')
