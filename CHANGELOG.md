@@ -1,3 +1,12 @@
+## [0.6.1](https://github.com/oclif/core/compare/0.6.0...0.6.1) (2024-09-25)
+
+
+### Bug Fixes
+
+* export ParallelMultiStageOutput ([552452a](https://github.com/oclif/core/commit/552452a5be58a984107efc04f2976574670579b3))
+
+
+
 # [0.6.0](https://github.com/oclif/core/compare/0.5.9...0.6.0) (2024-09-25)
 
 
