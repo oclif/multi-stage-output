@@ -1,3 +1,12 @@
+# [0.6.0](https://github.com/oclif/core/compare/0.5.9...0.6.0) (2024-09-25)
+
+
+### Features
+
+* support parallel multi-stage-output ([911ac8c](https://github.com/oclif/core/commit/911ac8cadc243adc282ac03e2884fc57ca8af16c))
+
+
+
 ## [0.5.9](https://github.com/oclif/core/compare/0.5.8...0.5.9) (2024-09-25)
 
 
