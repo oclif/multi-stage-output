@@ -179,7 +179,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
           if (Date.now() - this.lastUpdateTime < this.messageTimeout) break
           this.lastUpdateTime = Date.now()
           if (!this.startTimes.has(stage)) this.startTimes.set(stage, Date.now())
-          ux.stdout(`${this.design.icons.current.figure} ${capitalCase(stage)}...`)
+          ux.stdout(`${this.design.icons.current.figure} ${stage}…`)
           this.printInfo(this.preStagesBlock, 3)
           this.printInfo(
             this.stageSpecificBlock?.filter((info) => info.stage === stage),
@@ -197,7 +197,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
             const startTime = this.startTimes.get(stage)
             const elapsedTime = startTime ? Date.now() - startTime : 0
             const displayTime = readableTime(elapsedTime, this.timerUnit)
-            ux.stdout(`${this.design.icons[status].figure} ${capitalCase(stage)} (${displayTime})`)
+            ux.stdout(`${this.design.icons[status].figure} ${stage} (${displayTime})`)
             this.printInfo(this.preStagesBlock, 3)
             this.printInfo(
               this.stageSpecificBlock?.filter((info) => info.stage === stage),
@@ -205,9 +205,9 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
             )
             this.printInfo(this.postStagesBlock, 3)
           } else if (status === 'skipped') {
-            ux.stdout(`${this.design.icons[status].figure} ${capitalCase(stage)} - Skipped`)
+            ux.stdout(`${this.design.icons[status].figure} ${stage} - Skipped`)
           } else {
-            ux.stdout(`${this.design.icons[status].figure} ${capitalCase(stage)}`)
+            ux.stdout(`${this.design.icons[status].figure} ${stage}`)
             this.printInfo(this.preStagesBlock, 3)
             this.printInfo(
               this.stageSpecificBlock?.filter((info) => info.stage === stage),
