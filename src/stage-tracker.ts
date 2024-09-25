@@ -12,12 +12,17 @@ export type StageStatus =
   | 'warning'
 
 export class StageTracker {
-  public current: string | undefined
+  public current: string[] = []
+  private allowParallelTasks: boolean
   private map = new Map<string, StageStatus>()
   private markers = new Map<string, ReturnType<typeof Performance.mark>>()
 
-  public constructor(private stages: readonly string[] | string[]) {
+  public constructor(
+    private stages: readonly string[] | string[],
+    opts?: {allowParallelTasks?: boolean},
+  ) {
     this.map = new Map(stages.map((stage) => [stage, 'pending']))
+    this.allowParallelTasks = opts?.allowParallelTasks ?? false
   }
 
   public get size(): number {
@@ -30,15 +35,6 @@ export class StageTracker {
 
   public get(stage: string): StageStatus | undefined {
     return this.map.get(stage)
-  }
-
-  public getCurrent(): {stage: string; status: StageStatus} | undefined {
-    if (this.current) {
-      return {
-        stage: this.current,
-        status: this.map.get(this.current) as StageStatus,
-      }
-    }
   }
 
   public indexOf(stage: string): number {
@@ -54,8 +50,7 @@ export class StageTracker {
 
       // .stop() was called with a finalStatus
       if (nextStage === stage && opts?.finalStatus) {
-        this.set(stage, opts.finalStatus)
-        this.stopMarker(stage)
+        this.stopStage(stage, opts.finalStatus)
         continue
       }
 
@@ -78,8 +73,7 @@ export class StageTracker {
 
       // any stage before the current stage should be marked as completed (if it hasn't been marked as skipped or failed yet)
       if (stages.indexOf(nextStage) > stages.indexOf(stage)) {
-        this.set(stage, 'completed')
-        this.stopMarker(stage)
+        this.stopStage(stage, 'completed')
         continue
       }
 
@@ -90,17 +84,43 @@ export class StageTracker {
 
   public set(stage: string, status: StageStatus): void {
     if (status === 'current') {
-      this.current = stage
+      if (!this.current.includes(stage)) {
+        this.current.push(stage)
+      }
+    } else {
+      this.current = this.current.filter((s) => s !== stage)
     }
 
     this.map.set(stage, status)
+  }
+
+  public stop(currentStage: string, finalStatus: StageStatus): void {
+    if (this.allowParallelTasks) {
+      for (const [stage, status] of this.entries()) {
+        if (status === 'current') {
+          this.stopStage(stage, finalStatus)
+        }
+      }
+    } else {
+      this.refresh(currentStage, {finalStatus})
+    }
+  }
+
+  public update(stage: string, status: StageStatus): void {
+    if (status === 'completed' || status === 'failed' || status === 'aborted') {
+      this.stopStage(stage, status)
+    } else {
+      this.set(stage, status)
+    }
   }
 
   public values(): IterableIterator<StageStatus> {
     return this.map.values()
   }
 
-  private stopMarker(stage: string): void {
+  private stopStage(stage: string, status: StageStatus): void {
+    this.set(stage, status)
+
     const marker = this.markers.get(stage)
     if (marker && !marker.stopped) {
       marker.stop()

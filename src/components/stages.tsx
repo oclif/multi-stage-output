@@ -333,7 +333,7 @@ function StageEntries({
             {status !== 'pending' && status !== 'skipped' && hasStageTime && (
               <Box display={compactionLevel === 0 ? 'flex' : status === 'current' ? 'flex' : 'none'}>
                 <Text> </Text>
-                <Timer color="dim" isStopped={status === 'completed'} unit={timerUnit} />
+                <Timer color="dim" isStopped={status === 'completed' || status === 'paused'} unit={timerUnit} />
               </Box>
             )}
           </Box>
@@ -496,8 +496,8 @@ export function determineCompactionLevel(
   let cLevel = 0
 
   const levels = [
-    // 1: only show one stage at a time, with stage specific info nested under the stage
-    (remainingHeight: number) => remainingHeight - stagesHeight + 1,
+    // 1: only current stages, with stage specific info nested under the stage
+    (remainingHeight: number) => remainingHeight - stagesHeight + Math.max(stageTracker.current.length, 1),
     // 2: hide the elapsed time
     (remainingHeight: number) => remainingHeight - 1,
     // 3: hide the title (subtract 1 for title and 1 for paddingBottom)
@@ -522,7 +522,10 @@ export function determineCompactionLevel(
 
   // It's possible that the collapsed stage might extend beyond the terminal width.
   // If so, we need to bump the compaction level up to 7 so that the stage specific info is hidden
-  if (cLevel === 6 && stageTracker.current && calculateWidthOfCompactStage(stageTracker.current) >= columns) {
+  if (
+    cLevel === 6 &&
+    stageTracker.current.map((c) => calculateWidthOfCompactStage(c)).reduce((acc, width) => acc + width, 0) >= columns
+  ) {
     cLevel = 7
   }
 
@@ -678,7 +681,7 @@ export function Stages({
       )}
 
       <Box flexDirection="column" marginLeft={1} paddingBottom={padding}>
-        <ErrorBoundary getFallbackText={() => stageTracker.current ?? 'unknown'}>
+        <ErrorBoundary getFallbackText={() => stageTracker.current[0] ?? 'unknown'}>
           <StageEntries
             compactionLevel={actualLevelOfCompaction}
             design={design}

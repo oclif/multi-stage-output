@@ -13,7 +13,7 @@ describe('StageTracker', () => {
   it('should keep track of the current stage', () => {
     const tracker = new StageTracker(['one', 'two', 'three'])
     tracker.refresh('two')
-    expect(tracker.current).to.equal('two')
+    expect(tracker.current).to.deep.equal(['two'])
   })
 
   it("should set the current stage to error when there's an error", () => {

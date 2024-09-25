@@ -241,35 +241,38 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
   }
 }
 
-export class MultiStageOutput<T extends Record<string, unknown>> implements Disposable {
-  private readonly ciInstance: CIMultiStageOutput<T> | undefined
-  private data?: Partial<T>
-  private readonly design: RequiredDesign
-  private readonly hasElapsedTime?: boolean
-  private readonly hasStageTime?: boolean
-  private readonly inkInstance: Instance | undefined
-  private readonly postStagesBlock?: InfoBlock<T>
-  private readonly preStagesBlock?: InfoBlock<T>
-  private readonly stages: readonly string[] | string[]
-  private readonly stageSpecificBlock?: StageInfoBlock<T>
-  private readonly stageTracker: StageTracker
-  private stopped = false
-  private readonly timerUnit?: 'ms' | 's'
-  private readonly title?: string
+class MultiStageOutputBase<T extends Record<string, unknown>> implements Disposable {
+  protected readonly ciInstance: CIMultiStageOutput<T> | undefined
+  protected data?: Partial<T>
+  protected readonly design: RequiredDesign
+  protected readonly hasElapsedTime?: boolean
+  protected readonly hasStageTime?: boolean
+  protected readonly inkInstance: Instance | undefined
+  protected readonly postStagesBlock?: InfoBlock<T>
+  protected readonly preStagesBlock?: InfoBlock<T>
+  protected readonly stages: readonly string[] | string[]
+  protected readonly stageSpecificBlock?: StageInfoBlock<T>
+  protected readonly stageTracker: StageTracker
+  protected stopped = false
+  protected readonly timerUnit?: 'ms' | 's'
+  protected readonly title?: string
 
-  public constructor({
-    data,
-    design,
-    jsonEnabled = false,
-    postStagesBlock,
-    preStagesBlock,
-    showElapsedTime,
-    showStageTime,
-    stageSpecificBlock,
-    stages,
-    timerUnit,
-    title,
-  }: MultiStageOutputOptions<T>) {
+  public constructor(
+    {
+      data,
+      design,
+      jsonEnabled = false,
+      postStagesBlock,
+      preStagesBlock,
+      showElapsedTime,
+      showStageTime,
+      stageSpecificBlock,
+      stages,
+      timerUnit,
+      title,
+    }: MultiStageOutputOptions<T>,
+    allowParallelTasks?: boolean,
+  ) {
     this.data = data
     this.design = constructDesignParams(design)
     this.stages = stages
@@ -279,7 +282,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     this.hasElapsedTime = showElapsedTime ?? true
     this.hasStageTime = showStageTime ?? true
     this.timerUnit = timerUnit ?? 'ms'
-    this.stageTracker = new StageTracker(stages)
+    this.stageTracker = new StageTracker(stages, {allowParallelTasks})
     this.stageSpecificBlock = stageSpecificBlock
 
     if (jsonEnabled) return
@@ -310,65 +313,46 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     this.stop('failed')
   }
 
-  /**
-   * Go to a stage, marking any stages in between the current stage and the provided stage as completed.
-   *
-   * If the stage does not exist or is before the current stage, nothing will happen.
-   *
-   * If the stage is the same as the current stage, the data will be updated.
-   *
-   * @param stage Stage to go to
-   * @param data - Optional data to pass to the next stage.
-   * @returns void
-   */
-  public goto(stage: string, data?: Partial<T>): void {
-    if (this.stopped) return
-
-    // ignore non-existent stages
-    if (!this.stages.includes(stage)) return
-
-    // prevent going to a previous stage
-    if (this.stages.indexOf(stage) < this.stages.indexOf(this.stageTracker.current ?? this.stages[0])) return
-
-    this.update(stage, 'completed', data)
+  protected formatKeyValuePairs(infoBlock: InfoBlock<T> | StageInfoBlock<T> | undefined): FormattedKeyValue[] {
+    return (
+      infoBlock?.map((info) => {
+        const formattedData = info.get ? info.get(this.data as T) : undefined
+        return {
+          color: info.color,
+          isBold: info.bold,
+          neverCollapse: info.neverCollapse,
+          type: info.type,
+          value: formattedData,
+          ...(info.type === 'message' ? {} : {label: info.label}),
+          ...('stage' in info ? {stage: info.stage} : {}),
+        }
+      }) ?? []
+    )
   }
 
-  /**
-   * Moves to the next stage of the process.
-   *
-   * @param data - Optional data to pass to the next stage.
-   * @returns void
-   */
-  public next(data?: Partial<T>): void {
-    if (this.stopped) return
-
-    const nextStageIndex = this.stages.indexOf(this.stageTracker.current ?? this.stages[0]) + 1
-    if (nextStageIndex < this.stages.length) {
-      this.update(this.stages[nextStageIndex], 'completed', data)
+  /** shared method to populate everything needed for Stages cmp */
+  protected generateStagesInput(opts?: {compactionLevel?: number}): StagesProps {
+    const {compactionLevel} = opts ?? {}
+    return {
+      compactionLevel,
+      design: this.design,
+      hasElapsedTime: this.hasElapsedTime,
+      hasStageTime: this.hasStageTime,
+      postStagesBlock: this.formatKeyValuePairs(this.postStagesBlock),
+      preStagesBlock: this.formatKeyValuePairs(this.preStagesBlock),
+      stageSpecificBlock: this.formatKeyValuePairs(this.stageSpecificBlock),
+      stageTracker: this.stageTracker,
+      timerUnit: this.timerUnit,
+      title: this.title,
     }
   }
 
-  /**
-   * Go to a stage, marking any stages in between the current stage and the provided stage as skipped.
-   *
-   * If the stage does not exist or is before the current stage, nothing will happen.
-   *
-   * If the stage is the same as the current stage, the data will be updated.
-   *
-   * @param stage Stage to go to
-   * @param data - Optional data to pass to the next stage.
-   * @returns void
-   */
-  public skipTo(stage: string, data?: Partial<T>): void {
-    if (this.stopped) return
-
-    // ignore non-existent stages
-    if (!this.stages.includes(stage)) return
-
-    // prevent going to a previous stage
-    if (this.stages.indexOf(stage) < this.stages.indexOf(this.stageTracker.current ?? this.stages[0])) return
-
-    this.update(stage, 'skipped', data)
+  protected rerender(): void {
+    if (isInCi) {
+      this.ciInstance?.update(this.stageTracker, this.data)
+    } else {
+      this.inkInstance?.rerender(<Stages {...this.generateStagesInput()} />)
+    }
   }
 
   /**
@@ -383,9 +367,7 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
     if (this.stopped) return
     this.stopped = true
 
-    this.stageTracker.refresh(this.stageTracker.current ?? this.stages[0], {
-      finalStatus,
-    })
+    this.stageTracker.stop(this.stageTracker.current[0] ?? this.stages[0], finalStatus)
 
     if (isInCi) {
       this.ciInstance?.stop(this.stageTracker)
@@ -419,53 +401,112 @@ export class MultiStageOutput<T extends Record<string, unknown>> implements Disp
 
     this.rerender()
   }
+}
 
-  private formatKeyValuePairs(infoBlock: InfoBlock<T> | StageInfoBlock<T> | undefined): FormattedKeyValue[] {
-    return (
-      infoBlock?.map((info) => {
-        const formattedData = info.get ? info.get(this.data as T) : undefined
-        return {
-          color: info.color,
-          isBold: info.bold,
-          neverCollapse: info.neverCollapse,
-          type: info.type,
-          value: formattedData,
-          ...(info.type === 'message' ? {} : {label: info.label}),
-          ...('stage' in info ? {stage: info.stage} : {}),
-        }
-      }) ?? []
-    )
+export class MultiStageOutput<T extends Record<string, unknown>> extends MultiStageOutputBase<T> {
+  public constructor(options: MultiStageOutputOptions<T>) {
+    super(options)
   }
 
-  /** shared method to populate everything needed for Stages cmp */
-  private generateStagesInput(opts?: {compactionLevel?: number}): StagesProps {
-    const {compactionLevel} = opts ?? {}
-    return {
-      compactionLevel,
-      design: this.design,
-      hasElapsedTime: this.hasElapsedTime,
-      hasStageTime: this.hasStageTime,
-      postStagesBlock: this.formatKeyValuePairs(this.postStagesBlock),
-      preStagesBlock: this.formatKeyValuePairs(this.preStagesBlock),
-      stageSpecificBlock: this.formatKeyValuePairs(this.stageSpecificBlock),
-      stageTracker: this.stageTracker,
-      timerUnit: this.timerUnit,
-      title: this.title,
+  /**
+   * Go to a stage, marking any stages in between the current stage and the provided stage as completed.
+   *
+   * If the stage does not exist or is before the current stage, nothing will happen.
+   *
+   * If the stage is the same as the current stage, the data will be updated.
+   *
+   * @param stage Stage to go to
+   * @param data - Optional data to pass to the next stage.
+   * @returns void
+   */
+  public goto(stage: string, data?: Partial<T>): void {
+    if (this.stopped) return
+
+    // ignore non-existent stages
+    if (!this.stages.includes(stage)) return
+
+    // prevent going to a previous stage
+    if (this.stages.indexOf(stage) < this.stages.indexOf(this.stageTracker.current[0] ?? this.stages[0])) return
+
+    this.update(stage, 'completed', data)
+  }
+
+  /**
+   * Moves to the next stage of the process.
+   *
+   * @param data - Optional data to pass to the next stage.
+   * @returns void
+   */
+  public next(data?: Partial<T>): void {
+    if (this.stopped) return
+
+    const nextStageIndex = this.stages.indexOf(this.stageTracker.current[0] ?? this.stages[0]) + 1
+    if (nextStageIndex < this.stages.length) {
+      this.update(this.stages[nextStageIndex], 'completed', data)
     }
   }
 
-  private rerender(): void {
-    if (isInCi) {
-      this.ciInstance?.update(this.stageTracker, this.data)
-    } else {
-      this.inkInstance?.rerender(<Stages {...this.generateStagesInput()} />)
-    }
+  /**
+   * Go to a stage, marking any stages in between the current stage and the provided stage as skipped.
+   *
+   * If the stage does not exist or is before the current stage, nothing will happen.
+   *
+   * If the stage is the same as the current stage, the data will be updated.
+   *
+   * @param stage Stage to go to
+   * @param data - Optional data to pass to the next stage.
+   * @returns void
+   */
+  public skipTo(stage: string, data?: Partial<T>): void {
+    if (this.stopped) return
+
+    // ignore non-existent stages
+    if (!this.stages.includes(stage)) return
+
+    // prevent going to a previous stage
+    if (this.stages.indexOf(stage) < this.stages.indexOf(this.stageTracker.current[0] ?? this.stages[0])) return
+
+    this.update(stage, 'skipped', data)
   }
 
   private update(stage: string, bypassStatus: StageStatus, data?: Partial<T>): void {
     this.data = {...this.data, ...data} as Partial<T>
 
     this.stageTracker.refresh(stage, {bypassStatus})
+
+    this.rerender()
+  }
+}
+
+export class ParallelMultiStageOutput<T extends Record<string, unknown>> extends MultiStageOutputBase<T> {
+  public constructor(options: MultiStageOutputOptions<T>) {
+    super(options, true)
+  }
+
+  public pauseStage(stage: string, data?: Partial<T>): void {
+    this.update(stage, 'paused', data)
+  }
+
+  public resumeStage(stage: string, data?: Partial<T>): void {
+    this.update(stage, 'current', data)
+  }
+
+  public startStage(stage: string, data?: Partial<T>): void {
+    this.update(stage, 'current', data)
+  }
+
+  public stopStage(stage: string, data?: Partial<T>): void {
+    this.update(stage, 'completed', data)
+  }
+
+  private update(stage: string, status: StageStatus, data?: Partial<T>): void {
+    if (this.stopped) return
+    if (!this.stages.includes(stage)) return
+    if (this.stageTracker.get(stage) === 'completed') return
+
+    this.data = {...this.data, ...data} as T
+
+    this.stageTracker.update(stage, status)
 
     this.rerender()
   }
