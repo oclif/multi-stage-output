@@ -1,3 +1,12 @@
+## [0.5.9](https://github.com/oclif/core/compare/0.5.8...0.5.9) (2024-09-25)
+
+
+### Bug Fixes
+
+* dont capital case stage names ([0e0e019](https://github.com/oclif/core/commit/0e0e019308f0b016df82835d9c77ffac618132c6))
+
+
+
 ## [0.5.8](https://github.com/oclif/core/compare/0.5.7...0.5.8) (2024-09-25)
 
 
