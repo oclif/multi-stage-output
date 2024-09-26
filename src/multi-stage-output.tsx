@@ -499,6 +499,10 @@ export class ParallelMultiStageOutput<T extends Record<string, unknown>> extends
     this.update(stage, 'completed', data)
   }
 
+  public updateStage(stage: string, status: StageStatus, data?: Partial<T>): void {
+    this.update(stage, status, data)
+  }
+
   private update(stage: string, status: StageStatus, data?: Partial<T>): void {
     if (this.stopped) return
     if (!this.stages.includes(stage)) return
