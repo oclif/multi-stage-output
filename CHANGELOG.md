@@ -1,3 +1,12 @@
+# [0.7.0](https://github.com/oclif/core/compare/0.6.1...0.7.0) (2024-09-26)
+
+
+### Features
+
+* add updateStage method ([4523da1](https://github.com/oclif/core/commit/4523da11e8efb712ac5648ce961e46c3c4973726))
+
+
+
 ## [0.6.1](https://github.com/oclif/core/compare/0.6.0...0.6.1) (2024-09-25)
 
 
