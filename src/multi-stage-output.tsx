@@ -176,9 +176,9 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
         }
 
         case 'current': {
+          if (!this.startTimes.has(stage)) this.startTimes.set(stage, Date.now())
           if (Date.now() - this.lastUpdateTime < this.messageTimeout) break
           this.lastUpdateTime = Date.now()
-          if (!this.startTimes.has(stage)) this.startTimes.set(stage, Date.now())
           ux.stdout(`${this.design.icons.current.figure} ${stage}…`)
           this.printInfo(this.preStagesBlock, 3)
           this.printInfo(
@@ -191,6 +191,10 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
 
         case 'failed':
         case 'skipped':
+        case 'paused':
+        case 'aborted':
+        case 'async':
+        case 'warning':
         case 'completed': {
           this.seenStages.add(stage)
           if (this.hasStageTime && status !== 'skipped') {
