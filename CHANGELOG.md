@@ -1,3 +1,12 @@
+## [0.7.3](https://github.com/oclif/core/compare/0.7.2...0.7.3) (2024-10-04)
+
+
+### Bug Fixes
+
+* show correct time in CI mode ([a4b2270](https://github.com/oclif/core/commit/a4b22702b36f494a322ebe42842a8d8f849a0afe))
+
+
+
 ## [0.7.2](https://github.com/oclif/core/compare/0.7.1...0.7.2) (2024-09-29)
 
 
