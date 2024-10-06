@@ -1,7 +1,7 @@
 {
   "name": "@oclif/multi-stage-output",
   "description": "Terminal output for oclif commands with multiple stages",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "author": "Salesforce",
   "bugs": "https://github.com/oclif/multi-stage-output/issues",
   "dependencies": {
