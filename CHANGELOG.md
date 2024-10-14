@@ -1,3 +1,12 @@
+## [0.7.7](https://github.com/oclif/core/compare/0.7.6...0.7.7) (2024-10-14)
+
+
+### Bug Fixes
+
+* dedupe info in CI mode ([e00f1a9](https://github.com/oclif/core/commit/e00f1a99696f77c4a3bb57ecd57566c52c0f94e8))
+
+
+
 ## [0.7.6](https://github.com/oclif/core/compare/0.7.5...0.7.6) (2024-10-13)
 
 
