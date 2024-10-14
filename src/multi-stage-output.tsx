@@ -105,6 +105,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
   private readonly messageTimeout = Number.parseInt(env.SF_CI_MESSAGE_TIMEOUT ?? '5000', 10) ?? 5000
   private readonly postStagesBlock?: InfoBlock<T>
   private readonly preStagesBlock?: InfoBlock<T>
+  private readonly seenInfo: Set<string> = new Set()
   private readonly seenStages: Set<string> = new Set()
   private readonly stages: readonly string[] | string[]
   private readonly stageSpecificBlock?: StageInfoBlock<T>
@@ -150,16 +151,15 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
 
   public stop(stageTracker: StageTracker): void {
     this.update(stageTracker)
+    ux.stdout()
+    this.printInfo(this.preStagesBlock, 0, true)
+    this.printInfo(this.postStagesBlock, 0, true)
     if (this.startTime) {
       const elapsedTime = Date.now() - this.startTime
       ux.stdout()
       const displayTime = readableTime(elapsedTime, this.timerUnit)
       ux.stdout(`Elapsed time: ${displayTime}`)
-      ux.stdout()
     }
-
-    this.printInfo(this.preStagesBlock)
-    this.printInfo(this.postStagesBlock)
   }
 
   public update(stageTracker: StageTracker, data?: Partial<T>): void {
@@ -229,17 +229,16 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
     }
   }
 
-  private printInfo(infoBlock: InfoBlock<T> | StageInfoBlock<T> | undefined, indent = 0): void {
+  private printInfo(infoBlock: InfoBlock<T> | StageInfoBlock<T> | undefined, indent = 0, force = false): void {
     const spaces = ' '.repeat(indent)
     if (infoBlock?.length) {
       for (const info of infoBlock) {
         const formattedData = info.get ? info.get(this.data as T) : undefined
         if (!formattedData) continue
-        if (info.type === 'message') {
-          ux.stdout(`${spaces}${formattedData}`)
-        } else {
-          ux.stdout(`${spaces}${info.label}: ${formattedData}`)
-        }
+        const str = info.type === 'message' ? formattedData : `${info.label}: ${formattedData}`
+        if (!force && this.seenInfo.has(str)) continue
+        ux.stdout(`${spaces}${str}`)
+        this.seenInfo.add(str)
       }
     }
   }
