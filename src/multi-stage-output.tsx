@@ -97,16 +97,20 @@ export type MultiStageOutputOptions<T extends Record<string, unknown>> = {
 }
 
 class CIMultiStageOutput<T extends Record<string, unknown>> {
+  private readonly completedStages: Set<string> = new Set()
   private data?: Partial<T>
   private readonly design: RequiredDesign
   private readonly hasElapsedTime?: boolean
   private readonly hasStageTime?: boolean
+  private readonly heartbeat =
+    Number.parseInt(env.OCLIF_CI_HEARTBEAT_FREQUENCY_MS ?? env.SF_CI_HEARTBEAT_FREQUENCY_MS ?? '300000', 10) ?? 300_000
+
+  private readonly intervals = new Map<string, NodeJS.Timeout>()
   private lastUpdateTime: number
-  private readonly messageTimeout = Number.parseInt(env.SF_CI_MESSAGE_TIMEOUT ?? '5000', 10) ?? 5000
+
   private readonly postStagesBlock?: InfoBlock<T>
   private readonly preStagesBlock?: InfoBlock<T>
   private readonly seenInfo: Set<string> = new Set()
-  private readonly seenStages: Set<string> = new Set()
   private readonly stages: readonly string[] | string[]
   private readonly stageSpecificBlock?: StageInfoBlock<T>
   private readonly startTime: number | undefined
@@ -152,22 +156,27 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
   public stop(stageTracker: StageTracker): void {
     this.update(stageTracker)
     ux.stdout()
-    this.printInfo(this.preStagesBlock, 0, true)
-    this.printInfo(this.postStagesBlock, 0, true)
+    this.maybePrintInfo(this.preStagesBlock, 0, true)
+    this.maybePrintInfo(this.postStagesBlock, 0, true)
     if (this.startTime) {
       const elapsedTime = Date.now() - this.startTime
       ux.stdout()
       const displayTime = readableTime(elapsedTime, this.timerUnit)
       ux.stdout(`Elapsed time: ${displayTime}`)
     }
+
+    for (const interval of this.intervals.values()) {
+      clearInterval(interval)
+    }
   }
 
+  // eslint-disable-next-line complexity
   public update(stageTracker: StageTracker, data?: Partial<T>): void {
     this.data = {...this.data, ...data} as T
 
     for (const [stage, status] of stageTracker.entries()) {
       // no need to re-render completed, failed, or skipped stages
-      if (this.seenStages.has(stage)) continue
+      if (this.completedStages.has(stage)) continue
 
       switch (status) {
         case 'pending': {
@@ -177,15 +186,36 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
 
         case 'current': {
           if (!this.startTimes.has(stage)) this.startTimes.set(stage, Date.now())
-          if (Date.now() - this.lastUpdateTime < this.messageTimeout) break
-          this.lastUpdateTime = Date.now()
-          ux.stdout(`${this.design.icons.current.figure} ${stage}…`)
-          this.printInfo(this.preStagesBlock, 3)
-          this.printInfo(
-            this.stageSpecificBlock?.filter((info) => info.stage === stage),
-            3,
-          )
-          this.printInfo(this.postStagesBlock, 3)
+          const stageInfos = this.stageSpecificBlock?.filter((info) => info.stage === stage)
+          const iconAndStage = `${this.design.icons.current.figure} ${stage}…`
+          if (Date.now() - this.lastUpdateTime < this.heartbeat) {
+            // only print if it hasn't been seen before
+            this.maybeStdout(iconAndStage)
+            this.maybePrintInfo(this.preStagesBlock, 3)
+            this.maybePrintInfo(stageInfos, 3)
+            this.maybePrintInfo(this.postStagesBlock, 3)
+          } else {
+            // force a reprint if it's been too long
+            this.lastUpdateTime = Date.now()
+            if (stageInfos?.length) {
+              // only reprint the stage infos if it has them
+              this.maybePrintInfo(stageInfos, 3, true)
+            } else {
+              // only reprint the stage
+              this.maybeStdout(iconAndStage, 0, true)
+            }
+          }
+
+          if (!this.intervals.has(stage)) {
+            // set interval to update the stage message - this is used for long running stages in CI environments that timeout after a certain period without output
+            this.intervals.set(
+              stage,
+              setInterval(() => {
+                this.update(stageTracker)
+              }, this.heartbeat),
+            )
+          }
+
           break
         }
 
@@ -196,28 +226,29 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
         case 'async':
         case 'warning':
         case 'completed': {
-          this.seenStages.add(stage)
+          const interval = this.intervals.get(stage)
+          if (interval) {
+            clearInterval(interval)
+            this.intervals.delete(stage)
+          }
+
+          const stageInfos = this.stageSpecificBlock?.filter((info) => info.stage === stage)
+          this.completedStages.add(stage)
           if (this.hasStageTime && status !== 'skipped') {
             const startTime = this.startTimes.get(stage)
             const elapsedTime = startTime ? Date.now() - startTime : 0
             const displayTime = readableTime(elapsedTime, this.timerUnit)
-            ux.stdout(`${this.design.icons[status].figure} ${stage} (${displayTime})`)
-            this.printInfo(this.preStagesBlock, 3)
-            this.printInfo(
-              this.stageSpecificBlock?.filter((info) => info.stage === stage),
-              3,
-            )
-            this.printInfo(this.postStagesBlock, 3)
+            this.maybeStdout(`${this.design.icons[status].figure} ${stage} (${displayTime})`)
+            this.maybePrintInfo(this.preStagesBlock, 3)
+            this.maybePrintInfo(stageInfos, 3)
+            this.maybePrintInfo(this.postStagesBlock, 3)
           } else if (status === 'skipped') {
-            ux.stdout(`${this.design.icons[status].figure} ${stage} - Skipped`)
+            this.maybeStdout(`${this.design.icons[status].figure} ${stage} - Skipped`)
           } else {
-            ux.stdout(`${this.design.icons[status].figure} ${stage}`)
-            this.printInfo(this.preStagesBlock, 3)
-            this.printInfo(
-              this.stageSpecificBlock?.filter((info) => info.stage === stage),
-              3,
-            )
-            this.printInfo(this.postStagesBlock, 3)
+            this.maybeStdout(`${this.design.icons[status].figure} ${stage}`)
+            this.maybePrintInfo(this.preStagesBlock, 3)
+            this.maybePrintInfo(stageInfos, 3)
+            this.maybePrintInfo(this.postStagesBlock, 3)
           }
 
           break
@@ -229,18 +260,23 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
     }
   }
 
-  private printInfo(infoBlock: InfoBlock<T> | StageInfoBlock<T> | undefined, indent = 0, force = false): void {
-    const spaces = ' '.repeat(indent)
+  private maybePrintInfo(infoBlock: InfoBlock<T> | StageInfoBlock<T> | undefined, indent = 0, force = false): void {
     if (infoBlock?.length) {
       for (const info of infoBlock) {
+        if (info.onlyShowAtEndInCI && !force) continue
         const formattedData = info.get ? info.get(this.data as T) : undefined
         if (!formattedData) continue
         const str = info.type === 'message' ? formattedData : `${info.label}: ${formattedData}`
-        if (!force && this.seenInfo.has(str)) continue
-        ux.stdout(`${spaces}${str}`)
-        this.seenInfo.add(str)
+        this.maybeStdout(str, indent, force)
       }
     }
+  }
+
+  private maybeStdout(str: string, indent = 0, force = false): void {
+    const spaces = ' '.repeat(indent)
+    if (!force && this.seenInfo.has(str)) return
+    ux.stdout(`${spaces}${str}`)
+    this.seenInfo.add(str)
   }
 }
 
