@@ -102,20 +102,41 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
   private readonly design: RequiredDesign
   private readonly hasElapsedTime?: boolean
   private readonly hasStageTime?: boolean
+  /**
+   * Amount of time (in milliseconds) between heartbeat updates
+   */
   private readonly heartbeat =
     Number.parseInt(env.OCLIF_CI_HEARTBEAT_FREQUENCY_MS ?? env.SF_CI_HEARTBEAT_FREQUENCY_MS ?? '300000', 10) ?? 300_000
 
-  private readonly intervals = new Map<string, NodeJS.Timeout>()
-  private lastUpdateTime: number
+  /**
+   * Time of the last heartbeat
+   */
+  private lastHeartbeatTime: number
+
+  /**
+   * Map of the last time a specific piece of info was updated. This is used for throttling messages
+   */
+  private readonly lastUpdateByInfo = new Map<string, number>()
 
   private readonly postStagesBlock?: InfoBlock<T>
   private readonly preStagesBlock?: InfoBlock<T>
-  private readonly seenInfo: Set<string> = new Set()
+  private readonly seenStrings: Set<string> = new Set()
   private readonly stages: readonly string[] | string[]
   private readonly stageSpecificBlock?: StageInfoBlock<T>
   private readonly startTime: number | undefined
   private readonly startTimes: Map<string, number> = new Map()
+
+  /**
+   * Amount of time (in milliseconds) between throttled updates
+   */
+  private readonly throttle =
+    Number.parseInt(env.OCLIF_CI_UPDATE_FREQUENCY_MS ?? env.SF_CI_UPDATE_FREQUENCY_MS ?? '5000', 10) ?? 5000
+
   private readonly timerUnit: 'ms' | 's'
+  /**
+   * Map of intervals used to trigger heartbeat updates
+   */
+  private readonly updateIntervals = new Map<string, NodeJS.Timeout>()
 
   public constructor({
     data,
@@ -138,7 +159,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
     this.stageSpecificBlock = stageSpecificBlock
     this.timerUnit = timerUnit ?? 'ms'
     this.data = data
-    this.lastUpdateTime = Date.now()
+    this.lastHeartbeatTime = Date.now()
 
     if (title) ux.stdout(`───── ${title} ─────`)
     ux.stdout('Stages:')
@@ -165,7 +186,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
       ux.stdout(`Elapsed time: ${displayTime}`)
     }
 
-    for (const interval of this.intervals.values()) {
+    for (const interval of this.updateIntervals.values()) {
       clearInterval(interval)
     }
   }
@@ -188,7 +209,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
           if (!this.startTimes.has(stage)) this.startTimes.set(stage, Date.now())
           const stageInfos = this.stageSpecificBlock?.filter((info) => info.stage === stage)
           const iconAndStage = `${this.design.icons.current.figure} ${stage}…`
-          if (Date.now() - this.lastUpdateTime < this.heartbeat) {
+          if (Date.now() - this.lastHeartbeatTime < this.heartbeat) {
             // only print if it hasn't been seen before
             this.maybeStdout(iconAndStage)
             this.maybePrintInfo(this.preStagesBlock, 3)
@@ -196,7 +217,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
             this.maybePrintInfo(this.postStagesBlock, 3)
           } else {
             // force a reprint if it's been too long
-            this.lastUpdateTime = Date.now()
+            this.lastHeartbeatTime = Date.now()
             if (stageInfos?.length) {
               // only reprint the stage infos if it has them
               this.maybePrintInfo(stageInfos, 3, true)
@@ -206,9 +227,9 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
             }
           }
 
-          if (!this.intervals.has(stage)) {
+          if (!this.updateIntervals.has(stage)) {
             // set interval to update the stage message - this is used for long running stages in CI environments that timeout after a certain period without output
-            this.intervals.set(
+            this.updateIntervals.set(
               stage,
               setInterval(() => {
                 this.update(stageTracker)
@@ -226,10 +247,16 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
         case 'async':
         case 'warning':
         case 'completed': {
-          const interval = this.intervals.get(stage)
+          // clear the heartbeat interval since it's no longer needed
+          const interval = this.updateIntervals.get(stage)
           if (interval) {
             clearInterval(interval)
-            this.intervals.delete(stage)
+            this.updateIntervals.delete(stage)
+          }
+
+          // clear all throttled messages since the stage is done
+          for (const key of this.lastUpdateByInfo.keys()) {
+            this.lastUpdateByInfo.delete(key)
           }
 
           const stageInfos = this.stageSpecificBlock?.filter((info) => info.stage === stage)
@@ -264,19 +291,28 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
     if (infoBlock?.length) {
       for (const info of infoBlock) {
         if (info.onlyShowAtEndInCI && !force) continue
+
         const formattedData = info.get ? info.get(this.data as T) : undefined
         if (!formattedData) continue
+        const key = info.type === 'message' ? formattedData : info.label
         const str = info.type === 'message' ? formattedData : `${info.label}: ${formattedData}`
-        this.maybeStdout(str, indent, force)
+
+        const lastUpdateTime = this.lastUpdateByInfo.get(key)
+        // Skip if the info has been printed before the throttle time
+        if (lastUpdateTime && Date.now() - lastUpdateTime < this.throttle && !force) continue
+
+        const didPrint = this.maybeStdout(str, indent, force)
+        if (didPrint) this.lastUpdateByInfo.set(key, Date.now())
       }
     }
   }
 
-  private maybeStdout(str: string, indent = 0, force = false): void {
+  private maybeStdout(str: string, indent = 0, force = false): boolean {
     const spaces = ' '.repeat(indent)
-    if (!force && this.seenInfo.has(str)) return
+    if (!force && this.seenStrings.has(str)) return false
     ux.stdout(`${spaces}${str}`)
-    this.seenInfo.add(str)
+    this.seenStrings.add(str)
+    return true
   }
 }
 

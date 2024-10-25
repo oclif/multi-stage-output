@@ -38,7 +38,7 @@ type Info<T extends Record<string, unknown>> = {
    */
   neverCollapse?: boolean
   /**
-   * Set to `true` to only show this key-value pair or message at the very of the CI output. Defaults to false.
+   * Set to `true` to only show this key-value pair or message at the very end of the CI output. Defaults to false.
    */
   onlyShowAtEndInCI?: boolean
 }

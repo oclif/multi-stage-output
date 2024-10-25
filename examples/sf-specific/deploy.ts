@@ -44,6 +44,7 @@ const ms = new MultiStageOutput<Data>({
       bold: true,
       get: (data): string | undefined => data?.status,
       label: 'Status',
+      onlyShowAtEndInCI: true,
       type: 'dynamic-key-value',
     },
     {
@@ -120,6 +121,22 @@ for (let i = 0; i <= 10; i++) {
 
   // eslint-disable-next-line no-await-in-loop
   await sleep(200)
+}
+
+ms.goto('Running Tests')
+const tests = 500
+for (let i = 0; i <= tests; i++) {
+  ms.updateData({
+    mdapiDeploy: {
+      numberComponentsDeployed: 10,
+      numberComponentsTotal: 10,
+      numberTestsCompleted: i,
+      numberTestsTotal: tests,
+    },
+  })
+
+  // eslint-disable-next-line no-await-in-loop
+  await sleep(10)
 }
 
 ms.updateData({status: 'Succeeded'})
