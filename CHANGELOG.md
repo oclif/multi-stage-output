@@ -1,3 +1,12 @@
+## [0.7.9](https://github.com/oclif/core/compare/0.7.8...0.7.9) (2024-10-27)
+
+
+### Bug Fixes
+
+* **deps:** bump @types/react from 18.3.11 to 18.3.12 ([34dd5d3](https://github.com/oclif/core/commit/34dd5d30367490a41ecfd3bcec8ca7a523c8a0d4))
+
+
+
 ## [0.7.8](https://github.com/oclif/core/compare/0.7.7...0.7.8) (2024-10-20)
 
 
