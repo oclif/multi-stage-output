@@ -1,3 +1,12 @@
+## [0.7.11](https://github.com/oclif/core/compare/0.7.10...0.7.11) (2024-10-29)
+
+
+### Bug Fixes
+
+* improve CI output ([#52](https://github.com/oclif/core/issues/52)) ([d3bb362](https://github.com/oclif/core/commit/d3bb3628e51002da413f2e7c2d7c400443bdf696))
+
+
+
 ## [0.7.10](https://github.com/oclif/core/compare/0.7.9...0.7.10) (2024-10-27)
 
 
