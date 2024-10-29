@@ -37,6 +37,10 @@ type Info<T extends Record<string, unknown>> = {
    * Set to `true` to prevent this key-value pair or message from being collapsed when the window is too short. Defaults to false.
    */
   neverCollapse?: boolean
+  /**
+   * Set to `true` to only show this key-value pair or message at the very end of the CI output. Defaults to false.
+   */
+  onlyShowAtEndInCI?: boolean
 }
 
 export type KeyValuePair<T extends Record<string, unknown>> = Info<T> & {
