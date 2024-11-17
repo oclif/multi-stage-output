@@ -1,3 +1,12 @@
+## [0.7.14](https://github.com/oclif/core/compare/0.7.13...0.7.14) (2024-11-17)
+
+
+### Bug Fixes
+
+* **deps:** bump cross-spawn from 7.0.3 to 7.0.5 ([b6581b6](https://github.com/oclif/core/commit/b6581b628ac3b6328fdf021a2aa1eae131609996))
+
+
+
 ## [0.7.13](https://github.com/oclif/core/compare/0.7.12...0.7.13) (2024-11-17)
 
 
