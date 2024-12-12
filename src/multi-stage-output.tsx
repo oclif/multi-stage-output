@@ -294,7 +294,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
 
         const formattedData = info.get ? info.get(this.data as T) : undefined
         if (!formattedData) continue
-        const key = info.type === 'message' ? formattedData : info.label
+        const key = info.type === 'message' ? formattedData : `${info.label}: ${formattedData}`
         const str = info.type === 'message' ? formattedData : `${info.label}: ${formattedData}`
 
         const lastUpdateTime = this.lastUpdateByInfo.get(key)
