@@ -80,10 +80,20 @@ const ms = new MultiStageOutput<Data>({
         data?.mdapiDeploy?.numberTestsTotal && data?.mdapiDeploy?.numberTestsCompleted
           ? formatProgress(data?.mdapiDeploy?.numberTestsCompleted, data?.mdapiDeploy?.numberTestsTotal)
           : undefined,
-      label: 'Tests',
+      label: 'Successful',
       stage: 'Running Tests',
       type: 'dynamic-key-value',
     },
+    {
+      get: (data): string | undefined =>
+        data?.mdapiDeploy?.numberTestsTotal && data?.mdapiDeploy?.numberTestsCompleted
+          ? formatProgress(data?.mdapiDeploy?.numberTestErrors, data?.mdapiDeploy?.numberTestsTotal)
+          : undefined,
+      label: 'Failed',
+      stage: 'Running Tests',
+      type: 'dynamic-key-value',
+    },
+
     {
       get: (data): string | undefined =>
         data?.sourceMemberPolling?.original
@@ -130,6 +140,7 @@ for (let i = 0; i <= tests; i++) {
     mdapiDeploy: {
       numberComponentsDeployed: 10,
       numberComponentsTotal: 10,
+      numberTestErrors: 0,
       numberTestsCompleted: i,
       numberTestsTotal: tests,
     },
