@@ -1,3 +1,17 @@
+# [0.8.0](https://github.com/oclif/core/compare/0.7.18...0.8.0) (2024-12-16)
+
+
+### Bug Fixes
+
+* **ci-output:** properly cache dynamic info frames ([c7beaf4](https://github.com/oclif/core/commit/c7beaf467eb044ad516b039068bea249ad8a82d2))
+
+
+### Features
+
+* add `alwaysPrintInCI` option ([d601d37](https://github.com/oclif/core/commit/d601d377dfc6e7dba026a945ef759bf61c69bd18))
+
+
+
 ## [0.7.18](https://github.com/oclif/core/compare/0.7.17...0.7.18) (2024-12-15)
 
 
