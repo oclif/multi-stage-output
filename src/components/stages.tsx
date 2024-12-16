@@ -41,6 +41,10 @@ type Info<T extends Record<string, unknown>> = {
    * Set to `true` to only show this key-value pair or message at the very end of the CI output. Defaults to false.
    */
   onlyShowAtEndInCI?: boolean
+  /**
+   * Set to `true` to always render this key-value pair or message in CI output (ignores throttling). Defaults to false.
+   */
+  alwaysPrintInCI?: boolean
 }
 
 export type KeyValuePair<T extends Record<string, unknown>> = Info<T> & {

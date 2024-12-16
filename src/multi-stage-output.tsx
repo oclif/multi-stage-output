@@ -297,9 +297,11 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
         const key = info.type === 'message' ? formattedData : info.label
         const str = info.type === 'message' ? formattedData : `${info.label}: ${formattedData}`
 
-        const lastUpdateTime = this.lastUpdateByInfo.get(key)
-        // Skip if the info has been printed before the throttle time
-        if (lastUpdateTime && Date.now() - lastUpdateTime < this.throttle && !force) continue
+        if (!info.alwaysPrintInCI) {
+          const lastUpdateTime = this.lastUpdateByInfo.get(key)
+          // Skip if the info has been printed before the throttle time
+          if (lastUpdateTime && Date.now() - lastUpdateTime < this.throttle && !force) continue
+        }
 
         const didPrint = this.maybeStdout(str, indent, force)
         if (didPrint) this.lastUpdateByInfo.set(key, Date.now())
