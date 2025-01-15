@@ -1,3 +1,12 @@
+## [0.8.3](https://github.com/oclif/core/compare/0.8.2...0.8.3) (2025-01-15)
+
+
+### Bug Fixes
+
+* pin ink to 5.0.1 ([9de5795](https://github.com/oclif/core/commit/9de5795ece32045cb2159eff9d2b6dc8d7f411a9))
+
+
+
 ## [0.8.2](https://github.com/oclif/core/compare/0.8.1...0.8.2) (2025-01-12)
 
 
