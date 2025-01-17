@@ -78,7 +78,7 @@ export type Design = {
   }
   spinners?: {
     /**
-     * Spinner to display for dynamic info blocks. Defaults to 'line' on Windows and 'arc' on other platforms
+     * Spinner to display for dynamic info blocks. Defaults to 'line' on Windows and 'dots11' on other platforms
      */
     info?: SpinnerName
     /**
@@ -169,7 +169,7 @@ export function constructDesignParams(design?: Design): RequiredDesign {
       },
     },
     spinners: {
-      info: process.platform === 'win32' ? 'line' : 'arc',
+      info: process.platform === 'win32' ? 'line' : 'dots11',
       stage: process.platform === 'win32' ? 'line' : 'dots2',
       ...design?.spinners,
     },
