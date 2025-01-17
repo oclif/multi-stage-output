@@ -1,3 +1,12 @@
+## [0.8.5](https://github.com/oclif/core/compare/0.8.4...0.8.5) (2025-01-17)
+
+
+### Bug Fixes
+
+* replace arc with dots11 ([7609ef8](https://github.com/oclif/core/commit/7609ef89efc4a081ff7f4ffa02093d07084497b0))
+
+
+
 ## [0.8.4](https://github.com/oclif/core/compare/0.8.3...0.8.4) (2025-01-16)
 
 
