@@ -10,6 +10,7 @@ async function sleep(ms: number): Promise<void> {
 
 const ms = new ParallelMultiStageOutput<{message: string; staticValue: string; dynamicValue: string}>({
   jsonEnabled: false,
+  stages: ['one', 'two', 'three'],
   stageSpecificBlock: [
     {
       get: (data) => data?.message,
@@ -29,7 +30,6 @@ const ms = new ParallelMultiStageOutput<{message: string; staticValue: string; d
       type: 'dynamic-key-value',
     },
   ],
-  stages: ['one', 'two', 'three'],
   title: 'Example',
 })
 

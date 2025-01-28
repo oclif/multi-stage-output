@@ -3,7 +3,7 @@ import {Box, Text, useStdout} from 'ink'
 import React, {ErrorInfo} from 'react'
 import wrapAnsi from 'wrap-ansi'
 
-import {RequiredDesign, constructDesignParams} from '../design.js'
+import {constructDesignParams, RequiredDesign} from '../design.js'
 import {StageStatus, StageTracker} from '../stage-tracker.js'
 import {Divider} from './divider.js'
 import {Icon} from './icon.js'
@@ -147,11 +147,11 @@ function StageInfos({
               type={design.spinners.info}
               design={design}
             >
-              {kv.value && (
+              {kv.value ? (
                 <Text bold={kv.isBold} color={kv.color}>
                   {kv.value}
                 </Text>
-              )}
+              ) : null}
             </SpinnerOrErrorOrChildren>
           </Box>
         )
@@ -195,11 +195,11 @@ function Infos({
             type={design.spinners.info}
             design={design}
           >
-            {kv.value && (
+            {kv.value ? (
               <Text bold={kv.isBold} color={kv.color}>
                 {kv.value}
               </Text>
-            )}
+            ) : null}
           </SpinnerOrErrorOrChildren>
         </Box>
       )
@@ -239,11 +239,11 @@ function CompactStage({
         type={design.spinners.stage}
         design={design}
       />
-      {stageSpecificBlock && stageSpecificBlock.length > 0 && (
+      {stageSpecificBlock && stageSpecificBlock.length > 0 ? (
         <Box flexDirection="column">
           <StageInfos design={design} error={error} keyValuePairs={stageSpecificBlock} stage={stage} />
         </Box>
-      )}
+      ) : null}
     </Box>
   )
 }
@@ -338,22 +338,22 @@ function StageEntries({
               If compactionLevel > 0, we need to render the timer but hide it if the stage is not current.
               This allows us to keep accurate time for all the stages while only displaying the current stage's time.
             */}
-            {status !== 'pending' && status !== 'skipped' && hasStageTime && (
+            {status !== 'pending' && status !== 'skipped' && hasStageTime ? (
               <Box display={compactionLevel === 0 ? 'flex' : status === 'current' ? 'flex' : 'none'}>
                 <Text> </Text>
                 <Timer color="dim" isStopped={status === 'completed' || status === 'paused'} unit={timerUnit} />
               </Box>
-            )}
+            ) : null}
           </Box>
 
           {/* Render the stage specific info for non-compact view */}
           {compactionLevel === 0 &&
-            stageSpecificBlock &&
-            stageSpecificBlock.length > 0 &&
-            status !== 'pending' &&
-            status !== 'skipped' && (
-              <StageInfos design={design} error={error} keyValuePairs={stageSpecificBlock} stage={stage} />
-            )}
+          stageSpecificBlock &&
+          stageSpecificBlock.length > 0 &&
+          status !== 'pending' &&
+          status !== 'skipped' ? (
+            <StageInfos design={design} error={error} keyValuePairs={stageSpecificBlock} stage={stage} />
+          ) : null}
         </Box>
       ))}
     </>
@@ -670,15 +670,15 @@ export function Stages({
 
   return (
     <Box flexDirection="column" marginTop={padding} marginBottom={padding}>
-      {actualLevelOfCompaction < 3 && title && (
+      {actualLevelOfCompaction < 3 && title ? (
         <Box paddingBottom={padding}>
           <ErrorBoundary getFallbackText={() => title}>
             <Divider title={title} {...design.title} terminalWidth={stdout.columns} />
           </ErrorBoundary>
         </Box>
-      )}
+      ) : null}
 
-      {preStages && preStages.length > 0 && (
+      {preStages && preStages.length > 0 ? (
         <Box flexDirection="column" marginLeft={1} paddingBottom={padding}>
           <ErrorBoundary
             getFallbackText={() => preStages.map((s) => (s.label ? `${s.label}: ${s.value}` : s.value)).join('\n')}
@@ -686,7 +686,7 @@ export function Stages({
             <Infos design={design} error={error} keyValuePairs={preStages} />
           </ErrorBoundary>
         </Box>
-      )}
+      ) : null}
 
       <Box flexDirection="column" marginLeft={1} paddingBottom={padding}>
         <ErrorBoundary getFallbackText={() => stageTracker.current[0] ?? 'unknown'}>
@@ -702,7 +702,7 @@ export function Stages({
         </ErrorBoundary>
       </Box>
 
-      {postStages && postStages.length > 0 && (
+      {postStages && postStages.length > 0 ? (
         <Box flexDirection="column" marginLeft={1}>
           <ErrorBoundary
             getFallbackText={() => postStages.map((s) => (s.label ? `${s.label}: ${s.value}` : s.value)).join('\n')}
@@ -710,16 +710,16 @@ export function Stages({
             <Infos design={design} error={error} keyValuePairs={postStages} />
           </ErrorBoundary>
         </Box>
-      )}
+      ) : null}
 
-      {hasElapsedTime && (
+      {hasElapsedTime ? (
         <Box marginLeft={1} display={actualLevelOfCompaction < 2 ? 'flex' : 'none'} flexWrap="wrap">
           <ErrorBoundary>
             <Text>Elapsed Time: </Text>
             <Timer unit={timerUnit} />
           </ErrorBoundary>
         </Box>
-      )}
+      ) : null}
     </Box>
   )
 }

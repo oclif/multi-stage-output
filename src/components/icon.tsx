@@ -19,7 +19,7 @@ export function Icon({
   return (
     <Box flexWrap="wrap">
       <Box paddingLeft={icon.paddingLeft} paddingRight={icon.paddingRight}>
-        {icon.color && <Text color={icon.color}>{icon.figure}</Text>}
+        {icon.color ? <Text color={icon.color}>{icon.figure}</Text> : null}
         {!icon.color && <Text>{icon.figure}</Text>}
       </Box>
 

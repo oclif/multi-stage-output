@@ -94,6 +94,7 @@ type RecursiveRequired<T> = Required<{
 
 export type RequiredDesign = RecursiveRequired<Design>
 
+// eslint-disable-next-line complexity
 export function constructDesignParams(design?: Design): RequiredDesign {
   return {
     icons: {
