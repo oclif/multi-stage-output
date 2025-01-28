@@ -3,7 +3,7 @@ import {render} from 'ink-testing-library'
 import React from 'react'
 import stripAnsi from 'strip-ansi'
 
-import {FormattedKeyValue, Stages, determineCompactionLevel} from '../../src/components/stages.js'
+import {determineCompactionLevel, FormattedKeyValue, Stages} from '../../src/components/stages.js'
 import {constructDesignParams} from '../../src/design.js'
 import {StageTracker} from '../../src/stage-tracker.js'
 

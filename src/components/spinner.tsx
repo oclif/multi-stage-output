@@ -55,7 +55,7 @@ export function Spinner({isBold, label, labelPosition = 'right', type}: SpinnerP
 
   return (
     <Box>
-      {label && labelPosition === 'left' && <Text>{label} </Text>}
+      {label && labelPosition === 'left' ? <Text>{label} </Text> : null}
       {isBold ? (
         <Text bold color="magenta">
           {frame}
@@ -63,7 +63,7 @@ export function Spinner({isBold, label, labelPosition = 'right', type}: SpinnerP
       ) : (
         <Text color="magenta">{frame}</Text>
       )}
-      {label && labelPosition === 'right' && <Text> {label}</Text>}
+      {label && labelPosition === 'right' ? <Text> {label}</Text> : null}
     </Box>
   )
 }
@@ -80,9 +80,9 @@ export function SpinnerOrError({
   if (error) {
     return (
       <Box>
-        {props.label && labelPosition === 'left' && <Text>{props.label} </Text>}
+        {props.label && labelPosition === 'left' ? <Text>{props.label} </Text> : null}
         <Icon icon={design.icons.failed} />
-        {props.label && labelPosition === 'right' && <Text> {props.label}</Text>}
+        {props.label && labelPosition === 'right' ? <Text> {props.label}</Text> : null}
       </Box>
     )
   }
@@ -102,9 +102,9 @@ export function SpinnerOrErrorOrChildren({
   if (children) {
     return (
       <Box flexWrap="wrap">
-        {props.label && props.labelPosition === 'left' && <Text>{props.label} </Text>}
+        {props.label && props.labelPosition === 'left' ? <Text>{props.label} </Text> : null}
         {children}
-        {props.label && props.labelPosition === 'right' && <Text> {props.label}</Text>}
+        {props.label && props.labelPosition === 'right' ? <Text> {props.label}</Text> : null}
       </Box>
     )
   }

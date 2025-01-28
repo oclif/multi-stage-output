@@ -65,6 +65,7 @@ const ms = new MultiStageOutput<Data>({
       type: 'message',
     },
   ],
+  stages,
   stageSpecificBlock: [
     {
       get: (data): string | undefined =>
@@ -104,7 +105,6 @@ const ms = new MultiStageOutput<Data>({
       type: 'dynamic-key-value',
     },
   ],
-  stages,
   title: 'Deploying Metadata',
 })
 

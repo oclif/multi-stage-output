@@ -12,7 +12,7 @@ import {
   Stages,
   StagesProps,
 } from './components/stages.js'
-import {Design, RequiredDesign, constructDesignParams} from './design.js'
+import {constructDesignParams, Design, RequiredDesign} from './design.js'
 import {StageStatus, StageTracker} from './stage-tracker.js'
 import {readableTime} from './utils.js'
 
@@ -107,17 +107,14 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
    */
   private readonly heartbeat =
     Number.parseInt(env.OCLIF_CI_HEARTBEAT_FREQUENCY_MS ?? env.SF_CI_HEARTBEAT_FREQUENCY_MS ?? '300000', 10) ?? 300_000
-
   /**
    * Time of the last heartbeat
    */
   private lastHeartbeatTime: number
-
   /**
    * Map of the last time a specific piece of info was updated. This is used for throttling messages
    */
   private readonly lastUpdateByInfo = new Map<string, number>()
-
   private readonly postStagesBlock?: InfoBlock<T>
   private readonly preStagesBlock?: InfoBlock<T>
   private readonly seenStrings: Set<string> = new Set()
@@ -125,13 +122,11 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
   private readonly stageSpecificBlock?: StageInfoBlock<T>
   private readonly startTime: number | undefined
   private readonly startTimes: Map<string, number> = new Map()
-
   /**
    * Amount of time (in milliseconds) between throttled updates
    */
   private readonly throttle =
     Number.parseInt(env.OCLIF_CI_UPDATE_FREQUENCY_MS ?? env.SF_CI_UPDATE_FREQUENCY_MS ?? '5000', 10) ?? 5000
-
   private readonly timerUnit: 'ms' | 's'
   /**
    * Map of intervals used to trigger heartbeat updates
@@ -145,8 +140,8 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
     preStagesBlock,
     showElapsedTime,
     showStageTime,
-    stageSpecificBlock,
     stages,
+    stageSpecificBlock,
     timerUnit,
     title,
   }: MultiStageOutputOptions<T>) {
@@ -200,8 +195,44 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
       if (this.completedStages.has(stage)) continue
 
       switch (status) {
-        case 'pending': {
-          // do nothing
+        case 'aborted':
+        case 'async':
+        case 'completed':
+        case 'failed':
+        case 'paused':
+        case 'skipped':
+        case 'warning': {
+          // clear the heartbeat interval since it's no longer needed
+          const interval = this.updateIntervals.get(stage)
+          if (interval) {
+            clearInterval(interval)
+            this.updateIntervals.delete(stage)
+          }
+
+          // clear all throttled messages since the stage is done
+          for (const key of this.lastUpdateByInfo.keys()) {
+            this.lastUpdateByInfo.delete(key)
+          }
+
+          const stageInfos = this.stageSpecificBlock?.filter((info) => info.stage === stage)
+          this.completedStages.add(stage)
+          if (this.hasStageTime && status !== 'skipped') {
+            const startTime = this.startTimes.get(stage)
+            const elapsedTime = startTime ? Date.now() - startTime : 0
+            const displayTime = readableTime(elapsedTime, this.timerUnit)
+            this.maybeStdout(`${this.design.icons[status].figure} ${stage} (${displayTime})`)
+            this.maybePrintInfo(this.preStagesBlock, 3)
+            this.maybePrintInfo(stageInfos, 3)
+            this.maybePrintInfo(this.postStagesBlock, 3)
+          } else if (status === 'skipped') {
+            this.maybeStdout(`${this.design.icons[status].figure} ${stage} - Skipped`)
+          } else {
+            this.maybeStdout(`${this.design.icons[status].figure} ${stage}`)
+            this.maybePrintInfo(this.preStagesBlock, 3)
+            this.maybePrintInfo(stageInfos, 3)
+            this.maybePrintInfo(this.postStagesBlock, 3)
+          }
+
           break
         }
 
@@ -240,44 +271,8 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
           break
         }
 
-        case 'failed':
-        case 'skipped':
-        case 'paused':
-        case 'aborted':
-        case 'async':
-        case 'warning':
-        case 'completed': {
-          // clear the heartbeat interval since it's no longer needed
-          const interval = this.updateIntervals.get(stage)
-          if (interval) {
-            clearInterval(interval)
-            this.updateIntervals.delete(stage)
-          }
-
-          // clear all throttled messages since the stage is done
-          for (const key of this.lastUpdateByInfo.keys()) {
-            this.lastUpdateByInfo.delete(key)
-          }
-
-          const stageInfos = this.stageSpecificBlock?.filter((info) => info.stage === stage)
-          this.completedStages.add(stage)
-          if (this.hasStageTime && status !== 'skipped') {
-            const startTime = this.startTimes.get(stage)
-            const elapsedTime = startTime ? Date.now() - startTime : 0
-            const displayTime = readableTime(elapsedTime, this.timerUnit)
-            this.maybeStdout(`${this.design.icons[status].figure} ${stage} (${displayTime})`)
-            this.maybePrintInfo(this.preStagesBlock, 3)
-            this.maybePrintInfo(stageInfos, 3)
-            this.maybePrintInfo(this.postStagesBlock, 3)
-          } else if (status === 'skipped') {
-            this.maybeStdout(`${this.design.icons[status].figure} ${stage} - Skipped`)
-          } else {
-            this.maybeStdout(`${this.design.icons[status].figure} ${stage}`)
-            this.maybePrintInfo(this.preStagesBlock, 3)
-            this.maybePrintInfo(stageInfos, 3)
-            this.maybePrintInfo(this.postStagesBlock, 3)
-          }
-
+        case 'pending': {
+          // do nothing
           break
         }
 
@@ -343,8 +338,8 @@ class MultiStageOutputBase<T extends Record<string, unknown>> implements Disposa
       preStagesBlock,
       showElapsedTime,
       showStageTime,
-      stageSpecificBlock,
       stages,
+      stageSpecificBlock,
       timerUnit,
       title,
     }: MultiStageOutputOptions<T>,
@@ -373,8 +368,8 @@ class MultiStageOutputBase<T extends Record<string, unknown>> implements Disposa
         preStagesBlock,
         showElapsedTime,
         showStageTime,
-        stageSpecificBlock,
         stages,
+        stageSpecificBlock,
         timerUnit,
         title,
       })
