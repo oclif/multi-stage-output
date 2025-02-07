@@ -1,7 +1,7 @@
 export function readableTime(time: number, granularity: 's' | 'ms', decimalPlaces = 2): string {
-// if time < 1000ms, return time in ms or < 1s
+  // if time < 1000ms, return time in ms or < 1s
   if (time < 1000) {
-    return granularity === 's'  ? '< 1s' : `${time}ms`;
+    return granularity === 's' ? '< 1s' : `${time}ms`
   }
 
   const decimals = granularity === 'ms' ? decimalPlaces : 0
@@ -24,5 +24,10 @@ export function readableTime(time: number, granularity: 's' | 'ms', decimalPlace
 }
 
 function truncate(value: number, decimals = 2) {
-    return decimals ? value.toFixed(decimals) : Math.floor(value).toString();
+  if (decimals) {
+    const factor = 10 ** decimals
+    return (Math.trunc(value * factor) / factor).toFixed(decimals)
+  }
+
+  return Math.floor(value).toString()
 }
