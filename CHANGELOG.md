@@ -1,3 +1,18 @@
+## [0.8.9](https://github.com/oclif/core/compare/0.8.8...0.8.9) (2025-02-10)
+
+
+### Bug Fixes
+
+* resolve issue where some number would unintentionally round up ([7a89a30](https://github.com/oclif/core/commit/7a89a3098d823c99260f383a71847987b41075d2))
+
+
+### Performance Improvements
+
+* refactor truncate to avoid extra string + array instances ([317eed2](https://github.com/oclif/core/commit/317eed2861609d4fdd78ccb88575bd1eacfac2e8))
+* speed up timer by reducing amount of state needed ([bea6ad0](https://github.com/oclif/core/commit/bea6ad0736cf7ade2e5ebfb68fe7dfc09f993964))
+
+
+
 ## [0.8.8](https://github.com/oclif/core/compare/0.8.7...0.8.8) (2025-02-09)
 
 
