@@ -23,7 +23,7 @@ export function readableTime(time: number, granularity: 's' | 'ms', decimalPlace
   return `${hours}h ${minutes}m`
 }
 
-function truncate(value: number, decimals = 2) {
+export function truncate(value: number, decimals = 2) {
   if (decimals) {
     const factor = 10 ** decimals
     return (Math.trunc(value * factor) / factor).toFixed(decimals)
