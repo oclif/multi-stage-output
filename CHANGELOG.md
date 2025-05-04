@@ -1,3 +1,12 @@
+## [0.8.13](https://github.com/oclif/core/compare/0.8.12...0.8.13) (2025-05-04)
+
+
+### Bug Fixes
+
+* **deps:** bump @oclif/core from 4.2.10 to 4.3.0 ([e19e206](https://github.com/oclif/core/commit/e19e20699c63ca08388c8c7117aa3291f28bad1d))
+
+
+
 ## [0.8.12](https://github.com/oclif/core/compare/0.8.11...0.8.12) (2025-03-16)
 
 
