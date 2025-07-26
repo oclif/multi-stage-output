@@ -26,7 +26,7 @@
     "eslint": "^9.31.0",
     "eslint-config-oclif": "^6.0.86",
     "eslint-config-prettier": "^10",
-    "eslint-config-xo": "^0.47.0",
+    "eslint-config-xo": "^0.48.0",
     "eslint-config-xo-react": "^0.28.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.2",
