@@ -1,3 +1,12 @@
+## [0.8.28](https://github.com/oclif/core/compare/0.8.27...0.8.28) (2025-11-03)
+
+
+### Bug Fixes
+
+* make Timer idempotent ([541daf9](https://github.com/oclif/core/commit/541daf95de470299ed391cbb04141f4bd0a5e317))
+
+
+
 ## [0.8.27](https://github.com/oclif/core/compare/0.8.26...0.8.27) (2025-11-02)
 
 
