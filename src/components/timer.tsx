@@ -13,7 +13,11 @@ export function Timer({
   readonly unit: 'ms' | 's'
 }): React.ReactNode {
     const [time, setTime] = React.useState(0);
-    const startTime = React.useRef(Date.now());
+    const startTime = React.useRef<number>(0);
+
+  React.useEffect(() => {
+    startTime.current = Date.now();
+  }, []);
 
   React.useEffect(() => {
     if (isStopped) {
