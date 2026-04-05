@@ -2317,10 +2317,10 @@ eslint-config-prettier@^10:
   resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-10.1.8.tgz#15734ce4af8c2778cc32f0b01b37b0b5cd1ecb97"
   integrity sha512-82GZUjRS0p/jganf6q1rEO25VSoHH0hKPCTrgillPjdI/3bgBhAE1QzHrHTizjpRvy6pGAvKjDJtk2pF9NDq8w==
 
-eslint-config-xo-react@^0.29.0:
-  version "0.29.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-xo-react/-/eslint-config-xo-react-0.29.0.tgz#faf979976f07270a1ab7f8ec3d4ac4f42355bab3"
-  integrity sha512-OiA3fnGu5tkQkcFhXV1J9ZTUr25DDVoGpBdA2dowH6rNZFDed+WtxzcoUNwQNFXqWRAjsFjuxAzw3c1iAHom0Q==
+eslint-config-xo-react@^0.30.0:
+  version "0.30.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-xo-react/-/eslint-config-xo-react-0.30.0.tgz#a18634ea100f790a53568b1e69b5a2b99a1280cc"
+  integrity sha512-jOHxOsQmaoBTF5vp4+Eu3TaTsUAp/XWnnhfrCTtNwznmEB41WaR6G/7eezxf+8AOW5lMrafUnFvmgae3LPQ+LA==
   dependencies:
     eslint-plugin-react "^7.37.5"
     eslint-plugin-react-hooks "^7.0.1"
