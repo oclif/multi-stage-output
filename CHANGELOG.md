@@ -1,3 +1,12 @@
+## [0.8.39](https://github.com/oclif/core/compare/0.8.38...0.8.39) (2026-05-09)
+
+
+### Bug Fixes
+
+* **deps:** bump fast-uri from 3.0.1 to 3.1.2 ([387659a](https://github.com/oclif/core/commit/387659ae21ea960b0abfabd3e435df0da7aa8b8f))
+
+
+
 ## [0.8.38](https://github.com/oclif/core/compare/0.8.37...0.8.38) (2026-05-03)
 
 
