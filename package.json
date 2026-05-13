@@ -57,7 +57,7 @@
   "exports": {
     ".": "./lib/index.js"
   },
-  "repository": "oclif/core",
+  "repository": "oclif/multi-stage-output",
   "publishConfig": {
     "access": "public"
   },
