@@ -1,3 +1,12 @@
+## [0.8.43](https://github.com/oclif/multi-stage-output/compare/0.8.42...0.8.43) (2026-05-24)
+
+
+### Bug Fixes
+
+* **deps:** bump ws from 8.18.0 to 8.21.0 ([5d7f404](https://github.com/oclif/multi-stage-output/commit/5d7f4045fe0f1b6039fc4dab9f9f00c72a41c7d2))
+
+
+
 ## [0.8.42](https://github.com/oclif/multi-stage-output/compare/0.8.41...0.8.42) (2026-05-17)
 
 
