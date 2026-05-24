@@ -1,3 +1,12 @@
+## [0.8.44](https://github.com/oclif/multi-stage-output/compare/0.8.43...0.8.44) (2026-05-24)
+
+
+### Bug Fixes
+
+* **deps:** bump @oclif/core from 4.11.3 to 4.11.4 ([4d4aaf7](https://github.com/oclif/multi-stage-output/commit/4d4aaf796e463b16be28226737c5d4286fac7841))
+
+
+
 ## [0.8.43](https://github.com/oclif/multi-stage-output/compare/0.8.42...0.8.43) (2026-05-24)
 
 
