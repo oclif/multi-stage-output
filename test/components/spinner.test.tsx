@@ -10,7 +10,7 @@ import {constructDesignParams} from '../../src/design.js'
 
 config.truncateThreshold = 0
 
-const sleep = (ms: number): Promise<void> =>
+const sleep = async (ms: number): Promise<void> =>
   new Promise((resolve) => {
     setTimeout(resolve, ms)
   })

@@ -1,7 +1,7 @@
 import {type SpinnerName} from 'cli-spinners'
 import figures from 'figures'
 
-import {IconProps} from './components/icon.js'
+import {type IconProps} from './components/icon.js'
 
 export type Design = {
   icons?: {
@@ -89,7 +89,7 @@ export type Design = {
 }
 
 type RecursiveRequired<T> = Required<{
-  [P in keyof T]: T[P] extends object | undefined ? RecursiveRequired<Required<T[P]>> : T[P]
+  [P in keyof T]: T[P] extends Record<string, unknown> | undefined ? RecursiveRequired<Required<T[P]>> : T[P]
 }>
 
 export type RequiredDesign = RecursiveRequired<Design>

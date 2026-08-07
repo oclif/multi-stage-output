@@ -1,17 +1,17 @@
-import {includeIgnoreFile} from '@eslint/compat'
+import {fixupConfigRules, includeIgnoreFile} from '@eslint/compat'
 import oclif from 'eslint-config-oclif'
 import prettier from 'eslint-config-prettier'
-import xoReactSpace from 'eslint-config-xo-react/space'
+import eslintConfigXoReact from 'eslint-config-xo-react'
 import path from 'node:path'
 import {fileURLToPath} from 'node:url'
 
 const gitignorePath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '.gitignore')
 
-export default [
+const config = [
   includeIgnoreFile(gitignorePath),
   ...oclif,
   prettier,
-  ...xoReactSpace,
+  ...fixupConfigRules(eslintConfigXoReact({space: true})),
   {
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
@@ -37,3 +37,5 @@ export default [
     },
   },
 ]
+
+export default config

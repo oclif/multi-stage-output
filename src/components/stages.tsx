@@ -1,10 +1,10 @@
 import {getLogger} from '@oclif/core/logger'
 import {Box, Text, useStdout} from 'ink'
-import React, {ErrorInfo} from 'react'
+import React, {type ErrorInfo} from 'react'
 import wrapAnsi from 'wrap-ansi'
 
-import {constructDesignParams, RequiredDesign} from '../design.js'
-import {StageStatus, StageTracker} from '../stage-tracker.js'
+import {constructDesignParams, type RequiredDesign} from '../design.js'
+import {type StageStatus, type StageTracker} from '../stage-tracker.js'
 import {Divider} from './divider.js'
 import {Icon} from './icon.js'
 import {SpinnerOrError, SpinnerOrErrorOrChildren} from './spinner.js'
@@ -339,7 +339,7 @@ function StageEntries({
               This allows us to keep accurate time for all the stages while only displaying the current stage's time.
             */}
             {status !== 'pending' && status !== 'skipped' && hasStageTime ? (
-              <Box display={compactionLevel === 0 ? 'flex' : status === 'current' ? 'flex' : 'none'}>
+              <Box display={(compactionLevel === 0) || (status === 'current') ? 'flex' : 'none'}>
                 <Text> </Text>
                 <Timer color="dim" isStopped={status === 'completed' || status === 'paused'} unit={timerUnit} />
               </Box>
@@ -361,14 +361,10 @@ function StageEntries({
 }
 
 function filterInfos(infos: FormattedKeyValue[], compactionLevel: number, cutOff: number): FormattedKeyValue[] {
-  return infos.filter((info) => {
+  return infos.filter((info) => 
     // return true to keep the info
-    if (compactionLevel < cutOff || info.neverCollapse) {
-      return true
-    }
-
-    return false
-  })
+     Boolean(compactionLevel < cutOff || info.neverCollapse)
+  )
 }
 
 /**

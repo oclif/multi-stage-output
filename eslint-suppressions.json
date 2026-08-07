@@ -1,0 +1,127 @@
+{
+  "examples/basic.ts": {
+    "unicorn/prefer-number-coercion": {
+      "count": 1
+    }
+  },
+  "examples/error.ts": {
+    "unicorn/prefer-number-coercion": {
+      "count": 1
+    }
+  },
+  "examples/height-overflow.ts": {
+    "unicorn/prefer-number-coercion": {
+      "count": 1
+    }
+  },
+  "examples/parallel.ts": {
+    "unicorn/prefer-number-coercion": {
+      "count": 1
+    }
+  },
+  "examples/post-stage-block.ts": {
+    "unicorn/prefer-number-coercion": {
+      "count": 1
+    }
+  },
+  "examples/pre-stage-block.ts": {
+    "unicorn/prefer-number-coercion": {
+      "count": 1
+    }
+  },
+  "examples/skip.ts": {
+    "unicorn/prefer-number-coercion": {
+      "count": 1
+    }
+  },
+  "examples/stage-specific-block.ts": {
+    "unicorn/prefer-number-coercion": {
+      "count": 1
+    }
+  },
+  "src/components/divider.tsx": {
+    "unicorn/no-unnecessary-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/components/spinner.tsx": {
+    "unicorn/prefer-simple-condition-first": {
+      "count": 2
+    }
+  },
+  "src/components/stages.tsx": {
+    "unicorn/consistent-class-member-order": {
+      "count": 1
+    },
+    "unicorn/prefer-iterator-helpers": {
+      "count": 1
+    },
+    "unicorn/prefer-iterator-to-array": {
+      "count": 2
+    },
+    "unicorn/prefer-simple-condition-first": {
+      "count": 2
+    }
+  },
+  "src/components/timer.tsx": {
+    "@typescript-eslint/no-empty-function": {
+      "count": 1
+    }
+  },
+  "src/multi-stage-output.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    },
+    "n/prefer-global/process": {
+      "count": 1
+    },
+    "unicorn/consistent-boolean-name": {
+      "count": 3
+    },
+    "unicorn/consistent-class-member-order": {
+      "count": 3
+    },
+    "unicorn/no-break-in-nested-loop": {
+      "count": 3
+    },
+    "unicorn/no-declarations-before-early-exit": {
+      "count": 1
+    },
+    "unicorn/no-nonstandard-builtin-properties": {
+      "count": 1
+    },
+    "unicorn/prefer-number-coercion": {
+      "count": 2
+    },
+    "unicorn/prefer-simple-condition-first": {
+      "count": 3
+    }
+  },
+  "src/stage-tracker.ts": {
+    "unicorn/consistent-class-member-order": {
+      "count": 1
+    },
+    "unicorn/prefer-includes-over-repeated-comparisons": {
+      "count": 1
+    },
+    "unicorn/prefer-iterator-to-array": {
+      "count": 1
+    }
+  },
+  "test/components/spinner.test.tsx": {
+    "@typescript-eslint/strict-void-return": {
+      "count": 1
+    },
+    "unicorn/consistent-boolean-name": {
+      "count": 1
+    }
+  },
+  "test/stage-tracker.test.ts": {
+    "unicorn/prefer-iterator-to-array": {
+      "count": 1
+    }
+  }
+}

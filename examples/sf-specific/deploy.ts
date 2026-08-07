@@ -7,8 +7,17 @@ async function sleep(ms: number): Promise<void> {
 }
 
 type Data = {
-  mdapiDeploy: any
-  sourceMemberPolling: any
+  mdapiDeploy: {
+    numberComponentsDeployed?: number
+    numberComponentsTotal?: number
+    numberTestErrors?: number
+    numberTestsCompleted?: number
+    numberTestsTotal?: number
+  }
+  sourceMemberPolling: {
+    original?: number
+    remaining?: number
+  }
   status: string
   message: string
   username: string
@@ -78,8 +87,8 @@ const ms = new MultiStageOutput<Data>({
     },
     {
       get: (data): string | undefined =>
-        data?.mdapiDeploy?.numberTestsTotal && data?.mdapiDeploy?.numberTestsCompleted
-          ? formatProgress(data?.mdapiDeploy?.numberTestsCompleted, data?.mdapiDeploy?.numberTestsTotal)
+        data?.mdapiDeploy?.numberTestsTotal && data.mdapiDeploy.numberTestsCompleted
+          ? formatProgress(data.mdapiDeploy.numberTestsCompleted, data.mdapiDeploy.numberTestsTotal)
           : undefined,
       label: 'Successful',
       stage: 'Running Tests',
@@ -87,8 +96,8 @@ const ms = new MultiStageOutput<Data>({
     },
     {
       get: (data): string | undefined =>
-        data?.mdapiDeploy?.numberTestsTotal && data?.mdapiDeploy?.numberTestsCompleted
-          ? formatProgress(data?.mdapiDeploy?.numberTestErrors, data?.mdapiDeploy?.numberTestsTotal)
+        data?.mdapiDeploy?.numberTestsTotal && data.mdapiDeploy.numberTestsCompleted
+          ? formatProgress(data.mdapiDeploy.numberTestErrors, data.mdapiDeploy.numberTestsTotal)
           : undefined,
       label: 'Failed',
       stage: 'Running Tests',
