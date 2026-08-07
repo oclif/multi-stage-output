@@ -25,7 +25,7 @@ export function Divider({
   readonly dividerColor?: string
   readonly terminalWidth?: number
 }): React.ReactNode {
-  const titleString = title ? `${PAD.repeat(textPadding) + title + PAD.repeat(textPadding)}` : ''
+  const titleString = title ? (PAD.repeat(textPadding) + title + PAD.repeat(textPadding)) : ''
   const titleWidth = titleString.length
   const widthToUse =
     width === 'full'

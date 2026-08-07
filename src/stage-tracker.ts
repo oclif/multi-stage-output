@@ -13,12 +13,12 @@ export type StageStatus =
 
 export class StageTracker {
   public current: string[] = []
-  private allowParallelTasks: boolean
-  private map = new Map<string, StageStatus>()
-  private markers = new Map<string, ReturnType<typeof Performance.mark>>()
+  private readonly allowParallelTasks: boolean
+  private readonly map = new Map<string, StageStatus>()
+  private readonly markers = new Map<string, ReturnType<typeof Performance.mark>>()
 
   public constructor(
-    private stages: readonly string[] | string[],
+    private readonly stages: readonly string[] | string[],
     opts?: {allowParallelTasks?: boolean},
   ) {
     this.map = new Map(stages.map((stage) => [stage, 'pending']))

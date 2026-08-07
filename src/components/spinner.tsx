@@ -2,7 +2,7 @@ import spinners, {type SpinnerName} from 'cli-spinners'
 import {Box, Text} from 'ink'
 import React, {useEffect, useState} from 'react'
 
-import {RequiredDesign} from '../design.js'
+import {type RequiredDesign} from '../design.js'
 import {Icon} from './icon.js'
 
 type UseSpinnerProps = {

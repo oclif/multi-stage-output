@@ -1,19 +1,19 @@
 import {ux} from '@oclif/core/ux'
-import {Instance, render} from 'ink'
+import {type Instance, render} from 'ink'
 import {env} from 'node:process'
 import React from 'react'
 
 import {
-  FormattedKeyValue,
-  InfoBlock,
-  KeyValuePair,
-  SimpleMessage,
-  StageInfoBlock,
+  type FormattedKeyValue,
+  type InfoBlock,
+  type KeyValuePair,
+  type SimpleMessage,
+  type StageInfoBlock,
   Stages,
-  StagesProps,
+  type StagesProps,
 } from './components/stages.js'
-import {constructDesignParams, Design, RequiredDesign} from './design.js'
-import {StageStatus, StageTracker} from './stage-tracker.js'
+import {constructDesignParams, type Design, type RequiredDesign} from './design.js'
+import {type StageStatus, StageTracker} from './stage-tracker.js'
 import {readableTime} from './utils.js'
 
 function isTruthy(value: string | undefined): boolean {
@@ -97,7 +97,7 @@ export type MultiStageOutputOptions<T extends Record<string, unknown>> = {
 }
 
 class CIMultiStageOutput<T extends Record<string, unknown>> {
-  private readonly completedStages: Set<string> = new Set()
+  private readonly completedStages = new Set<string>()
   private data?: Partial<T>
   private readonly design: RequiredDesign
   private readonly hasElapsedTime?: boolean
@@ -107,6 +107,7 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
    */
   private readonly heartbeat =
     Number.parseInt(env.OCLIF_CI_HEARTBEAT_FREQUENCY_MS ?? env.SF_CI_HEARTBEAT_FREQUENCY_MS ?? '300000', 10) ?? 300_000
+
   /**
    * Time of the last heartbeat
    */
@@ -117,16 +118,17 @@ class CIMultiStageOutput<T extends Record<string, unknown>> {
   private readonly lastUpdateByInfo = new Map<string, number>()
   private readonly postStagesBlock?: InfoBlock<T>
   private readonly preStagesBlock?: InfoBlock<T>
-  private readonly seenStrings: Set<string> = new Set()
+  private readonly seenStrings = new Set<string>()
   private readonly stages: readonly string[] | string[]
   private readonly stageSpecificBlock?: StageInfoBlock<T>
   private readonly startTime: number | undefined
-  private readonly startTimes: Map<string, number> = new Map()
+  private readonly startTimes = new Map<string, number>()
   /**
    * Amount of time (in milliseconds) between throttled updates
    */
   private readonly throttle =
     Number.parseInt(env.OCLIF_CI_UPDATE_FREQUENCY_MS ?? env.SF_CI_UPDATE_FREQUENCY_MS ?? '5000', 10) ?? 5000
+
   private readonly timerUnit: 'ms' | 's'
   /**
    * Map of intervals used to trigger heartbeat updates
@@ -333,7 +335,7 @@ class MultiStageOutputBase<T extends Record<string, unknown>> implements Disposa
     {
       data,
       design,
-      jsonEnabled = false,
+      jsonEnabled,
       postStagesBlock,
       preStagesBlock,
       showElapsedTime,
@@ -395,8 +397,8 @@ class MultiStageOutputBase<T extends Record<string, unknown>> implements Disposa
           neverCollapse: info.neverCollapse,
           type: info.type,
           value: formattedData,
-          ...(info.type === 'message' ? {} : {label: info.label}),
-          ...('stage' in info ? {stage: info.stage} : {}),
+          ...(info.type !== 'message' && {label: info.label}),
+          ...(('stage' in info) && {stage: info.stage}),
         }
       }) ?? []
     )
@@ -451,7 +453,7 @@ class MultiStageOutputBase<T extends Record<string, unknown>> implements Disposa
     // which, gives us the flexibility in the future to pass in an actual Error if we want
     const error = finalStatus === 'failed' ? new Error('Error') : undefined
 
-    const stagesInput = {...this.generateStagesInput({compactionLevel: 0}), ...(error ? {error} : {})}
+    const stagesInput = {...this.generateStagesInput({compactionLevel: 0}), ...(error && {error})}
 
     this.inkInstance?.rerender(<Stages {...stagesInput} compactionLevel={0} />)
     this.inkInstance?.unmount()
@@ -469,7 +471,7 @@ class MultiStageOutputBase<T extends Record<string, unknown>> implements Disposa
    */
   public updateData(data: Partial<T>): void {
     if (this.stopped) return
-    this.data = {...this.data, ...data} as T
+    this.data = {...this.data, ...data}
 
     this.rerender()
   }

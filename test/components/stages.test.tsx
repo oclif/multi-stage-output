@@ -3,7 +3,7 @@ import {render} from 'ink-testing-library'
 import React from 'react'
 import stripAnsi from 'strip-ansi'
 
-import {determineCompactionLevel, FormattedKeyValue, Stages} from '../../src/components/stages.js'
+import {determineCompactionLevel, type FormattedKeyValue, Stages} from '../../src/components/stages.js'
 import {constructDesignParams} from '../../src/design.js'
 import {StageTracker} from '../../src/stage-tracker.js'
 
@@ -328,8 +328,8 @@ describe('determineCompactionLevel', () => {
     return Array.from({length: opts.count}, (_, i) => ({
       type: opts.type,
       value: i.toString().repeat(opts.width),
-      ...(stage ? {stage} : {}),
-      ...(opts.type === 'message' ? {} : {label: 'label'}),
+      ...(stage && {stage}),
+      ...(opts.type !== 'message' && {label: 'label'}),
     })) as FormattedKeyValue[]
   }
 
@@ -349,12 +349,12 @@ describe('determineCompactionLevel', () => {
     const inputs = {
       design,
       stageTracker,
-      ...(opts.hasElapsedTime ? {hasElapsedTime: opts.hasElapsedTime} : {}),
-      ...(opts.hasStageTime ? {hasStageTime: opts.hasStageTime} : {}),
-      ...(opts.title ? {title: opts.title} : {}),
-      ...(opts.preStagesBlock ? {preStagesBlock: makeBlock(opts.preStagesBlock)} : {}),
-      ...(opts.postStagesBlock ? {postStagesBlock: makeBlock(opts.postStagesBlock)} : {}),
-      ...(opts.stageSpecificBlock ? {stageSpecificBlock: makeBlock(opts.stageSpecificBlock, stages[0])} : {}),
+      ...(opts.hasElapsedTime && {hasElapsedTime: opts.hasElapsedTime}),
+      ...(opts.hasStageTime && {hasStageTime: opts.hasStageTime}),
+      ...(opts.title && {title: opts.title}),
+      ...(opts.preStagesBlock && {preStagesBlock: makeBlock(opts.preStagesBlock)}),
+      ...(opts.postStagesBlock && {postStagesBlock: makeBlock(opts.postStagesBlock)}),
+      ...(opts.stageSpecificBlock && {stageSpecificBlock: makeBlock(opts.stageSpecificBlock, stages[0])}),
     }
 
     return inputs
