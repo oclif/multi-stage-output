@@ -1,3 +1,13 @@
+# [0.9.0](https://github.com/oclif/multi-stage-output/compare/0.8.44...0.9.0) (2026-08-26)
+
+
+### Features
+
+* bumping to ESLint v10 (W-23473845) ([93e1dca](https://github.com/oclif/multi-stage-output/commit/93e1dcaa459d1d5fd0f2b7057ccc03b0fe588c07))
+* bumping to ts6 (W-22515355) ([f51cc8e](https://github.com/oclif/multi-stage-output/commit/f51cc8e9affc125edf927c825b7afdbcd599767b))
+
+
+
 ## [0.8.44](https://github.com/oclif/multi-stage-output/compare/0.8.43...0.8.44) (2026-05-24)
 
 
