@@ -1,3 +1,15 @@
+# [1.0.0](https://github.com/oclif/multi-stage-output/compare/0.9.0...1.0.0) (2026-08-31)
+
+
+* feat!: upgrade oclif/core to v5 @W-23512455@ ([c08a49a](https://github.com/oclif/multi-stage-output/commit/c08a49a7ccb7c3a976e63d7366525910a46f92bb))
+
+
+### BREAKING CHANGES
+
+* bump node engine to >=22.0.0
+
+
+
 # [0.9.0](https://github.com/oclif/multi-stage-output/compare/0.8.44...0.9.0) (2026-08-26)
 
 
