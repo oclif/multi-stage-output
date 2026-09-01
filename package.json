@@ -24,7 +24,7 @@
     "chai": "^4.5.0",
     "commitlint": "^19",
     "eslint": "^10",
-    "eslint-config-oclif": "^7.1.1",
+    "eslint-config-oclif": "^7.1.7",
     "eslint-config-prettier": "^10",
     "eslint-config-xo-react": "^0.31.0",
     "eslint-plugin-react": "^7.37.5",
