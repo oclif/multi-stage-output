@@ -557,7 +557,7 @@ class ErrorBoundary extends React.Component<{
     getLogger('multi-stage-output').debug(info)
   }
 
-  render() {
+  render(): React.ReactNode {
     if (this.state.hasError) {
       if (this.props.getFallbackText) {
         return <Text>{this.props.getFallbackText()}</Text>
