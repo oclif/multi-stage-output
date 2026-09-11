@@ -1,3 +1,12 @@
+## [1.0.1](https://github.com/oclif/multi-stage-output/compare/1.0.0...1.0.1) (2026-09-11)
+
+
+### Bug Fixes
+
+* **deps:** bump ink to v7 and react to v19 @W-17608377@ ([6f21cb1](https://github.com/oclif/multi-stage-output/commit/6f21cb15536ade0303c0fff4af3b713eceed6ac7))
+
+
+
 # [1.0.0](https://github.com/oclif/multi-stage-output/compare/0.9.0...1.0.0) (2026-08-31)
 
 
