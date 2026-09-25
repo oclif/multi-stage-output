@@ -1,3 +1,12 @@
+## [1.0.2](https://github.com/oclif/multi-stage-output/compare/1.0.1...1.0.2) (2026-09-25)
+
+
+### Bug Fixes
+
+* **deps:** bump js-yaml from 4.1.1 to 4.3.2 ([1180520](https://github.com/oclif/multi-stage-output/commit/1180520f0bc7c3cf109a853eadea587b9938d8ff))
+
+
+
 ## [1.0.1](https://github.com/oclif/multi-stage-output/compare/1.0.0...1.0.1) (2026-09-11)
 
 
