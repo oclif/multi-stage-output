@@ -1,3 +1,12 @@
+## [1.0.4](https://github.com/oclif/multi-stage-output/compare/1.0.3...1.0.4) (2026-10-09)
+
+
+### Bug Fixes
+
+* **deps:** bump baseline-browser-mapping from 2.8.23 to 2.11.21 ([01eeb72](https://github.com/oclif/multi-stage-output/commit/01eeb723045948c80dc52cf4033c3726818bdad3))
+
+
+
 ## [1.0.3](https://github.com/oclif/multi-stage-output/compare/1.0.2...1.0.3) (2026-10-09)
 
 
