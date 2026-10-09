@@ -1,3 +1,12 @@
+## [1.0.3](https://github.com/oclif/multi-stage-output/compare/1.0.2...1.0.3) (2026-10-09)
+
+
+### Bug Fixes
+
+* **deps:** bump source-map-js from 1.2.1 to 1.2.2 ([2be9807](https://github.com/oclif/multi-stage-output/commit/2be98073403b94b6385bef0ea72f9f1bd69ae46f))
+
+
+
 ## [1.0.2](https://github.com/oclif/multi-stage-output/compare/1.0.1...1.0.2) (2026-09-25)
 
 
