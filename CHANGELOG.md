@@ -1,3 +1,12 @@
+## [1.0.6](https://github.com/oclif/multi-stage-output/compare/1.0.5...1.0.6) (2026-10-10)
+
+
+### Bug Fixes
+
+* **deps:** bump @humanfs/node from 0.16.6 to 0.16.8 ([e049076](https://github.com/oclif/multi-stage-output/commit/e049076b918dee51c22c2eb80754768ef414b90d))
+
+
+
 ## [1.0.5](https://github.com/oclif/multi-stage-output/compare/1.0.4...1.0.5) (2026-10-09)
 
 
