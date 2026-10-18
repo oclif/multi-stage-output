@@ -1,3 +1,12 @@
+## [1.0.7](https://github.com/oclif/multi-stage-output/compare/1.0.6...1.0.7) (2026-10-18)
+
+
+### Bug Fixes
+
+* **deps:** bump @oclif/core from 5.0.0 to 5.1.8 ([a970faf](https://github.com/oclif/multi-stage-output/commit/a970faf3f739503078edb3441489aa6a3d1d033d))
+
+
+
 ## [1.0.6](https://github.com/oclif/multi-stage-output/compare/1.0.5...1.0.6) (2026-10-10)
 
 
