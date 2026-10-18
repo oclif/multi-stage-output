@@ -5,7 +5,7 @@
   "author": "Salesforce",
   "bugs": "https://github.com/oclif/multi-stage-output/issues",
   "dependencies": {
-    "@oclif/core": "^5.0.0",
+    "@oclif/core": "^5.1.8",
     "@types/react": "^19.3.0",
     "cli-spinners": "^2",
     "figures": "^6.1.0",
