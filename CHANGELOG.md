@@ -1,3 +1,12 @@
+## [1.0.9](https://github.com/oclif/multi-stage-output/compare/1.0.8...1.0.9) (2026-10-25)
+
+
+### Bug Fixes
+
+* **deps:** bump fast-uri from 3.1.7 to 3.1.9 ([bf3dc5f](https://github.com/oclif/multi-stage-output/commit/bf3dc5f0c4f7a49c103b5a94f362d92911009264))
+
+
+
 ## [1.0.8](https://github.com/oclif/multi-stage-output/compare/1.0.7...1.0.8) (2026-10-25)
 
 
