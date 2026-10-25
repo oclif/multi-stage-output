@@ -1,3 +1,12 @@
+## [1.0.8](https://github.com/oclif/multi-stage-output/compare/1.0.7...1.0.8) (2026-10-25)
+
+
+### Bug Fixes
+
+* **deps:** bump react from 19.3.0 to 19.3.1 ([162e72f](https://github.com/oclif/multi-stage-output/commit/162e72fb9f836900fb71621ae6aa041d1de8c9a4))
+
+
+
 ## [1.0.7](https://github.com/oclif/multi-stage-output/compare/1.0.6...1.0.7) (2026-10-18)
 
 
